@@ -12,6 +12,7 @@ const config: ExpoConfig = {
   ios: {
     supportsTablet: true,
     icon: './assets/cadence.icon',
+    bundleIdentifier: 'dev.kadi.cadence',
   },
   android: {
     adaptiveIcon: {
@@ -45,6 +46,11 @@ const config: ExpoConfig = {
   experiments: {
     typedRoutes: true,
     reactCompiler: true,
+  },
+  extra: {
+    eas: {
+      projectId: 'd2bef239-3212-4e73-b7ba-dc29e7272621',
+    },
   },
 };
 
