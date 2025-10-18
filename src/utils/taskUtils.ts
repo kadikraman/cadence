@@ -58,6 +58,24 @@ export const isTaskDueTomorrow = (task: Task): boolean => {
   );
 };
 
+export const isTaskOverdue = (task: Task): boolean => {
+  const today = new Date();
+  const dueDate = new Date(task.nextDueDate);
+
+  const todayDateOnly = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate()
+  );
+  const dueDateOnly = new Date(
+    dueDate.getFullYear(),
+    dueDate.getMonth(),
+    dueDate.getDate()
+  );
+
+  return dueDateOnly < todayDateOnly;
+};
+
 export const isTaskDueInNext7Days = (task: Task): boolean => {
   const today = new Date();
   const nextWeek = new Date();
@@ -70,10 +88,7 @@ export const isTaskDueInNext7Days = (task: Task): boolean => {
 export const getTaskDueStatus = (
   task: Task
 ): 'overdue' | 'due-today' | 'due-tomorrow' | 'due-soon' | 'due-later' => {
-  const today = new Date();
-  const dueDate = new Date(task.nextDueDate);
-
-  if (dueDate < today) return 'overdue';
+  if (isTaskOverdue(task)) return 'overdue';
   if (isTaskDueToday(task)) return 'due-today';
   if (isTaskDueTomorrow(task)) return 'due-tomorrow';
   if (isTaskDueInNext7Days(task)) return 'due-soon';

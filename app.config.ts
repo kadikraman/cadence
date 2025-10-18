@@ -1,7 +1,7 @@
 import { ExpoConfig } from 'expo/config';
 
 const config: ExpoConfig = {
-  name: 'cadence',
+  name: 'Cadence',
   slug: 'cadence',
   version: '1.0.0',
   orientation: 'portrait',
@@ -13,6 +13,9 @@ const config: ExpoConfig = {
     supportsTablet: true,
     icon: './assets/cadence.icon',
     bundleIdentifier: 'dev.kadi.cadence',
+    infoPlist: {
+      ITSAppUsesNonExemptEncryption: false,
+    },
   },
   android: {
     adaptiveIcon: {

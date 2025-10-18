@@ -10,7 +10,11 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { CadenceType, TaskFormData } from '../utils/taskUtils';
+import {
+  CadenceType,
+  TaskFormData,
+  calculateNextDueDate,
+} from '../utils/taskUtils';
 
 interface TaskFormProps {
   visible: boolean;
@@ -343,9 +347,12 @@ export default function TaskForm({
                     styles.selectedDateOption,
                 ]}
                 onPress={() => {
-                  const tomorrow = new Date();
-                  tomorrow.setDate(tomorrow.getDate() + 1);
-                  setNextDueDate(tomorrow);
+                  const nextIntervalDate = calculateNextDueDate(
+                    new Date(),
+                    cadenceType,
+                    cadenceInterval
+                  );
+                  setNextDueDate(nextIntervalDate);
                 }}
               >
                 <SymbolView
