@@ -1,7 +1,9 @@
+import { EvilIcons } from '@expo/vector-icons';
 import { SymbolView } from 'expo-symbols';
 import React, { useState } from 'react';
 import {
   FlatList,
+  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -79,6 +81,7 @@ export default function TaskList({
         style={styles.emptyStateIcon}
         tintColor="#8E8E93"
         type="hierarchical"
+        fallback={<EvilIcons name="check" size={48} color="#8E8E93" />}
       />
       <Text style={styles.emptyStateText}>
         {filter === 'all'
@@ -106,6 +109,13 @@ export default function TaskList({
             style={styles.filterIcon}
             tintColor={filter === 'all' ? 'white' : '#8E8E93'}
             type="monochrome"
+            fallback={
+              <EvilIcons
+                name="navicon"
+                size={12}
+                color={filter === 'all' ? 'white' : '#8E8E93'}
+              />
+            }
           />
           <Text
             style={[
@@ -129,6 +139,13 @@ export default function TaskList({
             style={styles.filterIcon}
             tintColor={filter === 'due-today' ? 'white' : '#8E8E93'}
             type="monochrome"
+            fallback={
+              <EvilIcons
+                name="clock"
+                size={12}
+                color={filter === 'due-today' ? 'white' : '#8E8E93'}
+              />
+            }
           />
           <Text
             style={[
@@ -152,6 +169,13 @@ export default function TaskList({
             style={styles.filterIcon}
             tintColor={filter === 'due-tomorrow' ? 'white' : '#8E8E93'}
             type="monochrome"
+            fallback={
+              <EvilIcons
+                name="clock"
+                size={12}
+                color={filter === 'due-tomorrow' ? 'white' : '#8E8E93'}
+              />
+            }
           />
           <Text
             style={[
@@ -175,6 +199,13 @@ export default function TaskList({
             style={styles.filterIcon}
             tintColor={filter === 'due-week' ? 'white' : '#8E8E93'}
             type="monochrome"
+            fallback={
+              <EvilIcons
+                name="calendar"
+                size={12}
+                color={filter === 'due-week' ? 'white' : '#8E8E93'}
+              />
+            }
           />
           <Text
             style={[
@@ -211,6 +242,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderBottomWidth: 0.5,
     borderBottomColor: '#C6C6C8',
+    ...(Platform.OS === 'web' && {
+      maxWidth: 800,
+      alignSelf: 'center',
+      width: '100%',
+    }),
   },
   filterButton: {
     flexDirection: 'row',
@@ -237,8 +273,13 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   listContainer: {
-    padding: 20,
+    padding: Platform.OS === 'web' ? 20 : 20,
     flexGrow: 1,
+    ...(Platform.OS === 'web' && {
+      maxWidth: 800,
+      alignSelf: 'center',
+      width: '100%',
+    }),
   },
   emptyState: {
     flex: 1,

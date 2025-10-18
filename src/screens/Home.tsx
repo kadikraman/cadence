@@ -1,9 +1,11 @@
+import { EvilIcons } from '@expo/vector-icons';
 import { SymbolView } from 'expo-symbols';
 import React, { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import TaskForm from '../components/TaskForm';
 import TaskList from '../components/TaskList';
+import WebLayout from '../components/WebLayout';
 import { useTasks } from '../hooks/useTasks';
 import { db, Task } from '../lib/db';
 import { TaskFormData } from '../utils/taskUtils';
@@ -67,80 +69,93 @@ export default function Home() {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <SymbolView
-            name="clock"
-            style={styles.loadingIcon}
-            tintColor="#007AFF"
-            type="hierarchical"
-          />
-          <Text style={styles.loadingText}>Loading tasks...</Text>
-        </View>
-      </SafeAreaView>
+      <WebLayout>
+        <SafeAreaView style={styles.container}>
+          <View style={styles.loadingContainer}>
+            <SymbolView
+              name="clock"
+              style={styles.loadingIcon}
+              tintColor="#007AFF"
+              type="hierarchical"
+              fallback={<EvilIcons name="clock" size={32} color="#007AFF" />}
+            />
+            <Text style={styles.loadingText}>Loading tasks...</Text>
+          </View>
+        </SafeAreaView>
+      </WebLayout>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <View style={styles.titleContainer}>
-            <SymbolView
-              name="checkmark.circle.fill"
-              style={styles.appIcon}
-              tintColor="#007AFF"
-              type="hierarchical"
-            />
-            <View>
-              <Text style={styles.title}>Cadence</Text>
-              <Text style={styles.subtitle}>{user.email}</Text>
+    <WebLayout>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.header}>
+          <View style={styles.headerLeft}>
+            <View style={styles.titleContainer}>
+              <SymbolView
+                name="checkmark.circle.fill"
+                style={styles.appIcon}
+                tintColor="#007AFF"
+                type="hierarchical"
+                fallback={<EvilIcons name="check" size={32} color="#007AFF" />}
+              />
+              <View>
+                <Text style={styles.title}>Cadence</Text>
+                <Text style={styles.subtitle}>{user.email}</Text>
+              </View>
             </View>
           </View>
-        </View>
-        <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
-          <SymbolView
-            name="rectangle.portrait.and.arrow.right"
-            style={styles.signOutIcon}
-            tintColor="white"
-            type="monochrome"
-          />
-          <Text style={styles.signOutText}>Sign Out</Text>
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.content}>
-        <View style={styles.addButtonContainer}>
           <TouchableOpacity
-            style={styles.addButton}
-            onPress={() => setShowTaskForm(true)}
+            style={styles.signOutButton}
+            onPress={handleSignOut}
           >
             <SymbolView
-              name="plus.circle.fill"
-              style={styles.addButtonIcon}
+              name="rectangle.portrait.and.arrow.right"
+              style={styles.signOutIcon}
               tintColor="white"
               type="monochrome"
+              fallback={
+                <EvilIcons name="arrow-right" size={16} color="white" />
+              }
             />
-            <Text style={styles.addButtonText}>Add Task</Text>
+            <Text style={styles.signOutText}>Sign Out</Text>
           </TouchableOpacity>
         </View>
 
-        <TaskList
-          tasks={tasks}
-          onComplete={handleCompleteTask}
-          onEdit={handleEditTaskClick}
-          onDelete={handleDeleteTask}
-        />
-      </View>
+        <View style={styles.content}>
+          <View style={styles.addButtonContainer}>
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={() => setShowTaskForm(true)}
+            >
+              <SymbolView
+                name="plus.circle.fill"
+                style={styles.addButtonIcon}
+                tintColor="white"
+                type="monochrome"
+                fallback={<EvilIcons name="plus" size={20} color="white" />}
+              />
+              <Text style={styles.addButtonText}>Add Task</Text>
+            </TouchableOpacity>
+          </View>
 
-      <TaskForm
-        visible={showTaskForm}
-        onClose={handleCloseTaskForm}
-        onSubmit={editingTask ? handleEditTask : handleCreateTask}
-        initialData={getInitialFormData()}
-        title={editingTask ? 'Edit Task' : 'Create Task'}
-      />
-    </SafeAreaView>
+          <TaskList
+            tasks={tasks}
+            onComplete={handleCompleteTask}
+            onEdit={handleEditTaskClick}
+            onDelete={handleDeleteTask}
+          />
+        </View>
+
+        <TaskForm
+          visible={showTaskForm}
+          onClose={handleCloseTaskForm}
+          onSubmit={editingTask ? handleEditTask : handleCreateTask}
+          initialData={getInitialFormData()}
+          title={editingTask ? 'Edit Task' : 'Create Task'}
+        />
+      </SafeAreaView>
+    </WebLayout>
   );
 }
 

@@ -1,3 +1,4 @@
+import { EvilIcons } from '@expo/vector-icons';
 import { SFSymbol, SymbolView } from 'expo-symbols';
 import React, { useEffect, useState } from 'react';
 import {
@@ -150,6 +151,51 @@ export default function TaskForm({
     return `Every ${interval} ${singular}s`;
   };
 
+  const getCadenceFallbackIcon = (type: CadenceType) => {
+    switch (type) {
+      case 'daily':
+        return (
+          <EvilIcons
+            name="clock"
+            size={20}
+            color={cadenceType === type ? '#007AFF' : '#8E8E93'}
+          />
+        );
+      case 'weekly':
+        return (
+          <EvilIcons
+            name="calendar"
+            size={20}
+            color={cadenceType === type ? '#007AFF' : '#8E8E93'}
+          />
+        );
+      case 'monthly':
+        return (
+          <EvilIcons
+            name="calendar"
+            size={20}
+            color={cadenceType === type ? '#007AFF' : '#8E8E93'}
+          />
+        );
+      case 'yearly':
+        return (
+          <EvilIcons
+            name="calendar"
+            size={20}
+            color={cadenceType === type ? '#007AFF' : '#8E8E93'}
+          />
+        );
+      default:
+        return (
+          <EvilIcons
+            name="clock"
+            size={20}
+            color={cadenceType === type ? '#007AFF' : '#8E8E93'}
+          />
+        );
+    }
+  };
+
   return (
     <Modal
       visible={visible}
@@ -170,6 +216,9 @@ export default function TaskForm({
                   style={styles.saveButtonIcon}
                   tintColor="#007AFF"
                   type="hierarchical"
+                  fallback={
+                    <EvilIcons name="clock" size={16} color="#007AFF" />
+                  }
                 />
               ) : (
                 <SymbolView
@@ -177,6 +226,9 @@ export default function TaskForm({
                   style={styles.saveButtonIcon}
                   tintColor="#007AFF"
                   type="hierarchical"
+                  fallback={
+                    <EvilIcons name="check" size={16} color="#007AFF" />
+                  }
                 />
               )}
               <Text
@@ -199,6 +251,7 @@ export default function TaskForm({
                 style={styles.labelIcon}
                 tintColor="#007AFF"
                 type="hierarchical"
+                fallback={<EvilIcons name="pencil" size={16} color="#007AFF" />}
               />
               <Text style={styles.label}>Task Name *</Text>
             </View>
@@ -218,6 +271,7 @@ export default function TaskForm({
                 style={styles.labelIcon}
                 tintColor="#007AFF"
                 type="hierarchical"
+                fallback={<EvilIcons name="pencil" size={16} color="#007AFF" />}
               />
               <Text style={styles.label}>Description</Text>
             </View>
@@ -238,6 +292,9 @@ export default function TaskForm({
                 style={styles.labelIcon}
                 tintColor="#007AFF"
                 type="hierarchical"
+                fallback={
+                  <EvilIcons name="refresh" size={16} color="#007AFF" />
+                }
               />
               <Text style={styles.label}>Cadence</Text>
             </View>
@@ -260,6 +317,7 @@ export default function TaskForm({
                       cadenceType === option.type ? '#007AFF' : '#8E8E93'
                     }
                     type="hierarchical"
+                    fallback={getCadenceFallbackIcon(option.type)}
                   />
                   <Text
                     style={[
@@ -308,6 +366,9 @@ export default function TaskForm({
                 style={styles.labelIcon}
                 tintColor="#007AFF"
                 type="hierarchical"
+                fallback={
+                  <EvilIcons name="calendar" size={16} color="#007AFF" />
+                }
               />
               <Text style={styles.label}>Next Due Date</Text>
             </View>
@@ -329,6 +390,17 @@ export default function TaskForm({
                       : '#8E8E93'
                   }
                   type="hierarchical"
+                  fallback={
+                    <EvilIcons
+                      name="clock"
+                      size={16}
+                      color={
+                        nextDueDate.toDateString() === new Date().toDateString()
+                          ? '#007AFF'
+                          : '#8E8E93'
+                      }
+                    />
+                  }
                 />
                 <Text
                   style={[
@@ -364,6 +436,17 @@ export default function TaskForm({
                       : '#8E8E93'
                   }
                   type="hierarchical"
+                  fallback={
+                    <EvilIcons
+                      name="arrow-right"
+                      size={16}
+                      color={
+                        nextDueDate.toDateString() !== new Date().toDateString()
+                          ? '#007AFF'
+                          : '#8E8E93'
+                      }
+                    />
+                  }
                 />
                 <Text
                   style={[
@@ -382,6 +465,9 @@ export default function TaskForm({
                 style={styles.datePreviewIcon}
                 tintColor="#8E8E93"
                 type="hierarchical"
+                fallback={
+                  <EvilIcons name="calendar" size={16} color="#8E8E93" />
+                }
               />
               <Text style={styles.datePreview}>
                 Due: {nextDueDate.toLocaleDateString()}

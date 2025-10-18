@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import WebLayout from '../components/WebLayout';
 import { db } from '../lib/db';
 
 interface MagicCodeVerificationProps {
@@ -54,51 +55,53 @@ export default function MagicCodeVerification({
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <View style={styles.content}>
-        <Text style={styles.title}>Enter Magic Code</Text>
-        <Text style={styles.subtitle}>We sent a magic code to {email}</Text>
+    <WebLayout maxWidth={400}>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <View style={styles.content}>
+          <Text style={styles.title}>Enter Magic Code</Text>
+          <Text style={styles.subtitle}>We sent a magic code to {email}</Text>
 
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter magic code"
-            value={code}
-            onChangeText={setCode}
-            keyboardType="number-pad"
-            autoCapitalize="none"
-            autoCorrect={false}
-            editable={!isLoading}
-            maxLength={6}
-          />
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter magic code"
+              value={code}
+              onChangeText={setCode}
+              keyboardType="number-pad"
+              autoCapitalize="none"
+              autoCorrect={false}
+              editable={!isLoading}
+              maxLength={6}
+            />
+          </View>
+
+          <TouchableOpacity
+            style={[styles.button, isLoading && styles.buttonDisabled]}
+            onPress={handleVerifyCode}
+            disabled={isLoading}
+          >
+            <Text style={styles.buttonText}>
+              {isLoading ? 'Verifying...' : 'Verify Code'}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.resendButton}
+            onPress={handleResendCode}
+            disabled={isLoading}
+          >
+            <Text style={styles.resendText}>Resend Code</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.backButton} onPress={onBack}>
+            <Text style={styles.backText}>Back to Login</Text>
+          </TouchableOpacity>
         </View>
-
-        <TouchableOpacity
-          style={[styles.button, isLoading && styles.buttonDisabled]}
-          onPress={handleVerifyCode}
-          disabled={isLoading}
-        >
-          <Text style={styles.buttonText}>
-            {isLoading ? 'Verifying...' : 'Verify Code'}
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.resendButton}
-          onPress={handleResendCode}
-          disabled={isLoading}
-        >
-          <Text style={styles.resendText}>Resend Code</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.backButton} onPress={onBack}>
-          <Text style={styles.backText}>Back to Login</Text>
-        </TouchableOpacity>
-      </View>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </WebLayout>
   );
 }
 

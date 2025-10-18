@@ -1,6 +1,14 @@
+import { EvilIcons } from '@expo/vector-icons';
 import { SymbolView } from 'expo-symbols';
 import React from 'react';
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Alert,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { Task } from '../lib/db';
 import { formatDueDate, getTaskDueStatus } from '../utils/taskUtils';
 
@@ -20,6 +28,11 @@ export default function TaskItem({
   const dueStatus = getTaskDueStatus(task);
 
   const handleDelete = () => {
+    if (Platform.OS === 'web') {
+      onDelete(task);
+      return;
+    }
+
     Alert.alert('Delete Task', 'Are you sure you want to delete this task?', [
       {
         text: 'Cancel',
@@ -91,6 +104,7 @@ export default function TaskItem({
               style={styles.statusIcon}
               tintColor="white"
               type="monochrome"
+              fallback={<EvilIcons name="clock" size={12} color="white" />}
             />
             <Text style={styles.statusText}>{getStatusText()}</Text>
           </View>
@@ -107,6 +121,7 @@ export default function TaskItem({
               style={styles.dueDateIcon}
               tintColor="#007AFF"
               type="hierarchical"
+              fallback={<EvilIcons name="calendar" size={14} color="#007AFF" />}
             />
             <Text style={styles.dueDate}>
               {formatDueDate(task.nextDueDate)}
@@ -118,6 +133,7 @@ export default function TaskItem({
               style={styles.cadenceIcon}
               tintColor="#8E8E93"
               type="monochrome"
+              fallback={<EvilIcons name="refresh" size={14} color="#8E8E93" />}
             />
             <Text style={styles.cadence}>
               {(() => {
@@ -158,6 +174,7 @@ export default function TaskItem({
             style={styles.actionIcon}
             tintColor="white"
             type="monochrome"
+            fallback={<EvilIcons name="check" size={20} color="white" />}
           />
         </TouchableOpacity>
 
@@ -170,6 +187,7 @@ export default function TaskItem({
             style={styles.actionIcon}
             tintColor="white"
             type="monochrome"
+            fallback={<EvilIcons name="pencil" size={20} color="white" />}
           />
         </TouchableOpacity>
 
@@ -182,6 +200,7 @@ export default function TaskItem({
             style={styles.actionIcon}
             tintColor="white"
             type="monochrome"
+            fallback={<EvilIcons name="trash" size={20} color="white" />}
           />
         </TouchableOpacity>
       </View>
@@ -204,6 +223,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 3,
+    ...(Platform.OS === 'web' && {
+      maxWidth: 800,
+      alignSelf: 'center',
+      width: '100%',
+    }),
   },
   content: {
     flex: 1,

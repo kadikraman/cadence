@@ -39,7 +39,7 @@ const config: ExpoConfig = {
         image: './assets/icon-transparent.png',
         imageWidth: 200,
         resizeMode: 'contain',
-        backgroundColor: '#0F1419',
+        backgroundColor: '#F8F9FA',
         dark: {
           backgroundColor: '#000000',
         },
