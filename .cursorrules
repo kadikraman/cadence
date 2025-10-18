@@ -1,0 +1,92 @@
+# Cursor Rules for Cadence React Native/Expo Project
+
+## Project Context
+- This is a React Native/Expo project using TypeScript
+- Bun for package management
+- Uses Expo Router for navigation
+- Follows modern React patterns with hooks and functional components
+
+## Code Style & Standards
+- Always use TypeScript with strict typing
+- Use functional components with hooks, not class components
+- Follow React Native best practices for performance
+- Use Expo's built-in components when available
+- Prefer const assertions and proper TypeScript interfaces
+- Use meaningful variable and function names
+- Do not write comments any code comments
+
+## File Organization
+- Keep components in separate files when they exceed 50 lines
+- Use PascalCase for component files (e.g., UserProfile.tsx)
+- Use camelCase for utility files and hooks
+- Group related files in folders when appropriate
+
+## React Native Specific
+- Always use StyleSheet.create() for styles instead of inline styles
+- Use SafeAreaView or useSafeAreaInsets for proper screen boundaries
+- Handle loading and error states appropriately
+- Use proper navigation patterns with Expo Router
+- Optimize images using expo-image instead of Image component
+
+## Performance
+- Use React.memo() for components that don't need frequent re-renders
+- Implement proper key props for lists
+- Avoid creating objects/functions in render methods
+- Use useCallback and useMemo when appropriate
+
+## Error Handling
+- Always handle async operations with try-catch
+- Provide meaningful error messages to users
+- Use proper loading states for async operations
+
+## Testing
+- Write unit tests for utility functions
+- Test component behavior, not implementation details
+- Use descriptive test names
+
+## Expo Documentation
+- See https://docs.expo.dev/llms.txt for documentation on packages and guides
+
+## Dependencies
+- Always install packages with `npx expo install`
+
+## Folder structure
+Use the following folder structure
+├── assets/
+├── scripts/
+├── src/
+│   ├── app/
+│   │   ├── api/                    # API routes in a separate folder
+│   │   │   ├── event+api.ts
+│   │   │   └── user+api.ts
+│   │   ├── _layout.tsx
+│   │   ├── _layout.web.tsx         # separate layout file for web
+│   │   ├── index.tsx
+│   │   ├── events.tsx
+│   │   └── settings.tsx
+│   ├── components/
+│   │   ├── Table/
+│   │   │   ├── Cell.tsx
+│   │   │   └── index.tsx
+│   │   ├── BarChart.tsx
+│   │   ├── BarChart.web.tsx        # separate components for web and native
+│   │   └── Button.tsx
+│   ├── screens/
+│   │   ├── Home/
+│   │   │   ├── Card.tsx            # component only used in the home page
+│   │   │   └── index.tsx           # returned from /src/app/index.tsx
+│   │   ├── Events.tsx              # returned from /src/app/events.tsx
+│   │   └── Settings.tsx            # returned from /src/app/settings.tsx
+│   ├── server/                     # code used in /api
+│   │   ├── auth.ts
+│   │   └── db.ts
+│   ├── utils/                      # reusable utilities
+│   │   ├── formatDate.ts
+│   │   ├── formatDate.test.ts      # unit test next to the file being tested
+│   │   └── pluralize.ts
+│   ├── hooks/
+│   │   ├── useAppState.ts
+│   │   └── useTheme.ts
+├── app.json
+├── eas.json
+└── package.json
