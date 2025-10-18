@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+bun.lock
+
+# Build outputs
+dist/
+build/
+.expo/
+.expo-shared/
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Logs
+*.log
+
+# Coverage
+coverage/
+
+# Temporary files
+tmp/
+temp/
