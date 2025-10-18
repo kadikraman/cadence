@@ -1,43 +1,43 @@
-import { ExpoConfig } from "expo/config";
+import { ExpoConfig } from 'expo/config';
 
 const config: ExpoConfig = {
-  name: "cadence",
-  slug: "cadence",
-  version: "1.0.0",
-  orientation: "portrait",
-  icon: "./assets/icon.png",
-  scheme: "cadence",
-  userInterfaceStyle: "automatic",
+  name: 'cadence',
+  slug: 'cadence',
+  version: '1.0.0',
+  orientation: 'portrait',
+  icon: './assets/icon.png',
+  scheme: 'cadence',
+  userInterfaceStyle: 'automatic',
   newArchEnabled: true,
   ios: {
     supportsTablet: true,
-    icon: "./assets/cadence.icon",
+    icon: './assets/cadence.icon',
   },
   android: {
     adaptiveIcon: {
-      backgroundColor: "#E6F4FE",
-      foregroundImage: "./assets/images/android-icon-foreground.png",
-      backgroundImage: "./assets/images/android-icon-background.png",
-      monochromeImage: "./assets/images/android-icon-monochrome.png",
+      backgroundColor: '#E6F4FE',
+      foregroundImage: './assets/images/android-icon-foreground.png',
+      backgroundImage: './assets/images/android-icon-background.png',
+      monochromeImage: './assets/images/android-icon-monochrome.png',
     },
     edgeToEdgeEnabled: true,
     predictiveBackGestureEnabled: false,
   },
   web: {
-    output: "static",
-    favicon: "./assets/images/favicon.png",
+    output: 'static',
+    favicon: './assets/images/favicon.png',
   },
   plugins: [
-    "expo-router",
+    'expo-router',
     [
-      "expo-splash-screen",
+      'expo-splash-screen',
       {
-        image: "./assets/icon-transparent.png",
+        image: './assets/icon-transparent.png',
         imageWidth: 200,
-        resizeMode: "contain",
-        backgroundColor: "#0F1419",
+        resizeMode: 'contain',
+        backgroundColor: '#0F1419',
         dark: {
-          backgroundColor: "#000000",
+          backgroundColor: '#000000',
         },
       },
     ],

@@ -1,3 +1,4 @@
+import { SymbolView } from 'expo-symbols';
 import React, { useState } from 'react';
 import {
   FlatList,
@@ -30,7 +31,7 @@ export default function TaskList({
   onEdit,
   onDelete,
 }: TaskListProps) {
-  const [filter, setFilter] = useState<FilterType>('all');
+  const [filter, setFilter] = useState<FilterType>('due-today');
 
   const getFilteredTasks = () => {
     const sortedTasks = sortTasksByDueDate(tasks);
@@ -73,6 +74,12 @@ export default function TaskList({
 
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
+      <SymbolView
+        name="checklist"
+        style={styles.emptyStateIcon}
+        tintColor="#8E8E93"
+        type="hierarchical"
+      />
       <Text style={styles.emptyStateText}>
         {filter === 'all'
           ? 'No tasks yet. Create your first recurring task!'
@@ -94,6 +101,12 @@ export default function TaskList({
           style={[styles.filterButton, filter === 'all' && styles.activeFilter]}
           onPress={() => setFilter('all')}
         >
+          <SymbolView
+            name="list.bullet"
+            style={styles.filterIcon}
+            tintColor={filter === 'all' ? 'white' : '#8E8E93'}
+            type="monochrome"
+          />
           <Text
             style={[
               styles.filterText,
@@ -111,6 +124,12 @@ export default function TaskList({
           ]}
           onPress={() => setFilter('due-today')}
         >
+          <SymbolView
+            name="sun.max"
+            style={styles.filterIcon}
+            tintColor={filter === 'due-today' ? 'white' : '#8E8E93'}
+            type="monochrome"
+          />
           <Text
             style={[
               styles.filterText,
@@ -128,6 +147,12 @@ export default function TaskList({
           ]}
           onPress={() => setFilter('due-tomorrow')}
         >
+          <SymbolView
+            name="moon"
+            style={styles.filterIcon}
+            tintColor={filter === 'due-tomorrow' ? 'white' : '#8E8E93'}
+            type="monochrome"
+          />
           <Text
             style={[
               styles.filterText,
@@ -145,6 +170,12 @@ export default function TaskList({
           ]}
           onPress={() => setFilter('due-week')}
         >
+          <SymbolView
+            name="calendar"
+            style={styles.filterIcon}
+            tintColor={filter === 'due-week' ? 'white' : '#8E8E93'}
+            type="monochrome"
+          />
           <Text
             style={[
               styles.filterText,
@@ -174,44 +205,58 @@ const styles = StyleSheet.create({
   },
   filterContainer: {
     flexDirection: 'row',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    justifyContent: 'space-between',
+    paddingHorizontal: 4,
+    paddingVertical: 8,
     backgroundColor: 'white',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-    gap: 8,
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#C6C6C8',
   },
   filterButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    backgroundColor: '#f0f0f0',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: '#F2F2F7',
+    gap: 6,
   },
   activeFilter: {
     backgroundColor: '#007AFF',
   },
+  filterIcon: {
+    width: 12,
+    height: 12,
+  },
   filterText: {
-    fontSize: 14,
-    color: '#666',
+    fontSize: 12,
+    color: '#8E8E93',
     fontWeight: '500',
   },
   activeFilterText: {
     color: 'white',
   },
   listContainer: {
-    padding: 16,
+    padding: 20,
     flexGrow: 1,
   },
   emptyState: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 60,
+    paddingVertical: 80,
+    gap: 16,
+  },
+  emptyStateIcon: {
+    width: 48,
+    height: 48,
   },
   emptyStateText: {
-    fontSize: 16,
+    fontSize: 17,
     color: '#8E8E93',
     textAlign: 'center',
     lineHeight: 24,
+    fontWeight: '400',
+    maxWidth: 280,
   },
 });

@@ -1,3 +1,4 @@
+import { SymbolView } from 'expo-symbols';
 import React, { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -68,6 +69,12 @@ export default function Home() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
+          <SymbolView
+            name="clock"
+            style={styles.loadingIcon}
+            tintColor="#007AFF"
+            type="hierarchical"
+          />
           <Text style={styles.loadingText}>Loading tasks...</Text>
         </View>
       </SafeAreaView>
@@ -77,11 +84,27 @@ export default function Home() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <View>
-          <Text style={styles.title}>Cadence</Text>
-          <Text style={styles.subtitle}>{user.email}</Text>
+        <View style={styles.headerLeft}>
+          <View style={styles.titleContainer}>
+            <SymbolView
+              name="checkmark.circle.fill"
+              style={styles.appIcon}
+              tintColor="#007AFF"
+              type="hierarchical"
+            />
+            <View>
+              <Text style={styles.title}>Cadence</Text>
+              <Text style={styles.subtitle}>{user.email}</Text>
+            </View>
+          </View>
         </View>
         <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
+          <SymbolView
+            name="rectangle.portrait.and.arrow.right"
+            style={styles.signOutIcon}
+            tintColor="white"
+            type="monochrome"
+          />
           <Text style={styles.signOutText}>Sign Out</Text>
         </TouchableOpacity>
       </View>
@@ -92,7 +115,13 @@ export default function Home() {
             style={styles.addButton}
             onPress={() => setShowTaskForm(true)}
           >
-            <Text style={styles.addButtonText}>+ Add Task</Text>
+            <SymbolView
+              name="plus.circle.fill"
+              style={styles.addButtonIcon}
+              tintColor="white"
+              type="monochrome"
+            />
+            <Text style={styles.addButtonText}>Add Task</Text>
           </TouchableOpacity>
         </View>
 
@@ -118,66 +147,108 @@ export default function Home() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F2F2F7',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    gap: 16,
+  },
+  loadingIcon: {
+    width: 32,
+    height: 32,
   },
   loadingText: {
-    fontSize: 16,
-    color: '#666',
+    fontSize: 17,
+    color: '#8E8E93',
+    fontWeight: '400',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
     backgroundColor: 'white',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#C6C6C8',
+  },
+  headerLeft: {
+    flex: 1,
+  },
+  titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  appIcon: {
+    width: 32,
+    height: 32,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#1D1D1F',
+    letterSpacing: -0.5,
   },
   subtitle: {
-    fontSize: 14,
-    color: '#666',
+    fontSize: 15,
+    color: '#8E8E93',
     marginTop: 2,
+    fontWeight: '400',
   },
   signOutButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
     backgroundColor: '#FF3B30',
+    gap: 6,
+  },
+  signOutIcon: {
+    width: 16,
+    height: 16,
   },
   signOutText: {
     color: 'white',
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '600',
   },
   content: {
     flex: 1,
   },
   addButtonContainer: {
-    padding: 16,
+    padding: 20,
     backgroundColor: 'white',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#C6C6C8',
   },
   addButton: {
-    backgroundColor: '#007AFF',
-    borderRadius: 12,
-    paddingVertical: 16,
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#007AFF',
+    borderRadius: 16,
+    paddingVertical: 18,
+    gap: 8,
+    shadowColor: '#007AFF',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  addButtonIcon: {
+    width: 20,
+    height: 20,
   },
   addButtonText: {
     color: 'white',
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '600',
   },
 });

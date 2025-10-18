@@ -1,5 +1,5 @@
-import { Stack } from "expo-router";
-import { db } from "../lib/db";
+import { Stack } from 'expo-router';
+import { db } from '../lib/db';
 
 export default function RootLayout() {
   const { isLoading, user } = db.useAuth();
@@ -14,14 +14,14 @@ export default function RootLayout() {
         <Stack.Screen
           name="login"
           options={{
-            title: "Login",
+            title: 'Login',
             headerShown: false,
           }}
         />
         <Stack.Screen
           name="verify"
           options={{
-            title: "Verify Code",
+            title: 'Verify Code',
             headerShown: false,
           }}
         />

@@ -1,5 +1,5 @@
-import { router, useLocalSearchParams } from "expo-router";
-import MagicCodeVerification from "../screens/MagicCodeVerification";
+import { router, useLocalSearchParams } from 'expo-router';
+import MagicCodeVerification from '../screens/MagicCodeVerification';
 
 export default function VerifyScreen() {
   const { email } = useLocalSearchParams<{ email: string }>();
@@ -9,7 +9,7 @@ export default function VerifyScreen() {
   };
 
   if (!email) {
-    router.replace("/login");
+    router.replace('/login');
     return null;
   }
 

@@ -29,4 +29,3 @@ const db = init({ appId: APP_ID, schema });
 
 export { db, id, schema };
 export type { Task, User };
-

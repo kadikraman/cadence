@@ -1,3 +1,4 @@
+import { SymbolView } from 'expo-symbols';
 import React from 'react';
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Task } from '../lib/db';
@@ -47,6 +48,21 @@ export default function TaskItem({
     }
   };
 
+  const getStatusIcon = () => {
+    switch (dueStatus) {
+      case 'overdue':
+        return 'exclamationmark.triangle.fill';
+      case 'due-today':
+        return 'sun.max.fill';
+      case 'due-tomorrow':
+        return 'moon.fill';
+      case 'due-soon':
+        return 'clock.fill';
+      default:
+        return 'clock';
+    }
+  };
+
   const getStatusText = () => {
     switch (dueStatus) {
       case 'overdue':
@@ -70,6 +86,12 @@ export default function TaskItem({
           <View
             style={[styles.statusBadge, { backgroundColor: getStatusColor() }]}
           >
+            <SymbolView
+              name={getStatusIcon()}
+              style={styles.statusIcon}
+              tintColor="white"
+              type="monochrome"
+            />
             <Text style={styles.statusText}>{getStatusText()}</Text>
           </View>
         </View>
@@ -79,32 +101,50 @@ export default function TaskItem({
         )}
 
         <View style={styles.footer}>
-          <Text style={styles.dueDate}>{formatDueDate(task.nextDueDate)}</Text>
-          <Text style={styles.cadence}>
-            {(() => {
-              const getSingularForm = (cadenceType: string): string => {
-                switch (cadenceType) {
-                  case 'daily':
-                    return 'day';
-                  case 'weekly':
-                    return 'week';
-                  case 'monthly':
-                    return 'month';
-                  case 'yearly':
-                    return 'year';
-                  default:
-                    return cadenceType.slice(0, -2);
+          <View style={styles.dueDateContainer}>
+            <SymbolView
+              name="calendar"
+              style={styles.dueDateIcon}
+              tintColor="#007AFF"
+              type="hierarchical"
+            />
+            <Text style={styles.dueDate}>
+              {formatDueDate(task.nextDueDate)}
+            </Text>
+          </View>
+          <View style={styles.cadenceContainer}>
+            <SymbolView
+              name="repeat"
+              style={styles.cadenceIcon}
+              tintColor="#8E8E93"
+              type="monochrome"
+            />
+            <Text style={styles.cadence}>
+              {(() => {
+                const getSingularForm = (cadenceType: string): string => {
+                  switch (cadenceType) {
+                    case 'daily':
+                      return 'day';
+                    case 'weekly':
+                      return 'week';
+                    case 'monthly':
+                      return 'month';
+                    case 'yearly':
+                      return 'year';
+                    default:
+                      return cadenceType.slice(0, -2);
+                  }
+                };
+
+                const singular = getSingularForm(task.cadenceType);
+
+                if (task.cadenceInterval === 1) {
+                  return `Every ${singular}`;
                 }
-              };
-
-              const singular = getSingularForm(task.cadenceType);
-
-              if (task.cadenceInterval === 1) {
-                return `Every ${singular}`;
-              }
-              return `Every ${task.cadenceInterval} ${singular}s`;
-            })()}
-          </Text>
+                return `Every ${task.cadenceInterval} ${singular}s`;
+              })()}
+            </Text>
+          </View>
         </View>
       </View>
 
@@ -113,21 +153,36 @@ export default function TaskItem({
           style={[styles.actionButton, styles.completeButton]}
           onPress={() => onComplete(task)}
         >
-          <Text style={styles.completeButtonText}>✓</Text>
+          <SymbolView
+            name="checkmark"
+            style={styles.actionIcon}
+            tintColor="white"
+            type="monochrome"
+          />
         </TouchableOpacity>
 
         <TouchableOpacity
           style={[styles.actionButton, styles.editButton]}
           onPress={() => onEdit(task)}
         >
-          <Text style={styles.editButtonText}>✏</Text>
+          <SymbolView
+            name="pencil"
+            style={styles.actionIcon}
+            tintColor="white"
+            type="monochrome"
+          />
         </TouchableOpacity>
 
         <TouchableOpacity
           style={[styles.actionButton, styles.deleteButton]}
           onPress={handleDelete}
         >
-          <Text style={styles.deleteButtonText}>🗑</Text>
+          <SymbolView
+            name="trash"
+            style={styles.actionIcon}
+            tintColor="white"
+            type="monochrome"
+          />
         </TouchableOpacity>
       </View>
     </View>
@@ -137,18 +192,18 @@ export default function TaskItem({
 const styles = StyleSheet.create({
   container: {
     backgroundColor: 'white',
-    borderRadius: 12,
-    marginBottom: 12,
-    padding: 16,
+    borderRadius: 16,
+    marginBottom: 16,
+    padding: 20,
     flexDirection: 'row',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
   },
   content: {
     flex: 1,
@@ -157,79 +212,105 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 8,
+    marginBottom: 12,
   },
   name: {
-    fontSize: 18,
+    fontSize: 19,
     fontWeight: '600',
-    color: '#333',
+    color: '#1D1D1F',
     flex: 1,
-    marginRight: 8,
+    marginRight: 12,
+    lineHeight: 24,
   },
   statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    gap: 4,
+  },
+  statusIcon: {
+    width: 12,
+    height: 12,
   },
   statusText: {
     color: 'white',
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '600',
   },
   description: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 8,
-    lineHeight: 20,
+    fontSize: 15,
+    color: '#8E8E93',
+    marginBottom: 12,
+    lineHeight: 22,
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  dueDateContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  dueDateIcon: {
+    width: 14,
+    height: 14,
+  },
   dueDate: {
-    fontSize: 14,
+    fontSize: 15,
     color: '#007AFF',
     fontWeight: '500',
   },
+  cadenceContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  cadenceIcon: {
+    width: 14,
+    height: 14,
+  },
   cadence: {
-    fontSize: 12,
+    fontSize: 13,
     color: '#8E8E93',
+    fontWeight: '400',
   },
   actions: {
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 12,
-    gap: 8,
+    marginLeft: 16,
+    gap: 10,
   },
   actionButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   completeButton: {
     backgroundColor: '#34C759',
   },
-  completeButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
   editButton: {
     backgroundColor: '#8E8E93',
-  },
-  editButtonText: {
-    color: 'white',
-    fontSize: 14,
   },
   deleteButton: {
     backgroundColor: '#FF3B30',
   },
-  deleteButtonText: {
-    color: 'white',
-    fontSize: 14,
+  actionIcon: {
+    width: 18,
+    height: 18,
   },
 });

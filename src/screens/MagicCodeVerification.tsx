@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -8,8 +8,8 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from "react-native";
-import { db } from "../lib/db";
+} from 'react-native';
+import { db } from '../lib/db';
 
 interface MagicCodeVerificationProps {
   email: string;
@@ -20,12 +20,12 @@ export default function MagicCodeVerification({
   email,
   onBack,
 }: MagicCodeVerificationProps) {
-  const [code, setCode] = useState("");
+  const [code, setCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleVerifyCode = async () => {
     if (!code.trim()) {
-      Alert.alert("Error", "Please enter the magic code");
+      Alert.alert('Error', 'Please enter the magic code');
       return;
     }
 
@@ -33,8 +33,8 @@ export default function MagicCodeVerification({
     try {
       await db.auth.signInWithMagicCode({ email: email, code: code.trim() });
     } catch (error) {
-      Alert.alert("Error", "Invalid magic code. Please try again.");
-      console.error("Magic code verification error:", error);
+      Alert.alert('Error', 'Invalid magic code. Please try again.');
+      console.error('Magic code verification error:', error);
     } finally {
       setIsLoading(false);
     }
@@ -44,10 +44,10 @@ export default function MagicCodeVerification({
     setIsLoading(true);
     try {
       await db.auth.sendMagicCode({ email: email });
-      Alert.alert("Success", "Magic code resent to your email!");
+      Alert.alert('Success', 'Magic code resent to your email!');
     } catch (error) {
-      Alert.alert("Error", "Failed to resend magic code. Please try again.");
-      console.error("Resend magic code error:", error);
+      Alert.alert('Error', 'Failed to resend magic code. Please try again.');
+      console.error('Resend magic code error:', error);
     } finally {
       setIsLoading(false);
     }
@@ -56,7 +56,7 @@ export default function MagicCodeVerification({
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <View style={styles.content}>
         <Text style={styles.title}>Enter Magic Code</Text>
@@ -82,7 +82,7 @@ export default function MagicCodeVerification({
           disabled={isLoading}
         >
           <Text style={styles.buttonText}>
-            {isLoading ? "Verifying..." : "Verify Code"}
+            {isLoading ? 'Verifying...' : 'Verify Code'}
           </Text>
         </TouchableOpacity>
 
@@ -105,68 +105,68 @@ export default function MagicCodeVerification({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: '#f5f5f5',
   },
   content: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: 'center',
     paddingHorizontal: 24,
   },
   title: {
     fontSize: 32,
-    fontWeight: "bold",
-    textAlign: "center",
+    fontWeight: 'bold',
+    textAlign: 'center',
     marginBottom: 8,
-    color: "#333",
+    color: '#333',
   },
   subtitle: {
     fontSize: 16,
-    textAlign: "center",
+    textAlign: 'center',
     marginBottom: 48,
-    color: "#666",
+    color: '#666',
   },
   inputContainer: {
     marginBottom: 24,
   },
   input: {
-    backgroundColor: "white",
+    backgroundColor: 'white',
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 16,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: "#e0e0e0",
-    textAlign: "center",
+    borderColor: '#e0e0e0',
+    textAlign: 'center',
     letterSpacing: 4,
   },
   button: {
-    backgroundColor: "#007AFF",
+    backgroundColor: '#007AFF',
     borderRadius: 12,
     paddingVertical: 16,
-    alignItems: "center",
+    alignItems: 'center',
     marginBottom: 16,
   },
   buttonDisabled: {
-    backgroundColor: "#ccc",
+    backgroundColor: '#ccc',
   },
   buttonText: {
-    color: "white",
+    color: 'white',
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   resendButton: {
-    alignItems: "center",
+    alignItems: 'center',
     marginBottom: 16,
   },
   resendText: {
-    color: "#007AFF",
+    color: '#007AFF',
     fontSize: 16,
   },
   backButton: {
-    alignItems: "center",
+    alignItems: 'center',
   },
   backText: {
-    color: "#666",
+    color: '#666',
     fontSize: 16,
   },
 });

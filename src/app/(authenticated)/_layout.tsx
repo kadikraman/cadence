@@ -1,4 +1,4 @@
-import { Stack } from "expo-router";
+import { Stack } from 'expo-router';
 
 export default function AuthenticatedLayout() {
   return (
@@ -6,7 +6,7 @@ export default function AuthenticatedLayout() {
       <Stack.Screen
         name="index"
         options={{
-          title: "Home",
+          title: 'Home',
           headerShown: false,
         }}
       />
