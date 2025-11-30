@@ -8,6 +8,7 @@ export interface Task {
   lastCompletedAt?: number;
   completedDates: number[];
   nextDueDate?: number;
+  details?: string;
 }
 
 export type Cadence = {
@@ -56,9 +57,7 @@ export const taskStorage = {
     if (!task) return;
 
     const completedDates = [...(task.completedDates || [])];
-    if (!completedDates.includes(date)) {
-      completedDates.push(date);
-    }
+    completedDates.push(date);
 
     const { calculateNextDueDate } = await import('../utils/taskUtils');
     const nextDueDate = calculateNextDueDate(task.cadence, date);
@@ -88,6 +87,10 @@ export const taskStorage = {
       lastCompletedAt: newLastCompletedAt,
       nextDueDate,
     });
+  },
+
+  deleteCompletionDate: async (id: string, date: number): Promise<void> => {
+    await taskStorage.unmarkTaskCompleted(id, date);
   },
 };
 

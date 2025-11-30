@@ -1,12 +1,20 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useTheme } from '../contexts/ThemeContext';
 import { Task } from '../lib/storage';
-import { getNextDueDate, formatDueIn, formatLastCompleted, isOverdue } from '../utils/taskUtils';
+import {
+  formatDueIn,
+  formatLastCompleted,
+  getNextDueDate,
+  isDueToday,
+  isOverdue,
+} from '../utils/taskUtils';
 
 interface TaskItemProps {
   task: Task;
   onMarkDone: () => void;
   onEdit: () => void;
   onDelete: () => void;
+  onViewDetails: () => void;
 }
 
 export default function TaskItem({
@@ -14,37 +22,65 @@ export default function TaskItem({
   onMarkDone,
   onEdit,
   onDelete,
+  onViewDetails,
 }: TaskItemProps) {
+  const { theme } = useTheme();
   const nextDue = getNextDueDate(task);
   const overdue = isOverdue(task);
+  const dueToday = isDueToday(task);
   const dueInText = formatDueIn(nextDue);
   const lastCompletedText = formatLastCompleted(task);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.content}>
+    <View
+      style={[
+        styles.container,
+        {
+          backgroundColor: theme.surface,
+          borderColor: theme.border,
+        },
+      ]}
+    >
+      <TouchableOpacity
+        style={styles.content}
+        onPress={onViewDetails}
+        activeOpacity={0.7}
+      >
         <View style={styles.taskInfo}>
-          <Text style={styles.taskTitle}>{task.title}</Text>
+          <Text style={[styles.taskTitle, { color: theme.text }]}>
+            {task.title}
+          </Text>
           <View style={styles.metadata}>
             <Text
               style={[
                 styles.dueIn,
-                overdue && styles.dueInOverdue,
+                {
+                  color: overdue
+                    ? theme.error
+                    : dueToday
+                      ? '#FF9500'
+                      : theme.textSecondary,
+                },
+                (overdue || dueToday) && styles.dueInHighlighted,
               ]}
             >
               {dueInText}
             </Text>
-            <Text style={styles.lastCompleted}>{lastCompletedText}</Text>
+            <Text style={[styles.lastCompleted, { color: theme.textTertiary }]}>
+              {lastCompletedText}
+            </Text>
           </View>
         </View>
-      </View>
+      </TouchableOpacity>
       <View style={styles.actions}>
         <TouchableOpacity
           onPress={onMarkDone}
-          style={styles.markDoneButton}
+          style={[styles.markDoneButton, { backgroundColor: theme.primary }]}
           activeOpacity={0.8}
         >
-          <Text style={styles.markDoneText}>Mark as done</Text>
+          <Text style={[styles.markDoneText, { color: theme.primaryText }]}>
+            Mark as done
+          </Text>
         </TouchableOpacity>
         <View style={styles.secondaryActions}>
           <TouchableOpacity
@@ -52,14 +88,16 @@ export default function TaskItem({
             style={styles.actionButton}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
-            <Text style={styles.actionText}>Edit</Text>
+            <Text style={[styles.actionText, { color: theme.text }]}>Edit</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={onDelete}
             style={styles.deleteButton}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
-            <Text style={styles.deleteText}>Delete</Text>
+            <Text style={[styles.deleteText, { color: theme.error }]}>
+              Delete
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -69,12 +107,10 @@ export default function TaskItem({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#fff',
     borderRadius: 16,
-    marginBottom: 8,
+    marginBottom: 16,
     padding: 20,
     borderWidth: 1,
-    borderColor: '#f0f0f0',
   },
   content: {
     marginBottom: 16,
@@ -85,7 +121,6 @@ const styles = StyleSheet.create({
   taskTitle: {
     fontSize: 17,
     fontWeight: '500',
-    color: '#000',
     marginBottom: 8,
     letterSpacing: -0.2,
   },
@@ -94,30 +129,25 @@ const styles = StyleSheet.create({
   },
   dueIn: {
     fontSize: 14,
-    color: '#666',
     fontWeight: '400',
   },
-  dueInOverdue: {
-    color: '#FF3B30',
-    fontWeight: '500',
+  dueInHighlighted: {
+    fontWeight: '600',
   },
   lastCompleted: {
     fontSize: 13,
-    color: '#999',
     fontWeight: '400',
   },
   actions: {
     gap: 12,
   },
   markDoneButton: {
-    backgroundColor: '#000',
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 12,
     alignItems: 'center',
   },
   markDoneText: {
-    color: '#fff',
     fontSize: 15,
     fontWeight: '600',
   },
@@ -131,7 +161,6 @@ const styles = StyleSheet.create({
   },
   actionText: {
     fontSize: 15,
-    color: '#000',
     fontWeight: '500',
   },
   deleteButton: {
@@ -139,8 +168,6 @@ const styles = StyleSheet.create({
   },
   deleteText: {
     fontSize: 15,
-    color: '#FF3B30',
     fontWeight: '500',
   },
 });
-

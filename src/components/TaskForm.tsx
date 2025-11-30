@@ -1,16 +1,15 @@
-import { useState, useEffect } from 'react';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { useEffect, useState } from 'react';
 import {
-  View,
+  ScrollView,
+  StyleSheet,
   Text,
   TextInput,
-  StyleSheet,
   TouchableOpacity,
-  ScrollView,
-  SafeAreaView,
-  Platform,
+  View,
 } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { Task, Cadence } from '../lib/storage';
+import { Cadence, Task } from '../lib/storage';
+import { useTheme } from '../contexts/ThemeContext';
 import { calculateNextDueDate } from '../utils/taskUtils';
 
 interface TaskFormProps {
@@ -20,16 +19,22 @@ interface TaskFormProps {
 }
 
 export default function TaskForm({ task, onSave, onCancel }: TaskFormProps) {
+  const { theme } = useTheme();
   const [title, setTitle] = useState('');
-  const [cadenceType, setCadenceType] = useState<'daily' | 'weekly' | 'monthly' | 'custom'>('daily');
+  const [cadenceType, setCadenceType] = useState<
+    'daily' | 'weekly' | 'monthly' | 'custom'
+  >('daily');
   const [customValue, setCustomValue] = useState('1');
-  const [customUnit, setCustomUnit] = useState<'days' | 'weeks' | 'months'>('days');
-  const [nextDueDate, setNextDueDate] = useState<Date | null>(null);
-  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [customUnit, setCustomUnit] = useState<'days' | 'weeks' | 'months'>(
+    'days'
+  );
+  const [nextDueDate, setNextDueDate] = useState<Date>(new Date());
+  const [details, setDetails] = useState('');
 
   useEffect(() => {
     if (task) {
       setTitle(task.title);
+      setDetails(task.details || '');
       setCadenceType(task.cadence.type);
       if (task.cadence.type === 'custom') {
         setCustomValue(String(task.cadence.value || 1));
@@ -38,12 +43,15 @@ export default function TaskForm({ task, onSave, onCancel }: TaskFormProps) {
       if (task.nextDueDate) {
         setNextDueDate(new Date(task.nextDueDate));
       } else {
-        const calculated = calculateNextDueDate(task.cadence, task.lastCompletedAt);
+        const calculated = calculateNextDueDate(
+          task.cadence,
+          task.lastCompletedAt
+        );
         setNextDueDate(new Date(calculated));
       }
     } else {
+      setDetails('');
       const defaultDate = new Date();
-      defaultDate.setDate(defaultDate.getDate() + 1);
       defaultDate.setHours(0, 0, 0, 0);
       setNextDueDate(defaultDate);
     }
@@ -72,6 +80,7 @@ export default function TaskForm({ task, onSave, onCancel }: TaskFormProps) {
       completedDates: task?.completedDates || [],
       lastCompletedAt: task?.lastCompletedAt,
       nextDueDate: dueDate.getTime(),
+      details: details.trim() || undefined,
     };
 
     onSave(newTask);
@@ -86,48 +95,92 @@ export default function TaskForm({ task, onSave, onCancel }: TaskFormProps) {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <View style={[styles.header, { backgroundColor: theme.surface }]}>
         <TouchableOpacity onPress={onCancel}>
-          <Text style={styles.cancelButton}>Cancel</Text>
+          <Text style={[styles.cancelButton, { color: theme.textSecondary }]}>
+            Cancel
+          </Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>
+        <Text style={[styles.headerTitle, { color: theme.text }]}>
           {task ? 'Edit Task' : 'New Task'}
         </Text>
         <TouchableOpacity onPress={handleSave}>
-          <Text style={styles.saveButton}>Save</Text>
+          <Text style={[styles.saveButton, { color: theme.text }]}>Save</Text>
         </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.content}>
-        <View style={styles.section}>
-          <Text style={styles.label}>Task Title</Text>
+        <View style={[styles.section, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+          <Text style={[styles.label, { color: theme.text }]}>Task Title</Text>
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input,
+              {
+                backgroundColor: theme.inputBackground,
+                color: theme.text,
+                borderColor: theme.border,
+              },
+            ]}
             value={title}
             onChangeText={setTitle}
             placeholder="Enter task title"
-            placeholderTextColor="#999"
+            placeholderTextColor={theme.textTertiary}
             autoFocus
           />
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.label}>Cadence</Text>
+        <View style={[styles.section, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+          <Text style={[styles.label, { color: theme.text }]}>
+            Details (Optional)
+          </Text>
+          <TextInput
+            style={[
+              styles.textArea,
+              {
+                backgroundColor: theme.inputBackground,
+                color: theme.text,
+                borderColor: theme.border,
+              },
+            ]}
+            value={details}
+            onChangeText={setDetails}
+            placeholder="Add any additional details or notes..."
+            placeholderTextColor={theme.textTertiary}
+            multiline
+            numberOfLines={4}
+            textAlignVertical="top"
+          />
+        </View>
+
+        <View style={[styles.section, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+          <Text style={[styles.label, { color: theme.text }]}>Cadence</Text>
           <View style={styles.cadenceOptions}>
-            {(['daily', 'weekly', 'monthly'] as const).map((type) => (
+            {(['daily', 'weekly', 'monthly'] as const).map(type => (
               <TouchableOpacity
                 key={type}
                 style={[
                   styles.cadenceButton,
-                  cadenceType === type && styles.cadenceButtonActive,
+                  {
+                    backgroundColor:
+                      cadenceType === type
+                        ? theme.primary
+                        : theme.buttonInactive,
+                    borderColor:
+                      cadenceType === type ? theme.primary : theme.border,
+                  },
                 ]}
                 onPress={() => setCadenceType(type)}
               >
                 <Text
                   style={[
                     styles.cadenceButtonText,
-                    cadenceType === type && styles.cadenceButtonTextActive,
+                    {
+                      color:
+                        cadenceType === type
+                          ? theme.primaryText
+                          : theme.buttonInactiveText,
+                    },
                   ]}
                 >
                   {type.charAt(0).toUpperCase() + type.slice(1)}
@@ -137,14 +190,26 @@ export default function TaskForm({ task, onSave, onCancel }: TaskFormProps) {
             <TouchableOpacity
               style={[
                 styles.cadenceButton,
-                cadenceType === 'custom' && styles.cadenceButtonActive,
+                {
+                  backgroundColor:
+                    cadenceType === 'custom'
+                      ? theme.primary
+                      : theme.buttonInactive,
+                  borderColor:
+                    cadenceType === 'custom' ? theme.primary : theme.border,
+                },
               ]}
               onPress={() => setCadenceType('custom')}
             >
               <Text
                 style={[
                   styles.cadenceButtonText,
-                  cadenceType === 'custom' && styles.cadenceButtonTextActive,
+                  {
+                    color:
+                      cadenceType === 'custom'
+                        ? theme.primaryText
+                        : theme.buttonInactiveText,
+                  },
                 ]}
               >
                 Custom
@@ -155,27 +220,47 @@ export default function TaskForm({ task, onSave, onCancel }: TaskFormProps) {
           {cadenceType === 'custom' && (
             <View style={styles.customCadence}>
               <TextInput
-                style={[styles.input, styles.customValueInput]}
+                style={[
+                  styles.input,
+                  styles.customValueInput,
+                  {
+                    backgroundColor: theme.inputBackground,
+                    color: theme.text,
+                    borderColor: theme.border,
+                  },
+                ]}
                 value={customValue}
                 onChangeText={setCustomValue}
                 placeholder="1"
                 keyboardType="numeric"
-                placeholderTextColor="#999"
+                placeholderTextColor={theme.textTertiary}
               />
               <View style={styles.unitButtons}>
-                {(['days', 'weeks', 'months'] as const).map((unit) => (
+                {(['days', 'weeks', 'months'] as const).map(unit => (
                   <TouchableOpacity
                     key={unit}
                     style={[
                       styles.unitButton,
-                      customUnit === unit && styles.unitButtonActive,
+                      {
+                        backgroundColor:
+                          customUnit === unit
+                            ? theme.primary
+                            : theme.buttonInactive,
+                        borderColor:
+                          customUnit === unit ? theme.primary : theme.border,
+                      },
                     ]}
                     onPress={() => setCustomUnit(unit)}
                   >
                     <Text
                       style={[
                         styles.unitButtonText,
-                        customUnit === unit && styles.unitButtonTextActive,
+                        {
+                          color:
+                            customUnit === unit
+                              ? theme.primaryText
+                              : theme.buttonInactiveText,
+                        },
                       ]}
                     >
                       {unit}
@@ -187,50 +272,33 @@ export default function TaskForm({ task, onSave, onCancel }: TaskFormProps) {
           )}
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.label}>Next Due Date</Text>
-          <TouchableOpacity
-            style={styles.dateButton}
-            onPress={() => setShowDatePicker(true)}
-          >
-            <Text style={styles.dateButtonText}>
-              {nextDueDate ? formatDate(nextDueDate) : 'Select date'}
-            </Text>
-          </TouchableOpacity>
-          {showDatePicker && nextDueDate && (
-            <DateTimePicker
-              value={nextDueDate}
-              mode="date"
-              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-              onChange={(event, selectedDate) => {
-                if (Platform.OS === 'android') {
-                  setShowDatePicker(false);
-                }
-                if (event.type !== 'dismissed' && selectedDate) {
-                  setNextDueDate(selectedDate);
-                }
-              }}
-              minimumDate={new Date()}
-            />
-          )}
-          {Platform.OS === 'ios' && showDatePicker && (
-            <TouchableOpacity
-              style={styles.datePickerDone}
-              onPress={() => setShowDatePicker(false)}
-            >
-              <Text style={styles.datePickerDoneText}>Done</Text>
-            </TouchableOpacity>
-          )}
+        <View style={[styles.section, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+          <Text style={[styles.label, { color: theme.text }]}>Next Due Date</Text>
+          <DateTimePicker
+            style={{
+              backgroundColor: theme.primary,
+              borderRadius: 24,
+              paddingRight: 12,
+            }}
+            value={nextDueDate}
+            mode="date"
+            display="default"
+            onChange={(event, selectedDate) => {
+              if (event.type !== 'dismissed' && selectedDate) {
+                setNextDueDate(selectedDate);
+              }
+            }}
+            minimumDate={new Date()}
+          />
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fafafa',
   },
   header: {
     flexDirection: 'row',
@@ -238,49 +306,39 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 16,
-    backgroundColor: '#fff',
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#000',
     letterSpacing: -0.3,
   },
   cancelButton: {
     fontSize: 16,
-    color: '#666',
   },
   saveButton: {
     fontSize: 16,
-    color: '#000',
     fontWeight: '600',
   },
   content: {
     flex: 1,
   },
   section: {
-    backgroundColor: '#fff',
     padding: 20,
     marginTop: 12,
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: '#f0f0f0',
   },
   label: {
     fontSize: 15,
     fontWeight: '500',
-    color: '#000',
     marginBottom: 12,
     letterSpacing: -0.2,
   },
   input: {
-    backgroundColor: '#fafafa',
     borderRadius: 12,
     padding: 14,
     fontSize: 16,
-    color: '#000',
     borderWidth: 1,
-    borderColor: '#f0f0f0',
   },
   cadenceOptions: {
     flexDirection: 'row',
@@ -291,21 +349,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingVertical: 10,
     borderRadius: 20,
-    backgroundColor: '#f5f5f5',
     borderWidth: 1,
-    borderColor: '#f0f0f0',
-  },
-  cadenceButtonActive: {
-    backgroundColor: '#000',
-    borderColor: '#000',
   },
   cadenceButtonText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#666',
-  },
-  cadenceButtonTextActive: {
-    color: '#fff',
   },
   customCadence: {
     marginTop: 16,
@@ -326,45 +374,36 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 10,
     borderRadius: 20,
-    backgroundColor: '#f5f5f5',
     borderWidth: 1,
-    borderColor: '#f0f0f0',
     alignItems: 'center',
-  },
-  unitButtonActive: {
-    backgroundColor: '#000',
-    borderColor: '#000',
   },
   unitButtonText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#666',
-  },
-  unitButtonTextActive: {
-    color: '#fff',
   },
   dateButton: {
-    backgroundColor: '#fafafa',
     borderRadius: 12,
     padding: 14,
     borderWidth: 1,
-    borderColor: '#f0f0f0',
   },
   dateButtonText: {
     fontSize: 16,
-    color: '#000',
   },
   datePickerDone: {
     marginTop: 12,
     padding: 14,
-    backgroundColor: '#000',
     borderRadius: 12,
     alignItems: 'center',
   },
   datePickerDoneText: {
-    color: '#fff',
     fontSize: 16,
     fontWeight: '600',
   },
+  textArea: {
+    borderRadius: 12,
+    padding: 14,
+    fontSize: 16,
+    borderWidth: 1,
+    minHeight: 100,
+  },
 });
-

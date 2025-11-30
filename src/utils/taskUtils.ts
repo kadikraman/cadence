@@ -54,6 +54,13 @@ export const isOverdue = (task: Task): boolean => {
   return nextDue < today.getTime();
 };
 
+export const isDueToday = (task: Task): boolean => {
+  const nextDue = getNextDueDate(task);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return nextDue === today.getTime();
+};
+
 export const formatDueDate = (timestamp: number): string => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -108,23 +115,15 @@ export const formatLastCompleted = (task: Task): string => {
     return 'Never completed';
   }
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const todayTimestamp = today.getTime();
-
   const lastDate = new Date(task.lastCompletedAt);
-  lastDate.setHours(0, 0, 0, 0);
-  const lastTimestamp = lastDate.getTime();
-
-  const diffDays = Math.floor((todayTimestamp - lastTimestamp) / (1000 * 60 * 60 * 24));
-
-  if (diffDays === 0) {
-    return 'Completed today';
-  } else if (diffDays === 1) {
-    return 'Completed yesterday';
-  } else {
-    return `Completed ${diffDays} days ago`;
-  }
+  return lastDate.toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
 };
 
 export const sortTasksByDueDate = (tasks: Task[]): Task[] => {
