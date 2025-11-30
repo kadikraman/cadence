@@ -1,140 +1,139 @@
-import { Task } from '../lib/db';
-
-export type CadenceType = 'daily' | 'weekly' | 'monthly' | 'yearly';
-
-export interface TaskFormData {
-  name: string;
-  description?: string;
-  cadenceType: CadenceType;
-  cadenceInterval: number;
-  nextDueDate: Date;
-}
+import { Task, Cadence } from '../lib/storage';
 
 export const calculateNextDueDate = (
-  currentDueDate: Date,
-  cadenceType: CadenceType,
-  cadenceInterval: number
-): Date => {
-  const nextDate = new Date(currentDueDate);
+  cadence: Cadence,
+  lastCompletedAt?: number,
+  currentNextDueDate?: number
+): number => {
+  if (currentNextDueDate) {
+    return currentNextDueDate;
+  }
 
-  switch (cadenceType) {
+  const now = Date.now();
+  const baseDate = lastCompletedAt || now;
+  const date = new Date(baseDate);
+
+  switch (cadence.type) {
     case 'daily':
-      nextDate.setDate(nextDate.getDate() + cadenceInterval);
+      date.setDate(date.getDate() + 1);
       break;
     case 'weekly':
-      nextDate.setDate(nextDate.getDate() + cadenceInterval * 7);
+      date.setDate(date.getDate() + 7);
       break;
     case 'monthly':
-      nextDate.setMonth(nextDate.getMonth() + cadenceInterval);
+      date.setMonth(date.getMonth() + 1);
       break;
-    case 'yearly':
-      nextDate.setFullYear(nextDate.getFullYear() + cadenceInterval);
+    case 'custom':
+      const value = cadence.value || 1;
+      if (cadence.unit === 'days') {
+        date.setDate(date.getDate() + value);
+      } else if (cadence.unit === 'weeks') {
+        date.setDate(date.getDate() + value * 7);
+      } else if (cadence.unit === 'months') {
+        date.setMonth(date.getMonth() + value);
+      }
       break;
   }
 
-  return nextDate;
+  date.setHours(0, 0, 0, 0);
+  return date.getTime();
 };
 
-export const isTaskDueToday = (task: Task): boolean => {
+export const getNextDueDate = (task: Task): number => {
+  return calculateNextDueDate(
+    task.cadence,
+    task.lastCompletedAt,
+    task.nextDueDate
+  );
+};
+
+export const isOverdue = (task: Task): boolean => {
+  const nextDue = getNextDueDate(task);
   const today = new Date();
-  const dueDate = new Date(task.nextDueDate);
-
-  return (
-    dueDate.getDate() === today.getDate() &&
-    dueDate.getMonth() === today.getMonth() &&
-    dueDate.getFullYear() === today.getFullYear()
-  );
-};
-
-export const isTaskDueTomorrow = (task: Task): boolean => {
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const dueDate = new Date(task.nextDueDate);
-
-  return (
-    dueDate.getDate() === tomorrow.getDate() &&
-    dueDate.getMonth() === tomorrow.getMonth() &&
-    dueDate.getFullYear() === tomorrow.getFullYear()
-  );
-};
-
-export const isTaskOverdue = (task: Task): boolean => {
-  const today = new Date();
-  const dueDate = new Date(task.nextDueDate);
-
-  const todayDateOnly = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate()
-  );
-  const dueDateOnly = new Date(
-    dueDate.getFullYear(),
-    dueDate.getMonth(),
-    dueDate.getDate()
-  );
-
-  return dueDateOnly < todayDateOnly;
-};
-
-export const isTaskDueInNext7Days = (task: Task): boolean => {
-  const today = new Date();
-  const nextWeek = new Date();
-  nextWeek.setDate(today.getDate() + 7);
-  const dueDate = new Date(task.nextDueDate);
-
-  return dueDate >= today && dueDate <= nextWeek;
-};
-
-export const getTaskDueStatus = (
-  task: Task
-): 'overdue' | 'due-today' | 'due-tomorrow' | 'due-soon' | 'due-later' => {
-  if (isTaskOverdue(task)) return 'overdue';
-  if (isTaskDueToday(task)) return 'due-today';
-  if (isTaskDueTomorrow(task)) return 'due-tomorrow';
-  if (isTaskDueInNext7Days(task)) return 'due-soon';
-  return 'due-later';
+  today.setHours(0, 0, 0, 0);
+  return nextDue < today.getTime();
 };
 
 export const formatDueDate = (timestamp: number): string => {
-  const date = new Date(timestamp);
   const today = new Date();
-  const tomorrow = new Date();
-  tomorrow.setDate(today.getDate() + 1);
+  today.setHours(0, 0, 0, 0);
+  const todayTimestamp = today.getTime();
 
-  if (isTaskDueToday({ nextDueDate: timestamp } as Task)) {
-    return 'Today';
+  const dueDate = new Date(timestamp);
+  dueDate.setHours(0, 0, 0, 0);
+  const dueTimestamp = dueDate.getTime();
+
+  const diffDays = Math.floor((dueTimestamp - todayTimestamp) / (1000 * 60 * 60 * 24));
+
+  if (diffDays < 0) {
+    return `${Math.abs(diffDays)} day${Math.abs(diffDays) === 1 ? '' : 's'} overdue`;
+  } else if (diffDays === 0) {
+    return 'Due today';
+  } else if (diffDays === 1) {
+    return 'Due tomorrow';
+  } else if (diffDays <= 7) {
+    return `Due in ${diffDays} days`;
+  } else {
+    return dueDate.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+    });
+  }
+};
+
+export const formatDueIn = (timestamp: number): string => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayTimestamp = today.getTime();
+
+  const dueDate = new Date(timestamp);
+  dueDate.setHours(0, 0, 0, 0);
+  const dueTimestamp = dueDate.getTime();
+
+  const diffDays = Math.floor((dueTimestamp - todayTimestamp) / (1000 * 60 * 60 * 24));
+
+  if (diffDays < 0) {
+    return `${Math.abs(diffDays)} day${Math.abs(diffDays) === 1 ? '' : 's'} overdue`;
+  } else if (diffDays === 0) {
+    return 'Due today';
+  } else if (diffDays === 1) {
+    return 'Due in 1 day';
+  } else {
+    return `Due in ${diffDays} days`;
+  }
+};
+
+export const formatLastCompleted = (task: Task): string => {
+  if (!task.lastCompletedAt) {
+    return 'Never completed';
   }
 
-  if (isTaskDueTomorrow({ nextDueDate: timestamp } as Task)) {
-    return 'Tomorrow';
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayTimestamp = today.getTime();
+
+  const lastDate = new Date(task.lastCompletedAt);
+  lastDate.setHours(0, 0, 0, 0);
+  const lastTimestamp = lastDate.getTime();
+
+  const diffDays = Math.floor((todayTimestamp - lastTimestamp) / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 0) {
+    return 'Completed today';
+  } else if (diffDays === 1) {
+    return 'Completed yesterday';
+  } else {
+    return `Completed ${diffDays} days ago`;
   }
-
-  const diffTime = date.getTime() - today.getTime();
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-  if (diffDays <= 7) {
-    return `In ${diffDays} day${diffDays === 1 ? '' : 's'}`;
-  }
-
-  return date.toLocaleDateString();
 };
 
 export const sortTasksByDueDate = (tasks: Task[]): Task[] => {
   return [...tasks].sort((a, b) => {
-    const statusA = getTaskDueStatus(a);
-    const statusB = getTaskDueStatus(b);
-
-    const priorityOrder = {
-      overdue: 0,
-      'due-today': 1,
-      'due-tomorrow': 2,
-      'due-soon': 3,
-      'due-later': 4,
-    };
-
-    const priorityDiff = priorityOrder[statusA] - priorityOrder[statusB];
-    if (priorityDiff !== 0) return priorityDiff;
-
-    return a.nextDueDate - b.nextDueDate;
+    const aDue = getNextDueDate(a);
+    const bDue = getNextDueDate(b);
+    if (aDue !== bDue) {
+      return aDue - bDue;
+    }
+    return a.createdAt - b.createdAt;
   });
 };
