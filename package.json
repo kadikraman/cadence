@@ -10,9 +10,11 @@
     "web": "expo start --web",
     "lint": "expo lint",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "prewidget": "npx expo prebuild --template ./node_modules/@bacons/apple-targets/prebuild-blank.tgz --clean"
   },
   "dependencies": {
+    "@bacons/apple-targets": "^3.0.5",
     "@expo/vector-icons": "^15.0.2",
     "@instantdb/react-native": "^0.22.21",
     "@react-native-async-storage/async-storage": "2.2.0",
@@ -39,7 +41,6 @@
     "react-native-confetti-cannon": "^1.5.2",
     "react-native-gesture-handler": "~2.28.0",
     "react-native-get-random-values": "~1.11.0",
-    "react-native-nitro-modules": "^0.31.10",
     "react-native-reanimated": "~4.1.1",
     "react-native-safe-area-context": "~5.6.0",
     "react-native-screens": "~4.16.0",

@@ -16,6 +16,10 @@ const config: ExpoConfig = {
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
     },
+    entitlements: {
+      'com.apple.security.application-groups': ['group.dev.kadi.cadence'],
+    },
+    appleTeamId: 'XQAX5LF48P',
   },
   android: {
     adaptiveIcon: {
@@ -45,6 +49,7 @@ const config: ExpoConfig = {
         },
       },
     ],
+    '@bacons/apple-targets',
   ],
   experiments: {
     typedRoutes: true,
