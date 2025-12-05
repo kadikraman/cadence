@@ -30,6 +30,7 @@ const config: ExpoConfig = {
     },
     edgeToEdgeEnabled: true,
     predictiveBackGestureEnabled: false,
+    package: 'dev.kadi.cadence',
   },
   web: {
     output: 'static',
@@ -40,11 +41,12 @@ const config: ExpoConfig = {
     [
       'expo-splash-screen',
       {
-        image: './assets/icon-transparent.png',
+        image: './assets/icon.png',
         imageWidth: 200,
         resizeMode: 'contain',
-        backgroundColor: '#F8F9FA',
+        backgroundColor: '#FFFFFF',
         dark: {
+          image: './assets/icon-dark.png',
           backgroundColor: '#000000',
         },
       },
