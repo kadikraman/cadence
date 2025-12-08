@@ -18,27 +18,23 @@ import TaskDetails from '../../components/TaskDetails';
 import TaskForm from '../../components/TaskForm';
 import TaskItem from '../../components/TaskItem';
 import { useTheme } from '../../contexts/ThemeContext';
+import { WidgetProvider } from '../../contexts/WidgetContext';
 import { Task, taskStorage } from '../../lib/storage';
-import { getNextDueDate, sortTasksByDueDate } from '../../utils/taskUtils';
+import { sortTasksByDueDate } from '../../utils/taskUtils';
 
-export default function Home() {
+function HomeContent({
+  tasks,
+  onTasksChange,
+}: {
+  tasks: Task[];
+  onTasksChange: () => Promise<void>;
+}) {
   const { theme } = useTheme();
-  const [tasks, setTasks] = useState<Task[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [viewingTask, setViewingTask] = useState<Task | null>(null);
   const insets = useSafeAreaInsets();
   const confettiRef = useRef<ConfettiCannon>(null);
-
-  useEffect(() => {
-    loadTasks();
-  }, []);
-
-  const loadTasks = async () => {
-    const allTasks = await taskStorage.getAllTasks();
-    const sorted = sortTasksByDueDate(allTasks);
-    setTasks(sorted);
-  };
 
   const celebrateCompletion = () => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -57,7 +53,7 @@ export default function Home() {
 
   const handleSaveTask = async (task: Task) => {
     await taskStorage.saveTask(task);
-    await loadTasks();
+    await onTasksChange();
     setShowForm(false);
     setEditingTask(null);
   };
@@ -76,7 +72,7 @@ export default function Home() {
           style: 'destructive',
           onPress: async () => {
             await taskStorage.deleteTask(task.id);
-            await loadTasks();
+            await onTasksChange();
           },
         },
       ]
@@ -88,6 +84,7 @@ export default function Home() {
     today.setHours(0, 0, 0, 0);
     const todayTimestamp = today.getTime();
 
+    const { getNextDueDate } = await import('../../utils/taskUtils');
     const nextDue = getNextDueDate(task);
     const nextDueDate = new Date(nextDue);
     nextDueDate.setHours(0, 0, 0, 0);
@@ -110,7 +107,7 @@ export default function Home() {
             text: 'Mark as Done',
             onPress: async () => {
               await taskStorage.markTaskCompleted(task.id);
-              await loadTasks();
+              await onTasksChange();
               celebrateCompletion();
             },
           },
@@ -118,7 +115,7 @@ export default function Home() {
       );
     } else {
       await taskStorage.markTaskCompleted(task.id);
-      await loadTasks();
+      await onTasksChange();
       celebrateCompletion();
     }
   };
@@ -145,7 +142,7 @@ export default function Home() {
       <TaskDetails
         task={viewingTask}
         onClose={() => setViewingTask(null)}
-        onTaskUpdated={loadTasks}
+        onTaskUpdated={onTasksChange}
       />
     );
   }
@@ -243,3 +240,23 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
+
+export default function Home() {
+  const [tasks, setTasks] = useState<Task[]>([]);
+
+  const loadTasks = async () => {
+    const allTasks = await taskStorage.getAllTasks();
+    const sorted = sortTasksByDueDate(allTasks);
+    setTasks(sorted);
+  };
+
+  useEffect(() => {
+    loadTasks();
+  }, []);
+
+  return (
+    <WidgetProvider tasks={tasks}>
+      <HomeContent tasks={tasks} onTasksChange={loadTasks} />
+    </WidgetProvider>
+  );
+}

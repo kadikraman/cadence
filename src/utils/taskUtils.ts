@@ -1,4 +1,4 @@
-import { Task, Cadence } from '../lib/storage';
+import { Cadence, Task } from '../lib/storage';
 
 export const calculateNextDueDate = (
   cadence: Cadence,
@@ -70,7 +70,9 @@ export const formatDueDate = (timestamp: number): string => {
   dueDate.setHours(0, 0, 0, 0);
   const dueTimestamp = dueDate.getTime();
 
-  const diffDays = Math.floor((dueTimestamp - todayTimestamp) / (1000 * 60 * 60 * 24));
+  const diffDays = Math.floor(
+    (dueTimestamp - todayTimestamp) / (1000 * 60 * 60 * 24)
+  );
 
   if (diffDays < 0) {
     return `${Math.abs(diffDays)} day${Math.abs(diffDays) === 1 ? '' : 's'} overdue`;
@@ -97,7 +99,9 @@ export const formatDueIn = (timestamp: number): string => {
   dueDate.setHours(0, 0, 0, 0);
   const dueTimestamp = dueDate.getTime();
 
-  const diffDays = Math.floor((dueTimestamp - todayTimestamp) / (1000 * 60 * 60 * 24));
+  const diffDays = Math.floor(
+    (dueTimestamp - todayTimestamp) / (1000 * 60 * 60 * 24)
+  );
 
   if (diffDays < 0) {
     return `${Math.abs(diffDays)} day${Math.abs(diffDays) === 1 ? '' : 's'} overdue`;
@@ -135,4 +139,18 @@ export const sortTasksByDueDate = (tasks: Task[]): Task[] => {
     }
     return a.createdAt - b.createdAt;
   });
+};
+
+export const getPriorityTask = (tasks: Task[]): Task | null => {
+  if (tasks.length === 0) return null;
+
+  const sortedTasks = sortTasksByDueDate(tasks);
+
+  const overdueTask = sortedTasks.find(task => isOverdue(task));
+  if (overdueTask) return overdueTask;
+
+  const dueTodayTask = sortedTasks.find(task => isDueToday(task));
+  if (dueTodayTask) return dueTodayTask;
+
+  return sortedTasks[0] || null;
 };
