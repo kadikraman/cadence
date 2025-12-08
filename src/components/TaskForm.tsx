@@ -1,15 +1,18 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useEffect, useState } from 'react';
 import {
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Cadence, Task } from '../lib/storage';
+import {
+  KeyboardAwareScrollView,
+  KeyboardToolbar,
+} from 'react-native-keyboard-controller';
 import { useTheme } from '../contexts/ThemeContext';
+import { Cadence, Task } from '../lib/storage';
 import { calculateNextDueDate } from '../utils/taskUtils';
 
 interface TaskFormProps {
@@ -110,8 +113,17 @@ export default function TaskForm({ task, onSave, onCancel }: TaskFormProps) {
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.content}>
-        <View style={[styles.section, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+      <KeyboardAwareScrollView
+        style={styles.content}
+        bottomOffset={200}
+        contentContainerStyle={styles.scrollContent}
+      >
+        <View
+          style={[
+            styles.section,
+            { backgroundColor: theme.surface, borderColor: theme.border },
+          ]}
+        >
           <Text style={[styles.label, { color: theme.text }]}>Task Title</Text>
           <TextInput
             style={[
@@ -130,7 +142,12 @@ export default function TaskForm({ task, onSave, onCancel }: TaskFormProps) {
           />
         </View>
 
-        <View style={[styles.section, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+        <View
+          style={[
+            styles.section,
+            { backgroundColor: theme.surface, borderColor: theme.border },
+          ]}
+        >
           <Text style={[styles.label, { color: theme.text }]}>
             Details (Optional)
           </Text>
@@ -153,7 +170,12 @@ export default function TaskForm({ task, onSave, onCancel }: TaskFormProps) {
           />
         </View>
 
-        <View style={[styles.section, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+        <View
+          style={[
+            styles.section,
+            { backgroundColor: theme.surface, borderColor: theme.border },
+          ]}
+        >
           <Text style={[styles.label, { color: theme.text }]}>Cadence</Text>
           <View style={styles.cadenceOptions}>
             {(['daily', 'weekly', 'monthly'] as const).map(type => (
@@ -272,11 +294,17 @@ export default function TaskForm({ task, onSave, onCancel }: TaskFormProps) {
           )}
         </View>
 
-        <View style={[styles.section, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-          <Text style={[styles.label, { color: theme.text }]}>Next Due Date</Text>
+        <View
+          style={[
+            styles.section,
+            { backgroundColor: theme.surface, borderColor: theme.border },
+          ]}
+        >
+          <Text style={[styles.label, { color: theme.text }]}>
+            Next Due Date
+          </Text>
           <DateTimePicker
             style={{
-              backgroundColor: theme.primary,
               borderRadius: 24,
               paddingRight: 12,
             }}
@@ -291,7 +319,12 @@ export default function TaskForm({ task, onSave, onCancel }: TaskFormProps) {
             minimumDate={new Date()}
           />
         </View>
-      </ScrollView>
+      </KeyboardAwareScrollView>
+      <KeyboardToolbar>
+        <KeyboardToolbar.Prev />
+        <KeyboardToolbar.Next />
+        <KeyboardToolbar.Done />
+      </KeyboardToolbar>
     </View>
   );
 }
@@ -321,6 +354,9 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
   },
   section: {
     padding: 20,
