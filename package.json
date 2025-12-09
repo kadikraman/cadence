@@ -15,8 +15,8 @@
   },
   "dependencies": {
     "@bacons/apple-targets": "^3.0.5",
+    "@expo/ui": "~0.2.0-beta.9",
     "@expo/vector-icons": "^15.0.2",
-    "@instantdb/react-native": "^0.22.21",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-community/datetimepicker": "8.4.4",
     "@react-native-community/netinfo": "11.4.1",

@@ -11,7 +11,12 @@ import {
 } from 'react-native';
 import { Task, taskStorage } from '../lib/storage';
 import { useTheme } from '../contexts/ThemeContext';
-import { getNextDueDate, formatDueIn, formatLastCompleted, isOverdue } from '../utils/taskUtils';
+import {
+  getNextDueDate,
+  formatDueIn,
+  formatLastCompleted,
+  isOverdue,
+} from '../utils/taskUtils';
 
 interface TaskDetailsProps {
   task: Task;
@@ -88,7 +93,9 @@ export default function TaskDetails({
   );
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: theme.background }]}
+    >
       <View
         style={[
           styles.header,
@@ -105,7 +112,12 @@ export default function TaskDetails({
       </View>
 
       <ScrollView style={styles.content}>
-        <View style={[styles.section, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+        <View
+          style={[
+            styles.section,
+            { backgroundColor: theme.surface, borderColor: theme.border },
+          ]}
+        >
           <Text style={[styles.taskTitle, { color: theme.text }]}>
             {currentTask.title}
           </Text>
@@ -132,7 +144,12 @@ export default function TaskDetails({
           </View>
         </View>
 
-        <View style={[styles.section, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+        <View
+          style={[
+            styles.section,
+            { backgroundColor: theme.surface, borderColor: theme.border },
+          ]}
+        >
           <Text style={[styles.sectionTitle, { color: theme.text }]}>
             Completion History
           </Text>
@@ -144,7 +161,7 @@ export default function TaskDetails({
             <FlatList
               data={completedDates}
               scrollEnabled={false}
-              keyExtractor={(item) => item.toString()}
+              keyExtractor={item => item.toString()}
               renderItem={({ item }) => (
                 <View
                   style={[
@@ -161,7 +178,10 @@ export default function TaskDetails({
                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                   >
                     <Text
-                      style={[styles.deleteCompletionText, { color: theme.error }]}
+                      style={[
+                        styles.deleteCompletionText,
+                        { color: theme.error },
+                      ]}
                     >
                       Delete
                     </Text>
@@ -264,4 +284,3 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 });
-

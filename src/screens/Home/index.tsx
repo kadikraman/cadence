@@ -158,11 +158,8 @@ function HomeContent({
     >
       <View style={[styles.header]}>
         <Text style={[styles.title, { color: theme.text }]}>Tasks</Text>
-        <TouchableOpacity
-          style={[styles.addButton, { backgroundColor: theme.primary }]}
-          onPress={handleAddTask}
-        >
-          <Text style={[styles.addButtonText, { color: theme.primaryText }]}>
+        <TouchableOpacity style={styles.addButton} onPress={handleAddTask}>
+          <Text style={[styles.addButtonText, { color: theme.text }]}>
             + Add Task
           </Text>
         </TouchableOpacity>

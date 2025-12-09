@@ -3,9 +3,8 @@ import AppIntents
 
 struct ConfigurationAppIntent: WidgetConfigurationIntent {
     static var title: LocalizedStringResource { "Configuration" }
-    static var description: IntentDescription { "This is an example widget." }
+    static var description: IntentDescription { "Cadence Widget Configuration" }
 
-    // An example configurable parameter.
-    @Parameter(title: "Favorite Emoji", default: "😃")
-    var favoriteEmoji: String
+    @Parameter(title: "Show Distance in Words", default: false)
+    var showDistanceInWords: Bool
 }

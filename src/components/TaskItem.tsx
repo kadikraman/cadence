@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
   markDoneButton: {
     paddingVertical: 12,
     paddingHorizontal: 20,
-    borderRadius: 12,
+    borderRadius: 20,
     alignItems: 'center',
   },
   markDoneText: {

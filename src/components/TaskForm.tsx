@@ -1,25 +1,35 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useEffect, useState } from 'react';
 import {
+  Dimensions,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
-import {
-  KeyboardAwareScrollView,
-  KeyboardToolbar,
-} from 'react-native-keyboard-controller';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { useTheme } from '../contexts/ThemeContext';
 import { Cadence, Task } from '../lib/storage';
 import { calculateNextDueDate } from '../utils/taskUtils';
+import SegmentedPicker from './SegmentedPicker';
 
 interface TaskFormProps {
   task?: Task | null;
   onSave: (task: Task) => void;
   onCancel: () => void;
 }
+
+const CADENCE_OPTIONS = ['Daily', 'Weekly', 'Monthly', 'Custom'];
+const CADENCE_TYPES: ('daily' | 'weekly' | 'monthly' | 'custom')[] = [
+  'daily',
+  'weekly',
+  'monthly',
+  'custom',
+];
+
+const UNIT_OPTIONS = ['Days', 'Weeks', 'Months'];
+const UNIT_TYPES: ('days' | 'weeks' | 'months')[] = ['days', 'weeks', 'months'];
 
 export default function TaskForm({ task, onSave, onCancel }: TaskFormProps) {
   const { theme } = useTheme();
@@ -33,6 +43,9 @@ export default function TaskForm({ task, onSave, onCancel }: TaskFormProps) {
   );
   const [nextDueDate, setNextDueDate] = useState<Date>(new Date());
   const [details, setDetails] = useState('');
+
+  const cadenceSelectedIndex = CADENCE_TYPES.indexOf(cadenceType);
+  const unitSelectedIndex = UNIT_TYPES.indexOf(customUnit);
 
   useEffect(() => {
     if (task) {
@@ -89,17 +102,9 @@ export default function TaskForm({ task, onSave, onCancel }: TaskFormProps) {
     onSave(newTask);
   };
 
-  const formatDate = (date: Date): string => {
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
-  };
-
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <View style={[styles.header, { backgroundColor: theme.surface }]}>
+    <View style={styles.container}>
+      <View style={styles.header}>
         <TouchableOpacity onPress={onCancel}>
           <Text style={[styles.cancelButton, { color: theme.textSecondary }]}>
             Cancel
@@ -118,12 +123,7 @@ export default function TaskForm({ task, onSave, onCancel }: TaskFormProps) {
         bottomOffset={200}
         contentContainerStyle={styles.scrollContent}
       >
-        <View
-          style={[
-            styles.section,
-            { backgroundColor: theme.surface, borderColor: theme.border },
-          ]}
-        >
+        <View style={styles.section}>
           <Text style={[styles.label, { color: theme.text }]}>Task Title</Text>
           <TextInput
             style={[
@@ -142,12 +142,7 @@ export default function TaskForm({ task, onSave, onCancel }: TaskFormProps) {
           />
         </View>
 
-        <View
-          style={[
-            styles.section,
-            { backgroundColor: theme.surface, borderColor: theme.border },
-          ]}
-        >
+        <View style={styles.section}>
           <Text style={[styles.label, { color: theme.text }]}>
             Details (Optional)
           </Text>
@@ -170,74 +165,15 @@ export default function TaskForm({ task, onSave, onCancel }: TaskFormProps) {
           />
         </View>
 
-        <View
-          style={[
-            styles.section,
-            { backgroundColor: theme.surface, borderColor: theme.border },
-          ]}
-        >
+        <View style={styles.section}>
           <Text style={[styles.label, { color: theme.text }]}>Cadence</Text>
-          <View style={styles.cadenceOptions}>
-            {(['daily', 'weekly', 'monthly'] as const).map(type => (
-              <TouchableOpacity
-                key={type}
-                style={[
-                  styles.cadenceButton,
-                  {
-                    backgroundColor:
-                      cadenceType === type
-                        ? theme.primary
-                        : theme.buttonInactive,
-                    borderColor:
-                      cadenceType === type ? theme.primary : theme.border,
-                  },
-                ]}
-                onPress={() => setCadenceType(type)}
-              >
-                <Text
-                  style={[
-                    styles.cadenceButtonText,
-                    {
-                      color:
-                        cadenceType === type
-                          ? theme.primaryText
-                          : theme.buttonInactiveText,
-                    },
-                  ]}
-                >
-                  {type.charAt(0).toUpperCase() + type.slice(1)}
-                </Text>
-              </TouchableOpacity>
-            ))}
-            <TouchableOpacity
-              style={[
-                styles.cadenceButton,
-                {
-                  backgroundColor:
-                    cadenceType === 'custom'
-                      ? theme.primary
-                      : theme.buttonInactive,
-                  borderColor:
-                    cadenceType === 'custom' ? theme.primary : theme.border,
-                },
-              ]}
-              onPress={() => setCadenceType('custom')}
-            >
-              <Text
-                style={[
-                  styles.cadenceButtonText,
-                  {
-                    color:
-                      cadenceType === 'custom'
-                        ? theme.primaryText
-                        : theme.buttonInactiveText,
-                  },
-                ]}
-              >
-                Custom
-              </Text>
-            </TouchableOpacity>
-          </View>
+          <SegmentedPicker
+            options={CADENCE_OPTIONS}
+            selectedIndex={cadenceSelectedIndex}
+            onOptionSelected={(index: number) => {
+              setCadenceType(CADENCE_TYPES[index]);
+            }}
+          />
 
           {cadenceType === 'custom' && (
             <View style={styles.customCadence}>
@@ -257,49 +193,19 @@ export default function TaskForm({ task, onSave, onCancel }: TaskFormProps) {
                 keyboardType="numeric"
                 placeholderTextColor={theme.textTertiary}
               />
-              <View style={styles.unitButtons}>
-                {(['days', 'weeks', 'months'] as const).map(unit => (
-                  <TouchableOpacity
-                    key={unit}
-                    style={[
-                      styles.unitButton,
-                      {
-                        backgroundColor:
-                          customUnit === unit
-                            ? theme.primary
-                            : theme.buttonInactive,
-                        borderColor:
-                          customUnit === unit ? theme.primary : theme.border,
-                      },
-                    ]}
-                    onPress={() => setCustomUnit(unit)}
-                  >
-                    <Text
-                      style={[
-                        styles.unitButtonText,
-                        {
-                          color:
-                            customUnit === unit
-                              ? theme.primaryText
-                              : theme.buttonInactiveText,
-                        },
-                      ]}
-                    >
-                      {unit}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
+              <SegmentedPicker
+                style={{ width: Dimensions.get('window').width - 132 }}
+                options={UNIT_OPTIONS}
+                selectedIndex={unitSelectedIndex}
+                onOptionSelected={(index: number) => {
+                  setCustomUnit(UNIT_TYPES[index]);
+                }}
+              />
             </View>
           )}
         </View>
 
-        <View
-          style={[
-            styles.section,
-            { backgroundColor: theme.surface, borderColor: theme.border },
-          ]}
-        >
+        <View style={styles.section}>
           <Text style={[styles.label, { color: theme.text }]}>
             Next Due Date
           </Text>
@@ -320,11 +226,6 @@ export default function TaskForm({ task, onSave, onCancel }: TaskFormProps) {
           />
         </View>
       </KeyboardAwareScrollView>
-      <KeyboardToolbar>
-        <KeyboardToolbar.Prev />
-        <KeyboardToolbar.Next />
-        <KeyboardToolbar.Done />
-      </KeyboardToolbar>
     </View>
   );
 }
@@ -361,8 +262,6 @@ const styles = StyleSheet.create({
   section: {
     padding: 20,
     marginTop: 12,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
   },
   label: {
     fontSize: 15,
@@ -376,21 +275,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     borderWidth: 1,
   },
-  cadenceOptions: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  cadenceButton: {
-    paddingHorizontal: 18,
-    paddingVertical: 10,
-    borderRadius: 20,
-    borderWidth: 1,
-  },
-  cadenceButtonText: {
-    fontSize: 14,
-    fontWeight: '500',
-  },
   customCadence: {
     marginTop: 16,
     flexDirection: 'row',
@@ -400,22 +284,10 @@ const styles = StyleSheet.create({
   customValueInput: {
     flex: 0,
     width: 80,
-  },
-  unitButtons: {
-    flexDirection: 'row',
-    gap: 8,
-    flex: 1,
-  },
-  unitButton: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 20,
-    borderWidth: 1,
+    padding: 6,
+    justifyContent: 'center',
     alignItems: 'center',
-  },
-  unitButtonText: {
-    fontSize: 14,
-    fontWeight: '500',
+    textAlign: 'center',
   },
   dateButton: {
     borderRadius: 12,

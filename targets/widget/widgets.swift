@@ -42,9 +42,6 @@ struct Provider: AppIntentTimelineProvider {
         return try? decoder.decode(PriorityTask.self, from: taskData)
     }
 
-//    func relevances() async -> WidgetRelevances<ConfigurationAppIntent> {
-//        // Generate a list containing the contexts this widget is relevant in.
-//    }
 }
 
 struct SimpleEntry: TimelineEntry {
@@ -70,36 +67,83 @@ struct widgetEntryView : View {
         }
     }
     
+    private func getDisplayTask(from tasks: [PriorityTask]) -> PriorityTask? {
+        let overdueTasks = tasks.filter { isOverdue($0.nextDueDate) }
+        let dueTodayTasks = tasks.filter { isDueToday($0.nextDueDate) }
+        
+        if !overdueTasks.isEmpty {
+            return overdueTasks.first
+        } else if !dueTodayTasks.isEmpty {
+            return dueTodayTasks.first
+        } else {
+            return tasks.first
+        }
+    }
+    
+    private func getRemainingTasksInfo(from tasks: [PriorityTask], displayTask: PriorityTask) -> (count: Int, status: String)? {
+        let overdueTasks = tasks.filter { isOverdue($0.nextDueDate) }
+        let dueTodayTasks = tasks.filter { isDueToday($0.nextDueDate) }
+        let otherTasks = tasks.filter { !isOverdue($0.nextDueDate) && !isDueToday($0.nextDueDate) }
+        
+        let isDisplayTaskOverdue = isOverdue(displayTask.nextDueDate)
+        let isDisplayTaskDueToday = isDueToday(displayTask.nextDueDate)
+        
+        let remainingOverdue = overdueTasks.filter { $0.id != displayTask.id }
+        let remainingDueToday = dueTodayTasks.filter { $0.id != displayTask.id }
+        let remainingOther = otherTasks.filter { $0.id != displayTask.id }
+        
+        if isDisplayTaskOverdue {
+            if !remainingOverdue.isEmpty {
+                return (remainingOverdue.count, "overdue")
+            } else if !remainingDueToday.isEmpty {
+                return (remainingDueToday.count, "due today")
+            } else if !remainingOther.isEmpty {
+                return (remainingOther.count, "upcoming")
+            }
+        } else if isDisplayTaskDueToday {
+            if !remainingDueToday.isEmpty {
+                return (remainingDueToday.count, "due today")
+            } else if !remainingOther.isEmpty {
+                return (remainingOther.count, "upcoming")
+            }
+        } else {
+            if !remainingOther.isEmpty {
+                return (remainingOther.count, "upcoming")
+            }
+        }
+        
+        return nil
+    }
+    
     private var smallWidgetView: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            if let tasks = loadMultipleTasks(), !tasks.isEmpty {
-                let dueTodayTasks = tasks.filter { isDueToday($0.nextDueDate) }
-                let displayTask = dueTodayTasks.isEmpty ? tasks.first : dueTodayTasks.first
-                let remainingCount = dueTodayTasks.isEmpty ? max(0, tasks.count - 1) : max(0, dueTodayTasks.count - 1)
-                
-                if let task = displayTask {
-                    Text(task.title)
-                        .font(.headline)
-                        .lineLimit(2)
-                    
-                    Text(formatDueDate(task.nextDueDate))
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                    
-                    if remainingCount > 0 {
-                        Text("+\(remainingCount) more")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                }
-            } else if let task = entry.task {
-                Text(task.title)
+        VStack(alignment: .leading, spacing: 3) {
+            if let tasks = loadMultipleTasks(), !tasks.isEmpty, let displayTask = getDisplayTask(from: tasks) {
+                let isTaskDueYesterday = isDueYesterday(displayTask.nextDueDate)
+                Text(displayTask.title)
                     .font(.headline)
+                    .foregroundColor(.primary)
                     .lineLimit(2)
                 
-                Text(formatDueDate(task.nextDueDate))
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+                Text(formatDueDate(displayTask.nextDueDate, configuration: entry.configuration))
+                    .font(.caption)
+                    .foregroundColor(isTaskDueYesterday ? .red : .secondary)
+                
+                if let remainingInfo = getRemainingTasksInfo(from: tasks, displayTask: displayTask) {
+                    Text("+\(remainingInfo.count) more \(remainingInfo.status)")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .padding(.top, 2)
+                }
+            } else if let task = entry.task {
+                let isTaskDueYesterday = isDueYesterday(task.nextDueDate)
+                Text(task.title)
+                    .font(.headline)
+                    .foregroundColor(.primary)
+                    .lineLimit(2)
+                
+                Text(formatDueDate(task.nextDueDate, configuration: entry.configuration))
+                    .font(.caption)
+                    .foregroundColor(isTaskDueYesterday ? .red : .secondary)
             } else {
                 Text("No tasks")
                     .font(.headline)
@@ -113,29 +157,35 @@ struct widgetEntryView : View {
     private var mediumWidgetView: some View {
         VStack(alignment: .leading, spacing: 8) {
             if let tasks = loadMultipleTasks(), !tasks.isEmpty {
+                let overdueTasks = tasks.filter { isOverdue($0.nextDueDate) }
                 let dueTodayTasks = tasks.filter { isDueToday($0.nextDueDate) }
-                let maxTasks = dueTodayTasks.isEmpty ? 2 : min(dueTodayTasks.count, 3)
-                let displayTasks = dueTodayTasks.isEmpty ? Array(tasks.prefix(maxTasks)) : Array(dueTodayTasks.prefix(maxTasks))
-                let remainingCount = dueTodayTasks.isEmpty ? max(0, tasks.count - maxTasks) : max(0, dueTodayTasks.count - maxTasks)
+                let otherTasks = tasks.filter { !isOverdue($0.nextDueDate) && !isDueToday($0.nextDueDate) }
+                
+                let prioritizedTasks = overdueTasks + dueTodayTasks + otherTasks
+                let maxTasks = 2
+                let displayTasks = Array(prioritizedTasks.prefix(maxTasks))
+                let remainingCount = max(0, prioritizedTasks.count - maxTasks)
                 
                 ForEach(displayTasks, id: \.id) { task in
+                    let isTaskDueYesterday = isDueYesterday(task.nextDueDate)
                     VStack(alignment: .leading, spacing: 4) {
                         Text(task.title)
                             .font(.headline)
+                            .foregroundColor(.primary)
                             .lineLimit(1)
                         
                         HStack {
-                            Text(formatDueDate(task.nextDueDate))
+                            Text(formatDueDate(task.nextDueDate, configuration: entry.configuration))
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(isTaskDueYesterday ? .red : .secondary)
                             
                             if let details = task.details, !details.isEmpty {
                                 Text("•")
                                     .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(isTaskDueYesterday ? .red : .secondary)
                                 Text(details)
                                     .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(isTaskDueYesterday ? .red : .secondary)
                                     .lineLimit(1)
                             }
                         }
@@ -154,18 +204,20 @@ struct widgetEntryView : View {
                         .padding(.top, 2)
                 }
             } else if let task = entry.task {
+                let isTaskDueYesterday = isDueYesterday(task.nextDueDate)
                 Text(task.title)
                     .font(.headline)
+                    .foregroundColor(.primary)
                     .lineLimit(2)
                 
-                Text(formatDueDate(task.nextDueDate))
+                Text(formatDueDate(task.nextDueDate, configuration: entry.configuration))
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(isTaskDueYesterday ? .red : .secondary)
                 
                 if let details = task.details, !details.isEmpty {
                     Text(details)
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(isTaskDueYesterday ? .red : .secondary)
                         .lineLimit(3)
                 }
             } else {
@@ -184,23 +236,25 @@ struct widgetEntryView : View {
                 let (displayTasks, remainingCount) = calculateLargeWidgetTasks(tasks: tasks)
                 
                 ForEach(displayTasks, id: \.id) { task in
+                    let isTaskDueYesterday = isDueYesterday(task.nextDueDate)
                     VStack(alignment: .leading, spacing: 4) {
                         Text(task.title)
                             .font(.headline)
+                            .foregroundColor(.primary)
                             .lineLimit(1)
                         
                         HStack {
-                            Text(formatDueDate(task.nextDueDate))
+                            Text(formatDueDate(task.nextDueDate, configuration: entry.configuration))
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(isTaskDueYesterday ? .red : .secondary)
                             
                             if let details = task.details, !details.isEmpty {
                                 Text("•")
                                     .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(isTaskDueYesterday ? .red : .secondary)
                                 Text(details)
                                     .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(isTaskDueYesterday ? .red : .secondary)
                                     .lineLimit(1)
                             }
                         }
@@ -219,15 +273,17 @@ struct widgetEntryView : View {
                         .padding(.top, 4)
                 }
             } else if let task = entry.task {
+                let isTaskDueYesterday = isDueYesterday(task.nextDueDate)
                 VStack(alignment: .leading, spacing: 8) {
                     Text(task.title)
                         .font(.title3)
                         .fontWeight(.semibold)
+                        .foregroundColor(.primary)
                         .lineLimit(2)
                     
-                    Text(formatDueDate(task.nextDueDate))
+                    Text(formatDueDate(task.nextDueDate, configuration: entry.configuration))
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(isTaskDueYesterday ? .red : .secondary)
                     
                     if let details = task.details, !details.isEmpty {
                         Text(details)
@@ -247,25 +303,14 @@ struct widgetEntryView : View {
     }
     
     func calculateLargeWidgetTasks(tasks: [PriorityTask]) -> ([PriorityTask], Int) {
+        let overdueTasks = tasks.filter { isOverdue($0.nextDueDate) }
         let dueTodayTasks = tasks.filter { isDueToday($0.nextDueDate) }
-        let otherTasks = tasks.filter { !isDueToday($0.nextDueDate) }
+        let otherTasks = tasks.filter { !isOverdue($0.nextDueDate) && !isDueToday($0.nextDueDate) }
         
-        let maxTasks = 8
-        var displayTasks: [PriorityTask] = []
-        var remainingCount = 0
-        
-        if !dueTodayTasks.isEmpty {
-            displayTasks = Array(dueTodayTasks.prefix(maxTasks))
-            remainingCount = max(0, dueTodayTasks.count - maxTasks)
-            if remainingCount == 0 && !otherTasks.isEmpty {
-                let remainingSlots = maxTasks - displayTasks.count
-                displayTasks.append(contentsOf: Array(otherTasks.prefix(remainingSlots)))
-                remainingCount = max(0, otherTasks.count - remainingSlots)
-            }
-        } else {
-            displayTasks = Array(tasks.prefix(maxTasks))
-            remainingCount = max(0, tasks.count - maxTasks)
-        }
+        let prioritizedTasks = overdueTasks + dueTodayTasks + otherTasks
+        let maxTasks = 5
+        let displayTasks = Array(prioritizedTasks.prefix(maxTasks))
+        let remainingCount = max(0, prioritizedTasks.count - maxTasks)
         
         return (displayTasks, remainingCount)
     }
@@ -290,7 +335,25 @@ struct widgetEntryView : View {
         return calendar.dateComponents([.day], from: today, to: due).day == 0
     }
     
-    func formatDueDate(_ timestamp: Double) -> String {
+    func isOverdue(_ timestamp: Double) -> Bool {
+        let dueDate = Date(timeIntervalSince1970: timestamp / 1000.0)
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let due = calendar.startOfDay(for: dueDate)
+        let daysDiff = calendar.dateComponents([.day], from: today, to: due).day ?? 0
+        return daysDiff < 0
+    }
+    
+    func isDueYesterday(_ timestamp: Double) -> Bool {
+        let dueDate = Date(timeIntervalSince1970: timestamp / 1000.0)
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let due = calendar.startOfDay(for: dueDate)
+        let daysDiff = calendar.dateComponents([.day], from: today, to: due).day ?? 0
+        return daysDiff == -1
+    }
+    
+    func formatDueDate(_ timestamp: Double, configuration: ConfigurationAppIntent) -> String {
         let dueDate = Date(timeIntervalSince1970: timestamp / 1000.0)
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
@@ -298,17 +361,23 @@ struct widgetEntryView : View {
         
         let daysDiff = calendar.dateComponents([.day], from: today, to: due).day ?? 0
         
-        if daysDiff < 0 {
-            let overdueDays = abs(daysDiff)
-            return "\(overdueDays) day\(overdueDays == 1 ? "" : "s") overdue"
+        if daysDiff == -1 {
+            return "Due yesterday"
         } else if daysDiff == 0 {
             return "Due today"
         } else if daysDiff == 1 {
             return "Due tomorrow"
+        } else if daysDiff < 0 {
+            let overdueDays = abs(daysDiff)
+            return "\(overdueDays) day\(overdueDays == 1 ? "" : "s") overdue"
         } else {
-            let formatter = DateFormatter()
-            formatter.dateFormat = "MMM d"
-            return "Due \(formatter.string(from: dueDate))"
+            if configuration.showDistanceInWords {
+                return "Due in \(daysDiff) day\(daysDiff == 1 ? "" : "s")"
+            } else {
+                let formatter = DateFormatter()
+                formatter.dateFormat = "MMM d"
+                return "Due \(formatter.string(from: dueDate))"
+            }
         }
     }
 }
@@ -326,15 +395,15 @@ struct widget: Widget {
 }
 
 extension ConfigurationAppIntent {
-    fileprivate static var smiley: ConfigurationAppIntent {
+    fileprivate static var defaultConfig: ConfigurationAppIntent {
         let intent = ConfigurationAppIntent()
-        intent.favoriteEmoji = "😀"
+        intent.showDistanceInWords = false
         return intent
     }
     
-    fileprivate static var starEyes: ConfigurationAppIntent {
+    fileprivate static var wordsConfig: ConfigurationAppIntent {
         let intent = ConfigurationAppIntent()
-        intent.favoriteEmoji = "🤩"
+        intent.showDistanceInWords = true
         return intent
     }
 }
@@ -344,7 +413,7 @@ extension ConfigurationAppIntent {
 } timeline: {
     SimpleEntry(
         date: .now,
-        configuration: .smiley,
+        configuration: .defaultConfig,
         task: PriorityTask(
             id: "1",
             title: "Example Task",
@@ -353,7 +422,7 @@ extension ConfigurationAppIntent {
             isDueToday: true
         )
     )
-    SimpleEntry(date: .now, configuration: .starEyes, task: nil)
+    SimpleEntry(date: .now, configuration: .wordsConfig, task: nil)
 }
 
 #Preview(as: .systemMedium) {
@@ -361,7 +430,7 @@ extension ConfigurationAppIntent {
 } timeline: {
     SimpleEntry(
         date: .now,
-        configuration: .smiley,
+        configuration: .defaultConfig,
         task: PriorityTask(
             id: "1",
             title: "Example Task with More Details",
@@ -377,7 +446,7 @@ extension ConfigurationAppIntent {
 } timeline: {
     SimpleEntry(
         date: .now,
-        configuration: .smiley,
+        configuration: .defaultConfig,
         task: PriorityTask(
             id: "1",
             title: "First Task",

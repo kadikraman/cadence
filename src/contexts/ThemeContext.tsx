@@ -26,12 +26,12 @@ const lightTheme: Theme = {
   text: '#000',
   textSecondary: '#666',
   textTertiary: '#999',
-  border: '#f0f0f0',
+  border: '#e0e0e0',
   borderLight: '#f5f5f5',
   primary: '#000',
   primaryText: '#fff',
   error: '#FF3B30',
-  inputBackground: '#fafafa',
+  inputBackground: '#ededed',
   buttonInactive: '#f5f5f5',
   buttonInactiveText: '#666',
 };
@@ -88,8 +88,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setThemeModeState(mode);
     try {
       await AsyncStorage.setItem(THEME_STORAGE_KEY, mode);
-    } catch {
-    }
+    } catch {}
   };
 
   const isDark =
@@ -116,4 +115,3 @@ export function useTheme() {
   }
   return context;
 }
-
