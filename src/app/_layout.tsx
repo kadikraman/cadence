@@ -13,6 +13,8 @@ function RootLayoutNav() {
         }}
       >
         <Stack.Screen name="index" />
+        <Stack.Screen name="new" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="task/[taskId]" />
       </Stack>
       <StatusBar style={isDark ? 'light' : 'dark'} />
     </>

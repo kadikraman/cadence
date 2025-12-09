@@ -1,20 +1,19 @@
-import { useState, useEffect } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
+  Alert,
+  FlatList,
   SafeAreaView,
   ScrollView,
-  FlatList,
-  Alert,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import { Task, taskStorage } from '../lib/storage';
 import { useTheme } from '../contexts/ThemeContext';
+import { Task, taskStorage } from '../lib/storage';
 import {
-  getNextDueDate,
   formatDueIn,
   formatLastCompleted,
+  getNextDueDate,
   isOverdue,
 } from '../utils/taskUtils';
 
@@ -22,26 +21,16 @@ interface TaskDetailsProps {
   task: Task;
   onClose: () => void;
   onTaskUpdated: () => void;
+  onEdit: () => void;
 }
 
 export default function TaskDetails({
   task,
   onClose,
   onTaskUpdated,
+  onEdit,
 }: TaskDetailsProps) {
   const { theme } = useTheme();
-  const [currentTask, setCurrentTask] = useState<Task>(task);
-
-  useEffect(() => {
-    loadTask();
-  }, [task.id]);
-
-  const loadTask = async () => {
-    const updated = await taskStorage.getTask(task.id);
-    if (updated) {
-      setCurrentTask(updated);
-    }
-  };
 
   const handleDeleteCompletion = (date: number) => {
     const completionDate = new Date(date);
@@ -63,9 +52,8 @@ export default function TaskDetails({
           text: 'Delete',
           style: 'destructive',
           onPress: async () => {
-            await taskStorage.deleteCompletionDate(currentTask.id, date);
-            await loadTask();
-            onTaskUpdated();
+            await taskStorage.deleteCompletionDate(task.id, date);
+            await onTaskUpdated();
           },
         },
       ]
@@ -84,46 +72,36 @@ export default function TaskDetails({
     });
   };
 
-  const nextDue = getNextDueDate(currentTask);
-  const overdue = isOverdue(currentTask);
+  const nextDue = getNextDueDate(task);
+  const overdue = isOverdue(task);
   const dueInText = formatDueIn(nextDue);
-  const lastCompletedText = formatLastCompleted(currentTask);
-  const completedDates = [...(currentTask.completedDates || [])].sort(
-    (a, b) => b - a
-  );
+  const lastCompletedText = formatLastCompleted(task);
+  const completedDates = [...(task.completedDates || [])].sort((a, b) => b - a);
 
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: theme.background }]}
     >
-      <View
-        style={[
-          styles.header,
-          { backgroundColor: theme.surface, borderBottomColor: theme.border },
-        ]}
-      >
+      <View style={[styles.header, { borderBottomColor: theme.border }]}>
         <TouchableOpacity onPress={onClose}>
           <Text style={[styles.closeButton, { color: theme.text }]}>Close</Text>
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: theme.text }]}>
           Task Details
         </Text>
-        <View style={styles.headerSpacer} />
+        <TouchableOpacity onPress={onEdit}>
+          <Text style={[styles.editButton, { color: theme.text }]}>Edit</Text>
+        </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.content}>
-        <View
-          style={[
-            styles.section,
-            { backgroundColor: theme.surface, borderColor: theme.border },
-          ]}
-        >
+        <View style={[styles.section]}>
           <Text style={[styles.taskTitle, { color: theme.text }]}>
-            {currentTask.title}
+            {task.title}
           </Text>
-          {currentTask.details && (
+          {task.details && (
             <Text style={[styles.details, { color: theme.textSecondary }]}>
-              {currentTask.details}
+              {task.details}
             </Text>
           )}
           <View style={styles.metadata}>
@@ -144,12 +122,7 @@ export default function TaskDetails({
           </View>
         </View>
 
-        <View
-          style={[
-            styles.section,
-            { backgroundColor: theme.surface, borderColor: theme.border },
-          ]}
-        >
+        <View style={[styles.section]}>
           <Text style={[styles.sectionTitle, { color: theme.text }]}>
             Completion History
           </Text>
@@ -163,12 +136,7 @@ export default function TaskDetails({
               scrollEnabled={false}
               keyExtractor={item => item.toString()}
               renderItem={({ item }) => (
-                <View
-                  style={[
-                    styles.completionItem,
-                    { borderBottomColor: theme.borderLight },
-                  ]}
-                >
+                <View style={[styles.completionItem]}>
                   <Text style={[styles.completionDate, { color: theme.text }]}>
                     {formatCompletionDate(item)}
                   </Text>
@@ -217,8 +185,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
   },
-  headerSpacer: {
-    width: 50,
+  editButton: {
+    fontSize: 16,
+    fontWeight: '600',
   },
   content: {
     flex: 1,
@@ -226,8 +195,6 @@ const styles = StyleSheet.create({
   section: {
     padding: 20,
     marginTop: 12,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
   },
   taskTitle: {
     fontSize: 24,
@@ -269,7 +236,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: 12,
-    borderBottomWidth: 1,
   },
   completionDate: {
     fontSize: 15,

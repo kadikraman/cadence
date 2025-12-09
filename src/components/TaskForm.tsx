@@ -103,7 +103,7 @@ export default function TaskForm({ task, onSave, onCancel }: TaskFormProps) {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={onCancel}>
           <Text style={[styles.cancelButton, { color: theme.textSecondary }]}>

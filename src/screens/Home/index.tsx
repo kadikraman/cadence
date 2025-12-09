@@ -1,5 +1,6 @@
 import * as Haptics from 'expo-haptics';
-import { useEffect, useRef, useState } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Alert,
   Dimensions,
@@ -10,12 +11,7 @@ import {
   View,
 } from 'react-native';
 import ConfettiCannon from 'react-native-confetti-cannon';
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
-import TaskDetails from '../../components/TaskDetails';
-import TaskForm from '../../components/TaskForm';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import TaskItem from '../../components/TaskItem';
 import { useTheme } from '../../contexts/ThemeContext';
 import { WidgetProvider } from '../../contexts/WidgetContext';
@@ -30,9 +26,7 @@ function HomeContent({
   onTasksChange: () => Promise<void>;
 }) {
   const { theme } = useTheme();
-  const [showForm, setShowForm] = useState(false);
-  const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const [viewingTask, setViewingTask] = useState<Task | null>(null);
+  const router = useRouter();
   const insets = useSafeAreaInsets();
   const confettiRef = useRef<ConfettiCannon>(null);
 
@@ -42,20 +36,15 @@ function HomeContent({
   };
 
   const handleAddTask = () => {
-    setEditingTask(null);
-    setShowForm(true);
+    router.push('/new');
   };
 
   const handleEditTask = (task: Task) => {
-    setEditingTask(task);
-    setShowForm(true);
+    router.push(`/new?taskId=${task.id}`);
   };
 
-  const handleSaveTask = async (task: Task) => {
-    await taskStorage.saveTask(task);
-    await onTasksChange();
-    setShowForm(false);
-    setEditingTask(null);
+  const handleViewDetails = (task: Task) => {
+    router.push(`/task/${task.id}`);
   };
 
   const handleDeleteTask = async (task: Task) => {
@@ -120,33 +109,6 @@ function HomeContent({
     }
   };
 
-  if (showForm) {
-    return (
-      <SafeAreaView
-        style={[styles.container, { backgroundColor: theme.background }]}
-      >
-        <TaskForm
-          task={editingTask}
-          onSave={handleSaveTask}
-          onCancel={() => {
-            setShowForm(false);
-            setEditingTask(null);
-          }}
-        />
-      </SafeAreaView>
-    );
-  }
-
-  if (viewingTask) {
-    return (
-      <TaskDetails
-        task={viewingTask}
-        onClose={() => setViewingTask(null)}
-        onTaskUpdated={onTasksChange}
-      />
-    );
-  }
-
   const screenWidth = Dimensions.get('window').width;
 
   return (
@@ -181,7 +143,7 @@ function HomeContent({
               onMarkDone={() => handleToggleComplete(item)}
               onEdit={() => handleEditTask(item)}
               onDelete={() => handleDeleteTask(item)}
-              onViewDetails={() => setViewingTask(item)}
+              onViewDetails={() => handleViewDetails(item)}
             />
           )}
           contentContainerStyle={styles.list}
@@ -250,6 +212,12 @@ export default function Home() {
   useEffect(() => {
     loadTasks();
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadTasks();
+    }, [])
+  );
 
   return (
     <WidgetProvider tasks={tasks}>
