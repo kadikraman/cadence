@@ -61,6 +61,20 @@ export const isDueToday = (task: Task): boolean => {
   return nextDue === today.getTime();
 };
 
+export const isCompletedToday = (task: Task): boolean => {
+  if (!task.completedDates || task.completedDates.length === 0) {
+    return false;
+  }
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayTimestamp = today.getTime();
+  return task.completedDates.some(date => {
+    const completedDate = new Date(date);
+    completedDate.setHours(0, 0, 0, 0);
+    return completedDate.getTime() === todayTimestamp;
+  });
+};
+
 export const formatDueDate = (timestamp: number): string => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -106,11 +120,11 @@ export const formatDueIn = (timestamp: number): string => {
   if (diffDays < 0) {
     return `${Math.abs(diffDays)} day${Math.abs(diffDays) === 1 ? '' : 's'} overdue`;
   } else if (diffDays === 0) {
-    return 'Due today';
+    return 'Today';
   } else if (diffDays === 1) {
-    return 'Due in 1 day';
+    return 'Tomorrow';
   } else {
-    return `Due in ${diffDays} days`;
+    return `${diffDays} days`;
   }
 };
 
@@ -154,3 +168,20 @@ export const getPriorityTask = (tasks: Task[]): Task | null => {
 
   return sortedTasks[0] || null;
 };
+
+export function formatCadence(cadence: Cadence): string {
+  const interval = cadence.value ?? 1;
+
+  switch (cadence.type) {
+    case 'daily':
+      return 'every day';
+    case 'weekly':
+      return 'every week';
+    case 'monthly':
+      return 'every month';
+    case 'custom':
+      return `every ${interval} ${cadence.unit}`;
+    default:
+      return 'unknown';
+  }
+}

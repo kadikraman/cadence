@@ -1,13 +1,23 @@
-import { Text, TouchableOpacity, View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+import { Pressable, Text, View } from 'react-native';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import { Task } from '../lib/storage';
 import {
+  formatCadence,
   formatDueIn,
-  formatLastCompleted,
   getNextDueDate,
+  isCompletedToday,
   isDueToday,
   isOverdue,
 } from '../utils/taskUtils';
+import TaskIcon from './TaskIcon';
+
+const hexToRgba = (hex: string, alpha: number): string => {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
 
 interface TaskItemProps {
   task: Task;
@@ -24,103 +34,171 @@ export default function TaskItem({
   onDelete,
   onViewDetails,
 }: TaskItemProps) {
+  const { theme } = useUnistyles();
   const nextDue = getNextDueDate(task);
   const overdue = isOverdue(task);
   const dueToday = isDueToday(task);
+  const completedToday = isCompletedToday(task);
   const dueInText = formatDueIn(nextDue);
-  const lastCompletedText = formatLastCompleted(task);
+
+  const getTaskStatus = () => {
+    if (completedToday) return 'completed';
+    if (overdue) return 'overdue';
+    if (dueToday) return 'dueToday';
+    return 'default';
+  };
+
+  const status = getTaskStatus();
+
+  const getContainerStyle = () => {
+    const baseStyle = styles.container;
+    if (status === 'overdue') {
+      return [baseStyle, styles.containerOverdue];
+    }
+    if (status === 'dueToday') {
+      return [baseStyle, styles.containerDueToday];
+    }
+    return baseStyle;
+  };
+
+  const getClockIconColor = () => {
+    if (status === 'overdue') return theme.colors.error;
+    if (status === 'dueToday') return theme.colors.blue;
+    return theme.colors.text;
+  };
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity
-        style={styles.content}
-        onPress={onViewDetails}
-        activeOpacity={0.7}
-      >
-        <View style={styles.taskInfo}>
-          <Text style={styles.taskTitle}>{task.title}</Text>
+    <View style={getContainerStyle()}>
+      <Pressable style={styles.content} onPress={onViewDetails}>
+        <View style={styles.metadataContainer}>
           <View style={styles.metadata}>
+            <EvilIcons name="clock" size={16} color={getClockIconColor()} />
             <Text
               style={[
                 styles.dueIn,
-                (overdue || dueToday) && styles.dueInHighlighted,
-                overdue && styles.dueInOverdue,
-                dueToday && styles.dueInToday,
+                status === 'overdue' && styles.dueInOverdue,
+                status === 'dueToday' && styles.dueInToday,
               ]}
             >
-              {dueInText}
+              {completedToday ? 'Completed today' : dueInText}
             </Text>
-            <Text style={styles.lastCompleted}>{lastCompletedText}</Text>
+          </View>
+          <View style={styles.metadata}>
+            <EvilIcons name="refresh" size={18} color={theme.colors.text} />
+            <Text style={styles.dueIn}>{formatCadence(task.cadence)}</Text>
           </View>
         </View>
-      </TouchableOpacity>
-      <View style={styles.actions}>
-        <TouchableOpacity
-          onPress={onMarkDone}
-          style={styles.markDoneButton}
-          activeOpacity={0.8}
+        <Text
+          style={[
+            styles.taskTitle,
+            status === 'overdue' && styles.taskTitleOverdue,
+            status === 'dueToday' && styles.taskTitleDueToday,
+          ]}
         >
-          <Text style={styles.markDoneText}>Mark as done</Text>
-        </TouchableOpacity>
-        <View style={styles.secondaryActions}>
-          <TouchableOpacity
-            onPress={onEdit}
-            style={styles.actionButton}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            <Text style={styles.actionText}>Edit</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={onDelete}
-            style={styles.deleteButton}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            <Text style={styles.deleteText}>Delete</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+          {task.title}
+        </Text>
+      </Pressable>
+      <Pressable
+        style={[
+          styles.icon,
+          status === 'overdue' && styles.iconOverdue,
+          status === 'dueToday' && styles.iconDueToday,
+          status === 'completed' && styles.iconCompleted,
+        ]}
+        onPress={onMarkDone}
+      >
+        <TaskIcon
+          completedToday={completedToday}
+          overdue={overdue}
+          dueToday={dueToday}
+        />
+      </Pressable>
     </View>
   );
 }
 
 const styles = StyleSheet.create(theme => ({
   container: {
-    borderRadius: 16,
+    borderRadius: 32,
     marginBottom: 16,
-    padding: 20,
-    borderWidth: 1,
     backgroundColor: theme.colors.surface,
+    boxShadow: theme.shadows.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  containerOverdue: {
+    backgroundColor: hexToRgba(theme.colors.error, 0.08),
+    borderWidth: 1,
+    borderColor: hexToRgba(theme.colors.error, 0.25),
+  },
+  containerDueToday: {
+    backgroundColor: hexToRgba(theme.colors.blue, 0.08),
+    borderWidth: 1,
+    borderColor: hexToRgba(theme.colors.blue, 0.25),
+  },
+  icon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
     borderColor: theme.colors.border,
+    marginRight: 20,
+  },
+  iconOverdue: {
+    borderColor: hexToRgba(theme.colors.error, 0.38),
+    backgroundColor: hexToRgba(theme.colors.error, 0.06),
+  },
+  iconDueToday: {
+    borderColor: hexToRgba(theme.colors.blue, 0.38),
+    backgroundColor: hexToRgba(theme.colors.blue, 0.06),
+  },
+  iconCompleted: {
+    borderColor: theme.colors.border,
+    backgroundColor: 'transparent',
   },
   content: {
-    marginBottom: 16,
-  },
-  taskInfo: {
     flex: 1,
+    gap: 8,
+    paddingTop: 20,
+    paddingBottom: 20,
+    paddingLeft: 20,
+  },
+  metadataContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   taskTitle: {
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: '500',
-    marginBottom: 8,
-    letterSpacing: -0.2,
     color: theme.colors.text,
   },
-  metadata: {
-    gap: 4,
+  taskTitleOverdue: {
+    color: theme.colors.error,
   },
-  dueIn: {
-    fontSize: 14,
-    fontWeight: '400',
+  taskTitleDueToday: {
+    color: theme.colors.blue,
+  },
+  taskTitleCompleted: {
     color: theme.colors.textSecondary,
   },
-  dueInHighlighted: {
-    fontWeight: '600',
+  metadata: {
+    gap: 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  dueIn: {
+    fontSize: 12,
+    color: theme.colors.textSecondary,
   },
   dueInOverdue: {
     color: theme.colors.error,
   },
   dueInToday: {
-    color: '#FF9500',
+    color: theme.colors.blue,
   },
   lastCompleted: {
     fontSize: 13,

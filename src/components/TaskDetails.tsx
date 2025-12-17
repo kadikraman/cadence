@@ -1,12 +1,12 @@
 import {
   Alert,
   FlatList,
-  SafeAreaView,
   ScrollView,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { StyleSheet } from 'react-native-unistyles';
 import { Task, taskStorage } from '../lib/storage';
 import {

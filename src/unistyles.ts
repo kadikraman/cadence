@@ -1,10 +1,17 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 import { StyleSheet } from 'react-native-unistyles';
 
+const shadows = {
+  sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+  md: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+  lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+  xl: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+};
+
 const lightTheme = {
   colors: {
-    background: '#fafafa',
-    surface: '#fff',
+    background: '#ffffff',
+    surface: '#fafaff',
     text: '#000',
     textSecondary: '#666',
     textTertiary: '#999',
@@ -13,15 +20,19 @@ const lightTheme = {
     primary: '#000',
     primaryText: '#fff',
     error: '#FF3B30',
+    warning: '#FF9500',
+    success: '#34C759',
+    blue: '#007AFF',
     inputBackground: '#ededed',
     buttonInactive: '#f5f5f5',
     buttonInactiveText: '#666',
   },
+  shadows,
 };
 
 const darkTheme = {
   colors: {
-    background: '#000',
+    background: '#000000',
     surface: '#1c1c1e',
     text: '#fff',
     textSecondary: '#a1a1a6',
@@ -31,10 +42,14 @@ const darkTheme = {
     primary: '#636366',
     primaryText: '#fff',
     error: '#ff453a',
+    warning: '#FF9F0A',
+    success: '#30D158',
+    blue: '#0A84FF',
     inputBackground: '#1c1c1e',
     buttonInactive: '#2c2c2e',
     buttonInactiveText: '#a1a1a6',
   },
+  shadows,
 };
 
 const appThemes = {
