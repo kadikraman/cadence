@@ -32,12 +32,12 @@ export const taskStorage = {
 
   getTask: async (id: string): Promise<Task | null> => {
     const tasks = await taskStorage.getAllTasks();
-    return tasks.find((t) => t.id === id) || null;
+    return tasks.find(t => t.id === id) || null;
   },
 
   saveTask: async (task: Task): Promise<void> => {
     const tasks = await taskStorage.getAllTasks();
-    const index = tasks.findIndex((t) => t.id === task.id);
+    const index = tasks.findIndex(t => t.id === task.id);
     if (index >= 0) {
       tasks[index] = task;
     } else {
@@ -48,11 +48,14 @@ export const taskStorage = {
 
   deleteTask: async (id: string): Promise<void> => {
     const tasks = await taskStorage.getAllTasks();
-    const filtered = tasks.filter((t) => t.id !== id);
+    const filtered = tasks.filter(t => t.id !== id);
     await AsyncStorage.setItem(TASKS_KEY, JSON.stringify(filtered));
   },
 
-  markTaskCompleted: async (id: string, date: number = Date.now()): Promise<void> => {
+  markTaskCompleted: async (
+    id: string,
+    date: number = Date.now()
+  ): Promise<void> => {
     const task = await taskStorage.getTask(id);
     if (!task) return;
 
@@ -74,7 +77,7 @@ export const taskStorage = {
     const task = await taskStorage.getTask(id);
     if (!task) return;
 
-    const completedDates = (task.completedDates || []).filter((d) => d !== date);
+    const completedDates = (task.completedDates || []).filter(d => d !== date);
     const newLastCompletedAt =
       completedDates.length > 0 ? Math.max(...completedDates) : undefined;
 
@@ -93,4 +96,3 @@ export const taskStorage = {
     await taskStorage.unmarkTaskCompleted(id, date);
   },
 };
-

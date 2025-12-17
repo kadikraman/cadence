@@ -2,14 +2,13 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { useEffect, useState } from 'react';
 import {
   Dimensions,
-  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-import { useTheme } from '../contexts/ThemeContext';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { Cadence, Task } from '../lib/storage';
 import { calculateNextDueDate } from '../utils/taskUtils';
 import SegmentedPicker from './SegmentedPicker';
@@ -32,7 +31,7 @@ const UNIT_OPTIONS = ['Days', 'Weeks', 'Months'];
 const UNIT_TYPES: ('days' | 'weeks' | 'months')[] = ['days', 'weeks', 'months'];
 
 export default function TaskForm({ task, onSave, onCancel }: TaskFormProps) {
-  const { theme } = useTheme();
+  const { theme } = useUnistyles();
   const [title, setTitle] = useState('');
   const [cadenceType, setCadenceType] = useState<
     'daily' | 'weekly' | 'monthly' | 'custom'
@@ -103,18 +102,16 @@ export default function TaskForm({ task, onSave, onCancel }: TaskFormProps) {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={onCancel}>
-          <Text style={[styles.cancelButton, { color: theme.textSecondary }]}>
-            Cancel
-          </Text>
+          <Text style={styles.cancelButton}>Cancel</Text>
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: theme.text }]}>
+        <Text style={styles.headerTitle}>
           {task ? 'Edit Task' : 'New Task'}
         </Text>
         <TouchableOpacity onPress={handleSave}>
-          <Text style={[styles.saveButton, { color: theme.text }]}>Save</Text>
+          <Text style={styles.saveButton}>Save</Text>
         </TouchableOpacity>
       </View>
 
@@ -124,41 +121,25 @@ export default function TaskForm({ task, onSave, onCancel }: TaskFormProps) {
         contentContainerStyle={styles.scrollContent}
       >
         <View style={styles.section}>
-          <Text style={[styles.label, { color: theme.text }]}>Task Title</Text>
+          <Text style={styles.label}>Task Title</Text>
           <TextInput
-            style={[
-              styles.input,
-              {
-                backgroundColor: theme.inputBackground,
-                color: theme.text,
-                borderColor: theme.border,
-              },
-            ]}
+            style={styles.input}
             value={title}
             onChangeText={setTitle}
             placeholder="Enter task title"
-            placeholderTextColor={theme.textTertiary}
+            placeholderTextColor={theme.colors.textTertiary}
             autoFocus
           />
         </View>
 
         <View style={styles.section}>
-          <Text style={[styles.label, { color: theme.text }]}>
-            Details (Optional)
-          </Text>
+          <Text style={styles.label}>Details (Optional)</Text>
           <TextInput
-            style={[
-              styles.textArea,
-              {
-                backgroundColor: theme.inputBackground,
-                color: theme.text,
-                borderColor: theme.border,
-              },
-            ]}
+            style={styles.textArea}
             value={details}
             onChangeText={setDetails}
             placeholder="Add any additional details or notes..."
-            placeholderTextColor={theme.textTertiary}
+            placeholderTextColor={theme.colors.textTertiary}
             multiline
             numberOfLines={4}
             textAlignVertical="top"
@@ -166,7 +147,7 @@ export default function TaskForm({ task, onSave, onCancel }: TaskFormProps) {
         </View>
 
         <View style={styles.section}>
-          <Text style={[styles.label, { color: theme.text }]}>Cadence</Text>
+          <Text style={styles.label}>Cadence</Text>
           <SegmentedPicker
             options={CADENCE_OPTIONS}
             selectedIndex={cadenceSelectedIndex}
@@ -178,20 +159,12 @@ export default function TaskForm({ task, onSave, onCancel }: TaskFormProps) {
           {cadenceType === 'custom' && (
             <View style={styles.customCadence}>
               <TextInput
-                style={[
-                  styles.input,
-                  styles.customValueInput,
-                  {
-                    backgroundColor: theme.inputBackground,
-                    color: theme.text,
-                    borderColor: theme.border,
-                  },
-                ]}
+                style={[styles.input, styles.customValueInput]}
                 value={customValue}
                 onChangeText={setCustomValue}
                 placeholder="1"
                 keyboardType="numeric"
-                placeholderTextColor={theme.textTertiary}
+                placeholderTextColor={theme.colors.textTertiary}
               />
               <SegmentedPicker
                 style={{ width: Dimensions.get('window').width - 132 }}
@@ -206,9 +179,7 @@ export default function TaskForm({ task, onSave, onCancel }: TaskFormProps) {
         </View>
 
         <View style={styles.section}>
-          <Text style={[styles.label, { color: theme.text }]}>
-            Next Due Date
-          </Text>
+          <Text style={styles.label}>Next Due Date</Text>
           <DateTimePicker
             style={{
               borderRadius: 24,
@@ -230,9 +201,10 @@ export default function TaskForm({ task, onSave, onCancel }: TaskFormProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create(theme => ({
   container: {
     flex: 1,
+    backgroundColor: theme.colors.background,
   },
   header: {
     flexDirection: 'row',
@@ -245,13 +217,16 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '600',
     letterSpacing: -0.3,
+    color: theme.colors.text,
   },
   cancelButton: {
     fontSize: 16,
+    color: theme.colors.textSecondary,
   },
   saveButton: {
     fontSize: 16,
     fontWeight: '600',
+    color: theme.colors.text,
   },
   content: {
     flex: 1,
@@ -268,12 +243,16 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     marginBottom: 12,
     letterSpacing: -0.2,
+    color: theme.colors.text,
   },
   input: {
     borderRadius: 12,
     padding: 14,
     fontSize: 16,
     borderWidth: 1,
+    backgroundColor: theme.colors.inputBackground,
+    color: theme.colors.text,
+    borderColor: theme.colors.border,
   },
   customCadence: {
     marginTop: 16,
@@ -313,5 +292,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     borderWidth: 1,
     minHeight: 100,
+    backgroundColor: theme.colors.inputBackground,
+    color: theme.colors.text,
+    borderColor: theme.colors.border,
   },
-});
+}));

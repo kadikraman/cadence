@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { useColorScheme } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
 
 type ThemeMode = 'light' | 'dark' | 'system';
 
@@ -20,38 +20,6 @@ interface Theme {
   buttonInactiveText: string;
 }
 
-const lightTheme: Theme = {
-  background: '#fafafa',
-  surface: '#fff',
-  text: '#000',
-  textSecondary: '#666',
-  textTertiary: '#999',
-  border: '#e0e0e0',
-  borderLight: '#f5f5f5',
-  primary: '#000',
-  primaryText: '#fff',
-  error: '#FF3B30',
-  inputBackground: '#ededed',
-  buttonInactive: '#f5f5f5',
-  buttonInactiveText: '#666',
-};
-
-const darkTheme: Theme = {
-  background: '#000',
-  surface: '#1c1c1e',
-  text: '#fff',
-  textSecondary: '#a1a1a6',
-  textTertiary: '#6e6e73',
-  border: '#2c2c2e',
-  borderLight: '#3a3a3c',
-  primary: '#636366',
-  primaryText: '#fff',
-  error: '#ff453a',
-  inputBackground: '#1c1c1e',
-  buttonInactive: '#2c2c2e',
-  buttonInactiveText: '#a1a1a6',
-};
-
 interface ThemeContextType {
   theme: Theme;
   themeMode: ThemeMode;
@@ -64,12 +32,13 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 const THEME_STORAGE_KEY = 'theme_mode';
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const systemColorScheme = useColorScheme();
+  const { theme: unistylesTheme } = useUnistyles();
   const [themeMode, setThemeModeState] = useState<ThemeMode>('system');
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
     loadThemeMode();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadThemeMode = async () => {
@@ -77,6 +46,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       const saved = await AsyncStorage.getItem(THEME_STORAGE_KEY);
       if (saved === 'light' || saved === 'dark' || saved === 'system') {
         setThemeModeState(saved);
+        applyThemeMode(saved);
       }
     } catch {
     } finally {
@@ -84,18 +54,40 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const applyThemeMode = (mode: ThemeMode) => {
+    if (mode === 'system') {
+      UnistylesRuntime.setAdaptiveThemes(true);
+    } else {
+      UnistylesRuntime.setAdaptiveThemes(false);
+      UnistylesRuntime.setTheme(mode);
+    }
+  };
+
   const setThemeMode = async (mode: ThemeMode) => {
     setThemeModeState(mode);
+    applyThemeMode(mode);
     try {
       await AsyncStorage.setItem(THEME_STORAGE_KEY, mode);
     } catch {}
   };
 
-  const isDark =
-    themeMode === 'dark' ||
-    (themeMode === 'system' && systemColorScheme === 'dark');
+  const isDark = UnistylesRuntime.themeName === 'dark';
 
-  const theme = isDark ? darkTheme : lightTheme;
+  const theme: Theme = {
+    background: unistylesTheme.colors.background,
+    surface: unistylesTheme.colors.surface,
+    text: unistylesTheme.colors.text,
+    textSecondary: unistylesTheme.colors.textSecondary,
+    textTertiary: unistylesTheme.colors.textTertiary,
+    border: unistylesTheme.colors.border,
+    borderLight: unistylesTheme.colors.borderLight,
+    primary: unistylesTheme.colors.primary,
+    primaryText: unistylesTheme.colors.primaryText,
+    error: unistylesTheme.colors.error,
+    inputBackground: unistylesTheme.colors.inputBackground,
+    buttonInactive: unistylesTheme.colors.buttonInactive,
+    buttonInactiveText: unistylesTheme.colors.buttonInactiveText,
+  };
 
   if (!isInitialized) {
     return null;

@@ -52,6 +52,7 @@ const config: ExpoConfig = {
       },
     ],
     '@bacons/apple-targets',
+    'react-native-edge-to-edge',
   ],
   experiments: {
     typedRoutes: true,

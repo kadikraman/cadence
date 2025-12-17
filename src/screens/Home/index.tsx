@@ -5,15 +5,13 @@ import {
   Alert,
   Dimensions,
   FlatList,
-  StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
 import ConfettiCannon from 'react-native-confetti-cannon';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { StyleSheet } from 'react-native-unistyles';
 import TaskItem from '../../components/TaskItem';
-import { useTheme } from '../../contexts/ThemeContext';
 import { WidgetProvider } from '../../contexts/WidgetContext';
 import { Task, taskStorage } from '../../lib/storage';
 import { sortTasksByDueDate } from '../../utils/taskUtils';
@@ -25,9 +23,7 @@ function HomeContent({
   tasks: Task[];
   onTasksChange: () => Promise<void>;
 }) {
-  const { theme } = useTheme();
   const router = useRouter();
-  const insets = useSafeAreaInsets();
   const confettiRef = useRef<ConfettiCannon>(null);
 
   const celebrateCompletion = () => {
@@ -112,24 +108,17 @@ function HomeContent({
   const screenWidth = Dimensions.get('window').width;
 
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: theme.background, paddingTop: insets.top },
-      ]}
-    >
-      <View style={[styles.header]}>
-        <Text style={[styles.title, { color: theme.text }]}>Tasks</Text>
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>Tasks</Text>
         <TouchableOpacity style={styles.addButton} onPress={handleAddTask}>
-          <Text style={[styles.addButtonText, { color: theme.text }]}>
-            + Add Task
-          </Text>
+          <Text style={styles.addButtonText}>+ Add Task</Text>
         </TouchableOpacity>
       </View>
 
       {tasks.length === 0 ? (
         <View style={styles.emptyState}>
-          <Text style={[styles.emptyStateText, { color: theme.textTertiary }]}>
+          <Text style={styles.emptyStateText}>
             No tasks yet. Add your first task to get started!
           </Text>
         </View>
@@ -160,9 +149,11 @@ function HomeContent({
   );
 }
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme, rt) => ({
   container: {
     flex: 1,
+    backgroundColor: theme.colors.background,
+    paddingTop: rt.insets.top,
   },
   header: {
     flexDirection: 'row',
@@ -175,6 +166,7 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: '700',
     letterSpacing: -0.5,
+    color: theme.colors.text,
   },
   addButton: {
     paddingHorizontal: 20,
@@ -184,6 +176,7 @@ const styles = StyleSheet.create({
   addButtonText: {
     fontSize: 15,
     fontWeight: '600',
+    color: theme.colors.text,
   },
   list: {
     padding: 12,
@@ -197,8 +190,9 @@ const styles = StyleSheet.create({
   emptyStateText: {
     fontSize: 16,
     textAlign: 'center',
+    color: theme.colors.textTertiary,
   },
-});
+}));
 
 export default function Home() {
   const [tasks, setTasks] = useState<Task[]>([]);

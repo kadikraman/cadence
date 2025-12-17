@@ -1,5 +1,6 @@
 import { Host, Picker } from '@expo/ui/swift-ui';
-import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import { StyleProp, View, ViewStyle } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 
 interface SegmentedPickerProps<T extends string> {
   options: T[];
@@ -30,8 +31,8 @@ export default function SegmentedPicker<T extends string>({
   );
 }
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create(() => ({
   container: {
     width: '100%',
   },
-});
+}));

@@ -1,5 +1,5 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useTheme } from '../contexts/ThemeContext';
+import { Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 import { Task } from '../lib/storage';
 import {
   formatDueIn,
@@ -24,7 +24,6 @@ export default function TaskItem({
   onDelete,
   onViewDetails,
 }: TaskItemProps) {
-  const { theme } = useTheme();
   const nextDue = getNextDueDate(task);
   const overdue = isOverdue(task);
   const dueToday = isDueToday(task);
@@ -32,55 +31,36 @@ export default function TaskItem({
   const lastCompletedText = formatLastCompleted(task);
 
   return (
-    <View
-      style={[
-        styles.container,
-        {
-          backgroundColor: theme.surface,
-          borderColor: theme.border,
-        },
-      ]}
-    >
+    <View style={styles.container}>
       <TouchableOpacity
         style={styles.content}
         onPress={onViewDetails}
         activeOpacity={0.7}
       >
         <View style={styles.taskInfo}>
-          <Text style={[styles.taskTitle, { color: theme.text }]}>
-            {task.title}
-          </Text>
+          <Text style={styles.taskTitle}>{task.title}</Text>
           <View style={styles.metadata}>
             <Text
               style={[
                 styles.dueIn,
-                {
-                  color: overdue
-                    ? theme.error
-                    : dueToday
-                      ? '#FF9500'
-                      : theme.textSecondary,
-                },
                 (overdue || dueToday) && styles.dueInHighlighted,
+                overdue && styles.dueInOverdue,
+                dueToday && styles.dueInToday,
               ]}
             >
               {dueInText}
             </Text>
-            <Text style={[styles.lastCompleted, { color: theme.textTertiary }]}>
-              {lastCompletedText}
-            </Text>
+            <Text style={styles.lastCompleted}>{lastCompletedText}</Text>
           </View>
         </View>
       </TouchableOpacity>
       <View style={styles.actions}>
         <TouchableOpacity
           onPress={onMarkDone}
-          style={[styles.markDoneButton, { backgroundColor: theme.primary }]}
+          style={styles.markDoneButton}
           activeOpacity={0.8}
         >
-          <Text style={[styles.markDoneText, { color: theme.primaryText }]}>
-            Mark as done
-          </Text>
+          <Text style={styles.markDoneText}>Mark as done</Text>
         </TouchableOpacity>
         <View style={styles.secondaryActions}>
           <TouchableOpacity
@@ -88,16 +68,14 @@ export default function TaskItem({
             style={styles.actionButton}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
-            <Text style={[styles.actionText, { color: theme.text }]}>Edit</Text>
+            <Text style={styles.actionText}>Edit</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={onDelete}
             style={styles.deleteButton}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
-            <Text style={[styles.deleteText, { color: theme.error }]}>
-              Delete
-            </Text>
+            <Text style={styles.deleteText}>Delete</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -105,12 +83,14 @@ export default function TaskItem({
   );
 }
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create(theme => ({
   container: {
     borderRadius: 16,
     marginBottom: 16,
     padding: 20,
     borderWidth: 1,
+    backgroundColor: theme.colors.surface,
+    borderColor: theme.colors.border,
   },
   content: {
     marginBottom: 16,
@@ -123,6 +103,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     marginBottom: 8,
     letterSpacing: -0.2,
+    color: theme.colors.text,
   },
   metadata: {
     gap: 4,
@@ -130,13 +111,21 @@ const styles = StyleSheet.create({
   dueIn: {
     fontSize: 14,
     fontWeight: '400',
+    color: theme.colors.textSecondary,
   },
   dueInHighlighted: {
     fontWeight: '600',
   },
+  dueInOverdue: {
+    color: theme.colors.error,
+  },
+  dueInToday: {
+    color: '#FF9500',
+  },
   lastCompleted: {
     fontSize: 13,
     fontWeight: '400',
+    color: theme.colors.textTertiary,
   },
   actions: {
     gap: 12,
@@ -146,10 +135,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 20,
     alignItems: 'center',
+    backgroundColor: theme.colors.primary,
   },
   markDoneText: {
     fontSize: 15,
     fontWeight: '600',
+    color: theme.colors.primaryText,
   },
   secondaryActions: {
     flexDirection: 'row',
@@ -162,6 +153,7 @@ const styles = StyleSheet.create({
   actionText: {
     fontSize: 15,
     fontWeight: '500',
+    color: theme.colors.text,
   },
   deleteButton: {
     paddingVertical: 4,
@@ -169,5 +161,6 @@ const styles = StyleSheet.create({
   deleteText: {
     fontSize: 15,
     fontWeight: '500',
+    color: theme.colors.error,
   },
-});
+}));
