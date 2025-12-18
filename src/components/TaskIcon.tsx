@@ -1,5 +1,5 @@
 import { SymbolView } from 'expo-symbols';
-import { useUnistyles } from 'react-native-unistyles';
+import { UnistylesThemes, useUnistyles } from 'react-native-unistyles';
 
 interface TaskIconProps {
   completedToday: boolean;
@@ -7,39 +7,55 @@ interface TaskIconProps {
   dueToday: boolean;
 }
 
+export const getIconColor = ({
+  overdue,
+  dueToday,
+  completedToday,
+  theme,
+}: {
+  overdue: boolean;
+  dueToday: boolean;
+  completedToday: boolean;
+  theme: UnistylesThemes['dark'];
+}) => {
+  if (overdue) return theme.colors.error;
+  if (dueToday) return theme.colors.blue;
+  if (completedToday) return theme.colors.success;
+  return theme.colors.textSecondary;
+};
+
 export default function TaskIcon({
   completedToday,
   overdue,
   dueToday,
 }: TaskIconProps) {
   const { theme } = useUnistyles();
-
-  const getIconColor = () => {
-    if (overdue) return theme.colors.error;
-    if (dueToday) return theme.colors.blue;
-    if (completedToday) return theme.colors.success;
-    return theme.colors.textSecondary;
-  };
+  const iconColor = getIconColor({
+    completedToday,
+    overdue,
+    dueToday,
+    theme,
+  });
 
   if (completedToday) {
-    return <SymbolView name="checkmark" size={18} tintColor={getIconColor()} />;
+    return <SymbolView name="checkmark" size={18} tintColor={iconColor} />;
   }
 
   if (overdue) {
     return (
-      <SymbolView name="exclamationmark" size={18} tintColor={getIconColor()} />
+      <SymbolView name="exclamationmark" size={18} tintColor={iconColor} />
     );
   }
 
   if (dueToday) {
-    return <SymbolView name="circle" size={18} tintColor={getIconColor()} />;
+    return null;
   }
 
   return (
     <SymbolView
       name={'calendar.badge' as any}
       size={18}
-      tintColor={getIconColor()}
+      tintColor={iconColor}
     />
   );
 }

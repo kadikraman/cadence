@@ -10,7 +10,7 @@ import {
   isDueToday,
   isOverdue,
 } from '../utils/taskUtils';
-import TaskIcon from './TaskIcon';
+import TaskIcon, { getIconColor } from './TaskIcon';
 
 const hexToRgba = (hex: string, alpha: number): string => {
   const r = parseInt(hex.slice(1, 3), 16);
@@ -67,6 +67,13 @@ export default function TaskItem({
     return theme.colors.text;
   };
 
+  const iconColor = getIconColor({
+    completedToday,
+    overdue,
+    dueToday,
+    theme,
+  });
+
   return (
     <View style={getContainerStyle()}>
       <Pressable style={styles.content} onPress={onViewDetails}>
@@ -84,15 +91,23 @@ export default function TaskItem({
             </Text>
           </View>
           <View style={styles.metadata}>
-            <EvilIcons name="refresh" size={18} color={theme.colors.text} />
-            <Text style={styles.dueIn}>{formatCadence(task.cadence)}</Text>
+            <EvilIcons name="refresh" size={18} color={iconColor} />
+            <Text
+              style={[
+                styles.dueIn,
+                status === 'overdue' && styles.taskTextOverdue,
+                status === 'dueToday' && styles.taskTextDueToday,
+              ]}
+            >
+              {formatCadence(task.cadence)}
+            </Text>
           </View>
         </View>
         <Text
           style={[
             styles.taskTitle,
-            status === 'overdue' && styles.taskTitleOverdue,
-            status === 'dueToday' && styles.taskTitleDueToday,
+            status === 'overdue' && styles.taskTextOverdue,
+            status === 'dueToday' && styles.taskTextDueToday,
           ]}
         >
           {task.title}
@@ -126,10 +141,11 @@ const styles = StyleSheet.create(theme => ({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 16,
+    borderWidth: 1,
+    borderColor: theme.colors.surface,
   },
   containerOverdue: {
     backgroundColor: hexToRgba(theme.colors.error, 0.08),
-    borderWidth: 1,
     borderColor: hexToRgba(theme.colors.error, 0.25),
   },
   containerDueToday: {
@@ -176,10 +192,10 @@ const styles = StyleSheet.create(theme => ({
     fontWeight: '500',
     color: theme.colors.text,
   },
-  taskTitleOverdue: {
+  taskTextOverdue: {
     color: theme.colors.error,
   },
-  taskTitleDueToday: {
+  taskTextDueToday: {
     color: theme.colors.blue,
   },
   taskTitleCompleted: {
