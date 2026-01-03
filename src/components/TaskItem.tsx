@@ -12,13 +12,6 @@ import {
 } from '../utils/taskUtils';
 import TaskIcon, { getIconColor } from './TaskIcon';
 
-const hexToRgba = (hex: string, alpha: number): string => {
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-};
-
 interface TaskItemProps {
   task: Task;
   onMarkDone: () => void;
@@ -51,14 +44,7 @@ export default function TaskItem({
   const status = getTaskStatus();
 
   const getContainerStyle = () => {
-    const baseStyle = styles.container;
-    if (status === 'overdue') {
-      return [baseStyle, styles.containerOverdue];
-    }
-    if (status === 'dueToday') {
-      return [baseStyle, styles.containerDueToday];
-    }
-    return baseStyle;
+    return styles.container;
   };
 
   const getClockIconColor = () => {
@@ -75,8 +61,12 @@ export default function TaskItem({
   });
 
   return (
-    <View style={getContainerStyle()}>
-      <Pressable style={styles.content} onPress={onViewDetails}>
+    <Pressable
+      style={getContainerStyle()}
+      onPress={onMarkDone}
+      onLongPress={onEdit}
+    >
+      <View style={styles.content}>
         <View style={styles.metadataContainer}>
           <View style={styles.metadata}>
             <EvilIcons name="clock" size={16} color={getClockIconColor()} />
@@ -112,23 +102,17 @@ export default function TaskItem({
         >
           {task.title}
         </Text>
-      </Pressable>
-      <Pressable
-        style={[
-          styles.icon,
-          status === 'overdue' && styles.iconOverdue,
-          status === 'dueToday' && styles.iconDueToday,
-          status === 'completed' && styles.iconCompleted,
-        ]}
-        onPress={onMarkDone}
+      </View>
+      <View
+        style={[styles.icon, status === 'completed' && styles.iconCompleted]}
       >
         <TaskIcon
           completedToday={completedToday}
           overdue={overdue}
           dueToday={dueToday}
         />
-      </Pressable>
-    </View>
+      </View>
+    </Pressable>
   );
 }
 
@@ -144,15 +128,6 @@ const styles = StyleSheet.create(theme => ({
     borderWidth: 1,
     borderColor: theme.colors.surface,
   },
-  containerOverdue: {
-    backgroundColor: hexToRgba(theme.colors.error, 0.08),
-    borderColor: hexToRgba(theme.colors.error, 0.25),
-  },
-  containerDueToday: {
-    backgroundColor: hexToRgba(theme.colors.blue, 0.08),
-    borderWidth: 1,
-    borderColor: hexToRgba(theme.colors.blue, 0.25),
-  },
   icon: {
     width: 40,
     height: 40,
@@ -162,14 +137,6 @@ const styles = StyleSheet.create(theme => ({
     borderWidth: 1,
     borderColor: theme.colors.border,
     marginRight: 20,
-  },
-  iconOverdue: {
-    borderColor: hexToRgba(theme.colors.error, 0.38),
-    backgroundColor: hexToRgba(theme.colors.error, 0.06),
-  },
-  iconDueToday: {
-    borderColor: hexToRgba(theme.colors.blue, 0.38),
-    backgroundColor: hexToRgba(theme.colors.blue, 0.06),
   },
   iconCompleted: {
     borderColor: theme.colors.border,
