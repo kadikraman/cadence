@@ -77,84 +77,102 @@ struct widgetEntryView : View {
         return max(0, daysDiff)
     }
     
+    private func formatDueDate(_ timestamp: Double, inWords: Bool) -> String {
+        let dueDate = Date(timeIntervalSince1970: timestamp / 1000.0)
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let due = calendar.startOfDay(for: dueDate)
+        let daysDiff = calendar.dateComponents([.day], from: today, to: due).day ?? 0
+        
+        if inWords {
+            if daysDiff == 0 {
+                return "Today"
+            } else if daysDiff == 1 {
+                return "Tomorrow"
+            } else if daysDiff <= 7 {
+                return "in \(daysDiff) days"
+            } else {
+                let formatter = DateFormatter()
+                formatter.dateFormat = "MMM d"
+                return formatter.string(from: dueDate)
+            }
+        } else {
+            return "in \(daysDiff) day\(daysDiff == 1 ? "" : "s")"
+        }
+    }
+    
     private var widgetContentView: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Cadence")
+                    .font(.headline)
+                    .foregroundColor(.blue)
+                Spacer()
+                if let tasks = loadMultipleTasks() {
+                    let stats = getTaskStats(from: tasks)
+                    let count = stats.overdueTasks.count + stats.dueTodayTasks.count
+                    Text("\(count)")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.primary)
+                } else {
+                    Text("0")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.primary)
+                }
+            }
+            
             if let tasks = loadMultipleTasks(), !tasks.isEmpty {
                 let stats = getTaskStats(from: tasks)
                 
-                if !stats.overdueTasks.isEmpty {
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack(spacing: 6) {
-                            Image(systemName: "exclamationmark.triangle.fill")
-                                .font(.caption)
-                                .foregroundColor(.red)
-                            Text("Overdue (\(stats.overdueTasks.count))")
+                if !stats.overdueTasks.isEmpty || !stats.dueTodayTasks.isEmpty {
+                    VStack(alignment: .leading, spacing: 8) {
+                        if !stats.overdueTasks.isEmpty {
+                            Text("\(stats.overdueTasks.count) Overdue")
                                 .font(.subheadline)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.red)
+                                .foregroundColor(.primary)
                         }
-                        ForEach(Array(stats.overdueTasks.prefix(2)), id: \.id) { task in
-                            Text("- \(task.title)")
-                                .font(.caption)
-                                .foregroundColor(.red)
-                                .lineLimit(1)
+                        
+                        if !stats.overdueTasks.isEmpty && !stats.dueTodayTasks.isEmpty {
+                            HStack(spacing: 3) {
+                                ForEach(0..<20, id: \.self) { _ in
+                                    Circle()
+                                        .fill(Color.gray.opacity(0.4))
+                                        .frame(width: 2, height: 2)
+                                }
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
                         }
-                        if stats.overdueTasks.count > 2 {
-                            Text("(+\(stats.overdueTasks.count - 2) more)")
-                                .font(.caption)
-                                .foregroundColor(.red.opacity(0.7))
+                        
+                        if !stats.dueTodayTasks.isEmpty {
+                            Text("\(stats.dueTodayTasks.count) Due today")
+                                .font(.subheadline)
+                                .foregroundColor(.primary)
                         }
                     }
-                }
-                
-                if !stats.dueTodayTasks.isEmpty {
+                } else if let nextTask = stats.nextTask {
                     VStack(alignment: .leading, spacing: 4) {
-                        HStack(spacing: 6) {
-                            Image(systemName: "clock.fill")
-                                .font(.caption)
-                                .foregroundColor(.blue)
-                            Text("Due today (\(stats.dueTodayTasks.count))")
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.blue)
-                        }
-                        ForEach(Array(stats.dueTodayTasks.prefix(2)), id: \.id) { task in
-                            Text("- \(task.title)")
-                                .font(.caption)
-                                .foregroundColor(.blue)
-                                .lineLimit(1)
-                        }
-                        if stats.dueTodayTasks.count > 2 {
-                            Text("(+\(stats.dueTodayTasks.count - 2) more)")
-                                .font(.caption)
-                                .foregroundColor(.blue.opacity(0.7))
-                        }
-                    }
-                }
-                
-                if stats.overdueTasks.isEmpty && stats.dueTodayTasks.isEmpty, let nextTask = stats.nextTask {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Next up:")
+                        Text("Next up")
                             .font(.caption)
                             .foregroundColor(.secondary)
-                        Text("\(nextTask.title)")
-                            .font(.headline)
+                        Text(nextTask.title)
+                            .font(.subheadline)
                             .foregroundColor(.primary)
-                            .lineLimit(1)
-                        let days = getDaysUntil(nextTask.nextDueDate)
-                        Text("in \(days) day\(days == 1 ? "" : "s")")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                            .lineLimit(2)
+                        Text(formatDueDate(nextTask.nextDueDate, inWords: entry.configuration.showDistanceInWords))
+                            .font(.caption2)
+                            .foregroundColor(.secondary.opacity(0.7))
                     }
                 }
             } else {
-                Text("No tasks")
-                    .font(.headline)
-                    .foregroundColor(.secondary)
+                Text("no tasks")
+                    .font(.subheadline)
+                    .foregroundColor(.primary)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .padding(.all, 4)
+        .padding(.all, 8)
     }
     
     func loadMultipleTasks() -> [PriorityTask]? {

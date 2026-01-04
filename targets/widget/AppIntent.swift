@@ -5,6 +5,6 @@ struct ConfigurationAppIntent: WidgetConfigurationIntent {
     static var title: LocalizedStringResource { "Configuration" }
     static var description: IntentDescription { "Cadence Widget Configuration" }
 
-    @Parameter(title: "Show Distance in Words", default: false)
+    @Parameter(title: "Show Distance in Words", default: true)
     var showDistanceInWords: Bool
 }
