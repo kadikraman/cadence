@@ -125,28 +125,35 @@ struct widgetEntryView : View {
                 let stats = getTaskStats(from: tasks)
                 
                 if !stats.overdueTasks.isEmpty || !stats.dueTodayTasks.isEmpty {
+                    let allTasks = stats.overdueTasks + stats.dueTodayTasks
+                    let firstThreeTasks = Array(allTasks.prefix(3))
+                    
                     VStack(alignment: .leading, spacing: 8) {
-                        if !stats.overdueTasks.isEmpty {
-                            Text("\(stats.overdueTasks.count) Overdue")
-                                .font(.subheadline)
-                                .foregroundColor(.primary)
-                        }
-                        
-                        if !stats.overdueTasks.isEmpty && !stats.dueTodayTasks.isEmpty {
-                            HStack(spacing: 3) {
-                                ForEach(0..<20, id: \.self) { _ in
-                                    Circle()
-                                        .fill(Color.gray.opacity(0.4))
-                                        .frame(width: 2, height: 2)
-                                }
+                        ForEach(Array(firstThreeTasks.enumerated()), id: \.element.id) { index, task in
+                            let taskIsOverdue = isOverdue(task.nextDueDate)
+                            let lineLimit: Int = firstThreeTasks.count == 1 ? 4 : (firstThreeTasks.count == 2 ? 2 : 1)
+                            
+                            HStack(alignment: .center, spacing: 2) {
+                                Text(task.title)
+                                    .font(.subheadline)
+                                    .foregroundColor(.primary)
+                                    .lineLimit(lineLimit)
+                                Spacer()
+                                Circle()
+                                    .stroke(taskIsOverdue ? Color.red : Color.blue, lineWidth: 2)
+                                    .frame(width: 16, height: 16)
                             }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        }
-                        
-                        if !stats.dueTodayTasks.isEmpty {
-                            Text("\(stats.dueTodayTasks.count) Due today")
-                                .font(.subheadline)
-                                .foregroundColor(.primary)
+                            
+                            if index < firstThreeTasks.count - 1 {
+                                Rectangle()
+                                    .fill(Color.clear)
+                                    .frame(height: 1)
+                                    .overlay(
+                                        Rectangle()
+                                            .stroke(style: StrokeStyle(lineWidth: 1, dash: [2, 2]))
+                                            .foregroundColor(Color.gray.opacity(0.4))
+                                    )
+                            }
                         }
                     }
                 } else if let nextTask = stats.nextTask {
@@ -157,7 +164,7 @@ struct widgetEntryView : View {
                         Text(nextTask.title)
                             .font(.subheadline)
                             .foregroundColor(.primary)
-                            .lineLimit(2)
+                            .lineLimit(3)
                         Text(formatDueDate(nextTask.nextDueDate, inWords: entry.configuration.showDistanceInWords))
                             .font(.caption2)
                             .foregroundColor(.secondary.opacity(0.7))
@@ -170,7 +177,7 @@ struct widgetEntryView : View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .padding(.all, 8)
+        .padding(.all, 4)
     }
     
     func loadMultipleTasks() -> [PriorityTask]? {

@@ -33,24 +33,19 @@ export default function TaskMetadata({
 
   return (
     <View style={styles.metadataContainer}>
-      <View style={styles.metadata}>
-        {showBadge ? (
-          <View
-            style={[
-              styles.badge,
-              { backgroundColor: getBadgeBackgroundColor() },
-            ]}
-          >
-            <EvilIcons name="clock" size={16} color={getClockIconColor()} />
-            <Text style={styles.badgeText}>{textContent}</Text>
-          </View>
-        ) : (
-          <>
-            <EvilIcons name="clock" size={16} color={getClockIconColor()} />
-            <Text style={styles.dueIn}>{textContent}</Text>
-          </>
-        )}
-      </View>
+      {showBadge ? (
+        <View
+          style={[styles.badge, { backgroundColor: getBadgeBackgroundColor() }]}
+        >
+          <EvilIcons name="clock" size={16} color={getClockIconColor()} />
+          <Text style={styles.badgeText}>{textContent}</Text>
+        </View>
+      ) : (
+        <View style={styles.metadata}>
+          <EvilIcons name="clock" size={16} color={getClockIconColor()} />
+          <Text style={styles.dueIn}>{textContent}</Text>
+        </View>
+      )}
     </View>
   );
 }
@@ -65,6 +60,7 @@ const styles = StyleSheet.create(theme => ({
     gap: 2,
     flexDirection: 'row',
     alignItems: 'center',
+    paddingVertical: 4,
   },
   dueIn: {
     fontSize: 12,
@@ -78,7 +74,7 @@ const styles = StyleSheet.create(theme => ({
     gap: 4,
   },
   badgeText: {
-    fontSize: 10,
+    fontSize: 12,
     color: theme.colors.white,
     fontWeight: '500',
   },
