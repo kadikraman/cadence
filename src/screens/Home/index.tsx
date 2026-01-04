@@ -14,7 +14,13 @@ import { StyleSheet } from 'react-native-unistyles';
 import TaskItem from '../../components/TaskItem';
 import { WidgetProvider } from '../../contexts/WidgetContext';
 import { Task, taskStorage } from '../../lib/storage';
-import { sortTasksByDueDate } from '../../utils/taskUtils';
+import {
+  getNextDueDate,
+  isCompletedToday,
+  isDueToday,
+  isOverdue,
+  sortTasksByDueDate,
+} from '../../utils/taskUtils';
 
 function HomeContent({
   tasks,
@@ -27,8 +33,17 @@ function HomeContent({
   const confettiRef = useRef<ConfettiCannon>(null);
 
   const celebrateCompletion = () => {
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    confettiRef.current?.start();
+    setTimeout(() => {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      confettiRef.current?.start();
+    }, 200);
+  };
+
+  const isLastTaskDueToday = (allTasks: Task[]): boolean => {
+    const remainingTasksDueToday = allTasks.filter(
+      task => (isOverdue(task) || isDueToday(task)) && !isCompletedToday(task)
+    );
+    return remainingTasksDueToday.length === 0;
   };
 
   const handleAddTask = () => {
@@ -65,11 +80,28 @@ function HomeContent({
   };
 
   const handleToggleComplete = async (task: Task) => {
+    if (isCompletedToday(task)) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const todayTimestamp = today.getTime();
+
+      const todayCompletionDate = task.completedDates?.find(date => {
+        const completedDate = new Date(date);
+        completedDate.setHours(0, 0, 0, 0);
+        return completedDate.getTime() === todayTimestamp;
+      });
+
+      if (todayCompletionDate) {
+        await taskStorage.unmarkTaskCompleted(task.id, todayCompletionDate);
+        await onTasksChange();
+      }
+      return;
+    }
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const todayTimestamp = today.getTime();
 
-    const { getNextDueDate } = await import('../../utils/taskUtils');
     const nextDue = getNextDueDate(task);
     const nextDueDate = new Date(nextDue);
     nextDueDate.setHours(0, 0, 0, 0);
@@ -92,16 +124,24 @@ function HomeContent({
             text: 'Mark as Done',
             onPress: async () => {
               await taskStorage.markTaskCompleted(task.id);
+              const updatedTasks = await taskStorage.getAllTasks();
+              const sorted = sortTasksByDueDate(updatedTasks);
+              if (isLastTaskDueToday(sorted)) {
+                celebrateCompletion();
+              }
               await onTasksChange();
-              celebrateCompletion();
             },
           },
         ]
       );
     } else {
       await taskStorage.markTaskCompleted(task.id);
+      const updatedTasks = await taskStorage.getAllTasks();
+      const sorted = sortTasksByDueDate(updatedTasks);
+      if (isLastTaskDueToday(sorted)) {
+        celebrateCompletion();
+      }
       await onTasksChange();
-      celebrateCompletion();
     }
   };
 
@@ -136,6 +176,7 @@ function HomeContent({
             />
           )}
           contentContainerStyle={styles.list}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
         />
       )}
       <ConfettiCannon
@@ -159,7 +200,8 @@ const styles = StyleSheet.create((theme, rt) => ({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
+    paddingLeft: 20,
+    paddingRight: 8,
     paddingVertical: 16,
   },
   title: {
@@ -191,6 +233,10 @@ const styles = StyleSheet.create((theme, rt) => ({
     fontSize: 16,
     textAlign: 'center',
     color: theme.colors.textTertiary,
+  },
+  separator: {
+    height: 1,
+    backgroundColor: theme.colors.border,
   },
 }));
 

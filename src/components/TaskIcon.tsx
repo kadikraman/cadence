@@ -1,5 +1,10 @@
 import { SymbolView } from 'expo-symbols';
-import { UnistylesThemes, useUnistyles } from 'react-native-unistyles';
+import { View } from 'react-native';
+import {
+  StyleSheet,
+  UnistylesThemes,
+  useUnistyles,
+} from 'react-native-unistyles';
 
 interface TaskIconProps {
   completedToday: boolean;
@@ -7,7 +12,7 @@ interface TaskIconProps {
   dueToday: boolean;
 }
 
-export const getIconColor = ({
+const getIconColor = ({
   overdue,
   dueToday,
   completedToday,
@@ -20,7 +25,7 @@ export const getIconColor = ({
 }) => {
   if (overdue) return theme.colors.error;
   if (dueToday) return theme.colors.blue;
-  if (completedToday) return theme.colors.success;
+  if (completedToday) return theme.colors.white;
   return theme.colors.textSecondary;
 };
 
@@ -37,25 +42,70 @@ export default function TaskIcon({
     theme,
   });
 
-  if (completedToday) {
-    return <SymbolView name="checkmark" size={18} tintColor={iconColor} />;
-  }
+  const isFuture = !completedToday && !overdue && !dueToday;
 
-  if (overdue) {
-    return (
-      <SymbolView name="exclamationmark" size={18} tintColor={iconColor} />
-    );
-  }
+  const getStatus = () => {
+    if (completedToday) return 'completed';
+    if (overdue) return 'overdue';
+    if (dueToday) return 'dueToday';
+    return 'default';
+  };
 
-  if (dueToday) {
+  const status = getStatus();
+
+  const getIcon = () => {
+    if (completedToday) {
+      return <SymbolView name="checkmark" size={14} tintColor={iconColor} />;
+    }
+
+    if (isFuture)
+      return (
+        <SymbolView
+          name={'calendar.badge' as any}
+          size={24}
+          tintColor={iconColor}
+        />
+      );
+
     return null;
-  }
+  };
 
   return (
-    <SymbolView
-      name={'calendar.badge' as any}
-      size={18}
-      tintColor={iconColor}
-    />
+    <View
+      style={[
+        styles.icon,
+        status === 'completed' && styles.iconCompleted,
+        status === 'overdue' && styles.iconOverdue,
+        status === 'dueToday' && styles.iconDueToday,
+        isFuture && styles.iconFuture,
+      ]}
+    >
+      {getIcon()}
+    </View>
   );
 }
+
+const styles = StyleSheet.create(theme => ({
+  icon: {
+    width: 24,
+    height: 24,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: theme.colors.border,
+  },
+  iconCompleted: {
+    borderColor: theme.colors.success,
+    backgroundColor: theme.colors.success,
+  },
+  iconOverdue: {
+    borderColor: theme.colors.error,
+  },
+  iconDueToday: {
+    borderColor: theme.colors.blue,
+  },
+  iconFuture: {
+    borderColor: 'transparent',
+  },
+}));

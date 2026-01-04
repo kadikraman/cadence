@@ -1,4 +1,5 @@
-import { Pressable, Text, View } from 'react-native';
+import { Dimensions, Pressable, Text, View } from 'react-native';
+import Animated, { LinearTransition } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import { Task } from '../lib/storage';
@@ -10,7 +11,9 @@ import {
   isDueToday,
   isOverdue,
 } from '../utils/taskUtils';
-import TaskIcon, { getIconColor } from './TaskIcon';
+import TaskIcon from './TaskIcon';
+import TaskMetadata from './TaskMetadata';
+import WithContextMenu from './WithContextMenu';
 
 interface TaskItemProps {
   task: Task;
@@ -43,116 +46,51 @@ export default function TaskItem({
 
   const status = getTaskStatus();
 
-  const getContainerStyle = () => {
-    return styles.container;
-  };
-
-  const getClockIconColor = () => {
-    if (status === 'overdue') return theme.colors.error;
-    if (status === 'dueToday') return theme.colors.blue;
-    return theme.colors.text;
-  };
-
-  const iconColor = getIconColor({
-    completedToday,
-    overdue,
-    dueToday,
-    theme,
-  });
-
   return (
-    <Pressable
-      style={getContainerStyle()}
-      onPress={onMarkDone}
-      onLongPress={onEdit}
-    >
-      <View style={styles.content}>
-        <View style={styles.metadataContainer}>
-          <View style={styles.metadata}>
-            <EvilIcons name="clock" size={16} color={getClockIconColor()} />
-            <Text
-              style={[
-                styles.dueIn,
-                status === 'overdue' && styles.dueInOverdue,
-                status === 'dueToday' && styles.dueInToday,
-              ]}
-            >
-              {completedToday ? 'Completed today' : dueInText}
-            </Text>
-          </View>
-          <View style={styles.metadata}>
-            <EvilIcons name="refresh" size={18} color={iconColor} />
-            <Text
-              style={[
-                styles.dueIn,
-                status === 'overdue' && styles.taskTextOverdue,
-                status === 'dueToday' && styles.taskTextDueToday,
-              ]}
-            >
-              {formatCadence(task.cadence)}
-            </Text>
-          </View>
-        </View>
-        <Text
-          style={[
-            styles.taskTitle,
-            status === 'overdue' && styles.taskTextOverdue,
-            status === 'dueToday' && styles.taskTextDueToday,
-          ]}
-        >
-          {task.title}
-        </Text>
-      </View>
-      <View
-        style={[styles.icon, status === 'completed' && styles.iconCompleted]}
+    <Animated.View layout={LinearTransition}>
+      <WithContextMenu
+        width={Dimensions.get('window').width - 32}
+        onEdit={onEdit}
+        onDelete={onDelete}
+        onViewHistory={onViewDetails}
       >
-        <TaskIcon
-          completedToday={completedToday}
-          overdue={overdue}
-          dueToday={dueToday}
-        />
-      </View>
-    </Pressable>
+        <Pressable style={styles.container} onPress={onMarkDone}>
+          <View style={styles.content}>
+            <TaskMetadata
+              status={status}
+              completedToday={completedToday}
+              dueInText={dueInText}
+            />
+            <Text style={styles.taskTitle}>{task.title}</Text>
+          </View>
+          <View style={styles.rightContainer}>
+            <View style={styles.metadata}>
+              <EvilIcons name="refresh" size={18} color={theme.colors.text} />
+              <Text style={[styles.dueIn]}>{formatCadence(task.cadence)}</Text>
+            </View>
+            <TaskIcon
+              completedToday={completedToday}
+              overdue={overdue}
+              dueToday={dueToday}
+            />
+          </View>
+        </Pressable>
+      </WithContextMenu>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create(theme => ({
   container: {
-    borderRadius: 32,
-    marginBottom: 16,
-    backgroundColor: theme.colors.surface,
-    boxShadow: theme.shadows.md,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 16,
-    borderWidth: 1,
-    borderColor: theme.colors.surface,
-  },
-  icon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    marginRight: 20,
-  },
-  iconCompleted: {
-    borderColor: theme.colors.border,
-    backgroundColor: 'transparent',
+    paddingHorizontal: 8,
+    paddingVertical: 16,
   },
   content: {
     flex: 1,
     gap: 8,
-    paddingTop: 20,
-    paddingBottom: 20,
-    paddingLeft: 20,
-  },
-  metadataContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
   },
   taskTitle: {
     fontSize: 16,
@@ -176,12 +114,6 @@ const styles = StyleSheet.create(theme => ({
   dueIn: {
     fontSize: 12,
     color: theme.colors.textSecondary,
-  },
-  dueInOverdue: {
-    color: theme.colors.error,
-  },
-  dueInToday: {
-    color: theme.colors.blue,
   },
   lastCompleted: {
     fontSize: 13,
@@ -223,5 +155,9 @@ const styles = StyleSheet.create(theme => ({
     fontSize: 15,
     fontWeight: '500',
     color: theme.colors.error,
+  },
+  rightContainer: {
+    alignItems: 'flex-end',
+    gap: 12,
   },
 }));
