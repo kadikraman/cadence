@@ -89,15 +89,13 @@ struct widgetEntryView : View {
                 return "Today"
             } else if daysDiff == 1 {
                 return "Tomorrow"
-            } else if daysDiff <= 7 {
-                return "in \(daysDiff) days"
             } else {
-                let formatter = DateFormatter()
-                formatter.dateFormat = "MMM d"
-                return formatter.string(from: dueDate)
+                return "in \(daysDiff) days"
             }
         } else {
-            return "in \(daysDiff) day\(daysDiff == 1 ? "" : "s")"
+            let formatter = DateFormatter()
+            formatter.dateFormat = "MMM d"
+            return formatter.string(from: dueDate)
         }
     }
     
