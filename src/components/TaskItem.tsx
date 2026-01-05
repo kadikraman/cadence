@@ -1,4 +1,4 @@
-import { Dimensions, Pressable, Text, View } from 'react-native';
+import { Alert, Pressable, Text, View } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
@@ -13,7 +13,7 @@ import {
 } from '../utils/taskUtils';
 import TaskIcon from './TaskIcon';
 import TaskMetadata from './TaskMetadata';
-import WithContextMenu from './WithContextMenu';
+import * as Haptics from 'expo-haptics';
 
 interface TaskItemProps {
   task: Task;
@@ -46,36 +46,60 @@ export default function TaskItem({
 
   const status = getTaskStatus();
 
+  const onMenuPress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    Alert.alert(
+      'Item Actions',
+      `What would you like to do with "${task.title}"?`,
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Edit',
+          onPress: onEdit,
+        },
+        {
+          text: 'View History',
+          onPress: onViewDetails,
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: onDelete,
+        },
+      ]
+    );
+  };
+
   return (
     <Animated.View layout={LinearTransition}>
-      <WithContextMenu
-        width={Dimensions.get('window').width - 32}
-        onEdit={onEdit}
-        onDelete={onDelete}
-        onViewHistory={onViewDetails}
+      <Pressable
+        style={styles.container}
+        onPress={onMarkDone}
+        onLongPress={onMenuPress}
       >
-        <Pressable style={styles.container} onPress={onMarkDone}>
-          <View style={styles.content}>
-            <TaskMetadata
-              status={status}
-              completedToday={completedToday}
-              dueInText={dueInText}
-            />
-            <Text style={styles.taskTitle}>{task.title}</Text>
+        <View style={styles.content}>
+          <TaskMetadata
+            status={status}
+            completedToday={completedToday}
+            dueInText={dueInText}
+          />
+          <Text style={styles.taskTitle}>{task.title}</Text>
+        </View>
+        <View style={styles.rightContainer}>
+          <View style={styles.metadata}>
+            <EvilIcons name="refresh" size={18} color={theme.colors.text} />
+            <Text style={[styles.dueIn]}>{formatCadence(task.cadence)}</Text>
           </View>
-          <View style={styles.rightContainer}>
-            <View style={styles.metadata}>
-              <EvilIcons name="refresh" size={18} color={theme.colors.text} />
-              <Text style={[styles.dueIn]}>{formatCadence(task.cadence)}</Text>
-            </View>
-            <TaskIcon
-              completedToday={completedToday}
-              overdue={overdue}
-              dueToday={dueToday}
-            />
-          </View>
-        </Pressable>
-      </WithContextMenu>
+          <TaskIcon
+            completedToday={completedToday}
+            overdue={overdue}
+            dueToday={dueToday}
+          />
+        </View>
+      </Pressable>
     </Animated.View>
   );
 }
