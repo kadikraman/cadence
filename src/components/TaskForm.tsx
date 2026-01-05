@@ -12,6 +12,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { Cadence, Task } from '../lib/storage';
 import { calculateNextDueDate } from '../utils/taskUtils';
 import SegmentedPicker from './SegmentedPicker';
+import { Stack } from 'expo-router';
 
 interface TaskFormProps {
   task?: Task | null;
@@ -103,17 +104,21 @@ export default function TaskForm({ task, onSave, onCancel }: TaskFormProps) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={onCancel}>
-          <Text style={styles.cancelButton}>Cancel</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>
-          {task ? 'Edit Task' : 'New Task'}
-        </Text>
-        <TouchableOpacity onPress={handleSave}>
-          <Text style={styles.saveButton}>Save</Text>
-        </TouchableOpacity>
-      </View>
+      <Stack.Screen
+        options={{
+          title: task ? 'Edit Task' : 'New Task',
+          headerLeft: () => (
+            <TouchableOpacity onPress={onCancel}>
+              <Text style={styles.cancelButton}>Cancel</Text>
+            </TouchableOpacity>
+          ),
+          headerRight: () => (
+            <TouchableOpacity onPress={handleSave}>
+              <Text style={styles.saveButton}>Save</Text>
+            </TouchableOpacity>
+          ),
+        }}
+      />
 
       <KeyboardAwareScrollView
         style={styles.content}
@@ -222,11 +227,13 @@ const styles = StyleSheet.create(theme => ({
   cancelButton: {
     fontSize: 16,
     color: theme.colors.textSecondary,
+    paddingHorizontal: 16,
   },
   saveButton: {
     fontSize: 16,
     fontWeight: '600',
     color: theme.colors.text,
+    paddingHorizontal: 16,
   },
   content: {
     flex: 1,

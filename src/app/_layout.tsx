@@ -1,33 +1,37 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
-import { ThemeProvider, useTheme } from '../contexts/ThemeContext';
+import {
+  ThemeProvider as UnistylesThemeProvider,
+  useTheme,
+} from '../contexts/ThemeContext';
+import {
+  ThemeProvider as ReactNativeThemeProvider,
+  DarkTheme,
+  DefaultTheme,
+} from '@react-navigation/native';
 import '../unistyles';
 
 function RootLayoutNav() {
   const { isDark } = useTheme();
   return (
-    <>
-      <Stack
-        screenOptions={{
-          headerShown: false,
-        }}
-      >
-        <Stack.Screen name="index" />
+    <ReactNativeThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
+      <Stack>
+        <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="new" options={{ presentation: 'modal' }} />
-        <Stack.Screen name="task/[taskId]" />
+        <Stack.Screen name="task/[taskId]" options={{ headerShown: false }} />
       </Stack>
       <StatusBar style={isDark ? 'light' : 'dark'} />
-    </>
+    </ReactNativeThemeProvider>
   );
 }
 
 export default function RootLayout() {
   return (
     <KeyboardProvider>
-      <ThemeProvider>
+      <UnistylesThemeProvider>
         <RootLayoutNav />
-      </ThemeProvider>
+      </UnistylesThemeProvider>
     </KeyboardProvider>
   );
 }
