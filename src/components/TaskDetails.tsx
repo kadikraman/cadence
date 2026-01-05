@@ -15,6 +15,7 @@ import {
   getNextDueDate,
   isOverdue,
 } from '../utils/taskUtils';
+import { Stack } from 'expo-router';
 
 interface TaskDetailsProps {
   task: Task;
@@ -76,16 +77,22 @@ export default function TaskDetails({
   const completedDates = [...(task.completedDates || [])].sort((a, b) => b - a);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={onClose}>
-          <Text style={styles.closeButton}>Close</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Task Details</Text>
-        <TouchableOpacity onPress={onEdit}>
-          <Text style={styles.editButton}>Edit</Text>
-        </TouchableOpacity>
-      </View>
+    <>
+      <Stack.Screen
+        options={{
+          title: 'Task Details',
+          headerLeft: () => (
+            <TouchableOpacity onPress={onClose}>
+              <Text style={styles.closeButton}>Back</Text>
+            </TouchableOpacity>
+          ),
+          headerRight: () => (
+            <TouchableOpacity onPress={onEdit}>
+              <Text style={styles.editButton}>Edit</Text>
+            </TouchableOpacity>
+          ),
+        }}
+      />
 
       <ScrollView style={styles.content}>
         <View style={styles.section}>
@@ -126,7 +133,7 @@ export default function TaskDetails({
           )}
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </>
   );
 }
 
@@ -154,11 +161,13 @@ const styles = StyleSheet.create(theme => ({
     fontSize: 16,
     fontWeight: '500',
     color: theme.colors.text,
+    paddingHorizontal: 16,
   },
   editButton: {
     fontSize: 16,
     fontWeight: '600',
     color: theme.colors.text,
+    paddingHorizontal: 16,
   },
   content: {
     flex: 1,
