@@ -53,6 +53,8 @@ const config: ExpoConfig = {
     ],
     '@bacons/apple-targets',
     'react-native-edge-to-edge',
+    'expo-font',
+    'expo-web-browser',
   ],
   experiments: {
     typedRoutes: true,
