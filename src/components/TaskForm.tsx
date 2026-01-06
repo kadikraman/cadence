@@ -183,7 +183,7 @@ export default function TaskForm({ task, onSave, onCancel }: TaskFormProps) {
           )}
         </View>
 
-        <View style={styles.section}>
+        {/* <View style={styles.section}>
           <Text style={styles.label}>Next Due Date</Text>
           <DateTimePicker
             style={{
@@ -200,7 +200,7 @@ export default function TaskForm({ task, onSave, onCancel }: TaskFormProps) {
             }}
             minimumDate={new Date()}
           />
-        </View>
+        </View> */}
       </KeyboardAwareScrollView>
     </View>
   );

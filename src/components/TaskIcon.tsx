@@ -5,6 +5,7 @@ import {
   UnistylesThemes,
   useUnistyles,
 } from 'react-native-unistyles';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 interface TaskIconProps {
   completedToday: boolean;
@@ -55,17 +56,34 @@ export default function TaskIcon({
 
   const getIcon = () => {
     if (completedToday) {
-      return <SymbolView name="checkmark" size={14} tintColor={iconColor} />;
+      return (
+        <SymbolView
+          name="checkmark"
+          size={14}
+          tintColor={iconColor}
+          fallback={
+            <MaterialCommunityIcons name="check" size={14} color={iconColor} />
+          }
+        />
+      );
     }
 
-    if (isFuture)
+    if (isFuture) {
       return (
         <SymbolView
           name={'calendar.badge' as any}
           size={24}
           tintColor={iconColor}
+          fallback={
+            <MaterialCommunityIcons
+              name="calendar-clock"
+              size={24}
+              color={iconColor}
+            />
+          }
         />
       );
+    }
 
     return null;
   };

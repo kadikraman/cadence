@@ -55,6 +55,25 @@ const config: ExpoConfig = {
     'react-native-edge-to-edge',
     'expo-font',
     'expo-web-browser',
+    [
+      'react-native-android-widget',
+      {
+        widgets: [
+          {
+            name: 'CadenceWidget',
+            label: 'Cadence Tasks',
+            description: 'View your upcoming tasks',
+            minWidth: '110dp',
+            minHeight: '110dp',
+            targetCellWidth: 2,
+            targetCellHeight: 2,
+            maxResizeWidth: '400dp',
+            maxResizeHeight: '400dp',
+            resizeMode: 'horizontal|vertical',
+          },
+        ],
+      },
+    ],
   ],
   experiments: {
     typedRoutes: true,
