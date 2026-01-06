@@ -211,19 +211,6 @@ const styles = StyleSheet.create(theme => ({
     flex: 1,
     backgroundColor: theme.colors.background,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    letterSpacing: -0.3,
-    color: theme.colors.text,
-  },
   cancelButton: {
     fontSize: 16,
     color: theme.colors.textSecondary,
@@ -274,24 +261,6 @@ const styles = StyleSheet.create(theme => ({
     justifyContent: 'center',
     alignItems: 'center',
     textAlign: 'center',
-  },
-  dateButton: {
-    borderRadius: 12,
-    padding: 14,
-    borderWidth: 1,
-  },
-  dateButtonText: {
-    fontSize: 16,
-  },
-  datePickerDone: {
-    marginTop: 12,
-    padding: 14,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  datePickerDoneText: {
-    fontSize: 16,
-    fontWeight: '600',
   },
   textArea: {
     borderRadius: 12,

@@ -7,6 +7,7 @@ import {
   formatCadence,
   formatDueIn,
   getNextDueDate,
+  getTaskStatus,
   isCompletedToday,
   isDueToday,
   isOverdue,
@@ -36,15 +37,7 @@ export default function TaskItem({
   const dueToday = isDueToday(task);
   const completedToday = isCompletedToday(task);
   const dueInText = formatDueIn(nextDue);
-
-  const getTaskStatus = () => {
-    if (completedToday) return 'completed';
-    if (overdue) return 'overdue';
-    if (dueToday) return 'dueToday';
-    return 'default';
-  };
-
-  const status = getTaskStatus();
+  const status = getTaskStatus(task);
 
   const onMenuPress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
@@ -121,15 +114,6 @@ const styles = StyleSheet.create(theme => ({
     fontWeight: '500',
     color: theme.colors.text,
   },
-  taskTextOverdue: {
-    color: theme.colors.error,
-  },
-  taskTextDueToday: {
-    color: theme.colors.blue,
-  },
-  taskTitleCompleted: {
-    color: theme.colors.textSecondary,
-  },
   metadata: {
     gap: 2,
     flexDirection: 'row',
@@ -138,47 +122,6 @@ const styles = StyleSheet.create(theme => ({
   dueIn: {
     fontSize: 12,
     color: theme.colors.textSecondary,
-  },
-  lastCompleted: {
-    fontSize: 13,
-    fontWeight: '400',
-    color: theme.colors.textTertiary,
-  },
-  actions: {
-    gap: 12,
-  },
-  markDoneButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 20,
-    alignItems: 'center',
-    backgroundColor: theme.colors.primary,
-  },
-  markDoneText: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: theme.colors.primaryText,
-  },
-  secondaryActions: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: 20,
-  },
-  actionButton: {
-    paddingVertical: 4,
-  },
-  actionText: {
-    fontSize: 15,
-    fontWeight: '500',
-    color: theme.colors.text,
-  },
-  deleteButton: {
-    paddingVertical: 4,
-  },
-  deleteText: {
-    fontSize: 15,
-    fontWeight: '500',
-    color: theme.colors.error,
   },
   rightContainer: {
     alignItems: 'flex-end',

@@ -13,7 +13,6 @@ export default function TaskDetailsScreen() {
     if (taskId) {
       const loadedTask = await taskStorage.getTask(taskId);
       setTask(loadedTask);
-      console.log('loadedTask', loadedTask);
     }
     setLoading(false);
   }, [taskId]);

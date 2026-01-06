@@ -6,10 +6,10 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { StyleSheet } from 'react-native-unistyles';
 import { Task, taskStorage } from '../lib/storage';
 import {
+  formatCompletionDate,
   formatDueIn,
   formatLastCompleted,
   getNextDueDate,
@@ -56,18 +56,6 @@ export default function TaskDetails({
         },
       ]
     );
-  };
-
-  const formatCompletionDate = (timestamp: number): string => {
-    const date = new Date(timestamp);
-    return date.toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true,
-    });
   };
 
   const nextDue = getNextDueDate(task);
@@ -138,25 +126,6 @@ export default function TaskDetails({
 }
 
 const styles = StyleSheet.create(theme => ({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    letterSpacing: -0.3,
-    color: theme.colors.text,
-  },
   closeButton: {
     fontSize: 16,
     fontWeight: '500',

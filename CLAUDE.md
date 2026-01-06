@@ -37,3 +37,13 @@ src/
 - Keep components in separate files when >50 lines
 - Handle loading and error states for async operations
 - Use `useSafeAreaInsets` for screen boundaries
+
+## Code Quality Rules
+
+- Remove unused styles immediately - do not leave dead style definitions
+- Never leave console.log statements in code
+- Remove unused imports
+- Extract repeated patterns (3+ occurrences) into utility functions
+- Date normalization must use `getTodayTimestamp()` or `normalizeToMidnight()` from taskUtils
+- Task status determination must use `getTaskStatus()` from taskUtils
+- Date formatting must use utilities from taskUtils (`formatDueIn`, `formatCompletionDate`, `formatLastCompleted`)

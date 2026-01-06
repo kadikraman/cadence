@@ -16,9 +16,11 @@ import { WidgetProvider } from '../../contexts/WidgetContext';
 import { Task, taskStorage } from '../../lib/storage';
 import {
   getNextDueDate,
+  getTodayTimestamp,
   isCompletedToday,
   isDueToday,
   isOverdue,
+  normalizeToMidnight,
   sortTasksByDueDate,
 } from '../../utils/taskUtils';
 
@@ -80,16 +82,12 @@ function HomeContent({
   };
 
   const handleToggleComplete = async (task: Task) => {
-    if (isCompletedToday(task)) {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const todayTimestamp = today.getTime();
+    const todayTimestamp = getTodayTimestamp();
 
-      const todayCompletionDate = task.completedDates?.find(date => {
-        const completedDate = new Date(date);
-        completedDate.setHours(0, 0, 0, 0);
-        return completedDate.getTime() === todayTimestamp;
-      });
+    if (isCompletedToday(task)) {
+      const todayCompletionDate = task.completedDates?.find(
+        date => normalizeToMidnight(date) === todayTimestamp
+      );
 
       if (todayCompletionDate) {
         await taskStorage.unmarkTaskCompleted(task.id, todayCompletionDate);
@@ -98,14 +96,7 @@ function HomeContent({
       return;
     }
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const todayTimestamp = today.getTime();
-
-    const nextDue = getNextDueDate(task);
-    const nextDueDate = new Date(nextDue);
-    nextDueDate.setHours(0, 0, 0, 0);
-    const nextDueTimestamp = nextDueDate.getTime();
+    const nextDueTimestamp = normalizeToMidnight(getNextDueDate(task));
 
     const diffDays = Math.floor(
       (nextDueTimestamp - todayTimestamp) / (1000 * 60 * 60 * 24)

@@ -1,5 +1,19 @@
 import { Cadence, Task } from '../lib/storage';
 
+export type TaskStatus = 'completed' | 'overdue' | 'dueToday' | 'default';
+
+export const getTodayTimestamp = (): number => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return today.getTime();
+};
+
+export const normalizeToMidnight = (date: Date | number): number => {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  return d.getTime();
+};
+
 export const calculateNextDueDate = (
   cadence: Cadence,
   lastCompletedAt?: number,
@@ -49,69 +63,34 @@ export const getNextDueDate = (task: Task): number => {
 
 export const isOverdue = (task: Task): boolean => {
   const nextDue = getNextDueDate(task);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return nextDue < today.getTime();
+  return nextDue < getTodayTimestamp();
 };
 
 export const isDueToday = (task: Task): boolean => {
   const nextDue = getNextDueDate(task);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return nextDue === today.getTime();
+  return nextDue === getTodayTimestamp();
 };
 
 export const isCompletedToday = (task: Task): boolean => {
   if (!task.completedDates || task.completedDates.length === 0) {
     return false;
   }
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const todayTimestamp = today.getTime();
-  return task.completedDates.some(date => {
-    const completedDate = new Date(date);
-    completedDate.setHours(0, 0, 0, 0);
-    return completedDate.getTime() === todayTimestamp;
-  });
+  const todayTimestamp = getTodayTimestamp();
+  return task.completedDates.some(
+    date => normalizeToMidnight(date) === todayTimestamp
+  );
 };
 
-export const formatDueDate = (timestamp: number): string => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const todayTimestamp = today.getTime();
-
-  const dueDate = new Date(timestamp);
-  dueDate.setHours(0, 0, 0, 0);
-  const dueTimestamp = dueDate.getTime();
-
-  const diffDays = Math.floor(
-    (dueTimestamp - todayTimestamp) / (1000 * 60 * 60 * 24)
-  );
-
-  if (diffDays < 0) {
-    return `${Math.abs(diffDays)} day${Math.abs(diffDays) === 1 ? '' : 's'} overdue`;
-  } else if (diffDays === 0) {
-    return 'Due today';
-  } else if (diffDays === 1) {
-    return 'Due tomorrow';
-  } else if (diffDays <= 7) {
-    return `Due in ${diffDays} days`;
-  } else {
-    return dueDate.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-    });
-  }
+export const getTaskStatus = (task: Task): TaskStatus => {
+  if (isCompletedToday(task)) return 'completed';
+  if (isOverdue(task)) return 'overdue';
+  if (isDueToday(task)) return 'dueToday';
+  return 'default';
 };
 
 export const formatDueIn = (timestamp: number): string => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const todayTimestamp = today.getTime();
-
-  const dueDate = new Date(timestamp);
-  dueDate.setHours(0, 0, 0, 0);
-  const dueTimestamp = dueDate.getTime();
+  const todayTimestamp = getTodayTimestamp();
+  const dueTimestamp = normalizeToMidnight(timestamp);
 
   const diffDays = Math.floor(
     (dueTimestamp - todayTimestamp) / (1000 * 60 * 60 * 24)
@@ -126,6 +105,18 @@ export const formatDueIn = (timestamp: number): string => {
   } else {
     return `${diffDays} days`;
   }
+};
+
+export const formatCompletionDate = (timestamp: number): string => {
+  const date = new Date(timestamp);
+  return date.toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
 };
 
 export const formatLastCompleted = (task: Task): string => {
