@@ -8,7 +8,6 @@ const config: ExpoConfig = {
   icon: './assets/icon.png',
   scheme: 'cadence',
   userInterfaceStyle: 'automatic',
-  newArchEnabled: true,
   ios: {
     supportsTablet: true,
     icon: './assets/cadence.icon',
@@ -53,6 +52,8 @@ const config: ExpoConfig = {
     ],
     '@bacons/apple-targets',
     'react-native-edge-to-edge',
+    '@react-native-community/datetimepicker',
+    'expo-image',
     'expo-font',
     'expo-web-browser',
     [
