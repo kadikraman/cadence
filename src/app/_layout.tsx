@@ -1,19 +1,26 @@
+import {
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider as ReactNativeThemeProvider,
+} from '@react-navigation/native';
+import { AppMetrics, AppMetricsRoot } from 'expo-observe';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import {
   ThemeProvider as UnistylesThemeProvider,
   useTheme,
 } from '../contexts/ThemeContext';
-import {
-  ThemeProvider as ReactNativeThemeProvider,
-  DarkTheme,
-  DefaultTheme,
-} from '@react-navigation/native';
 import '../unistyles';
 
 function RootLayoutNav() {
   const { isDark } = useTheme();
+  
+  useEffect(() => {
+    AppMetrics.markInteractive();
+  }, []);
+
   return (
     <ReactNativeThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
       <Stack>
@@ -26,7 +33,7 @@ function RootLayoutNav() {
   );
 }
 
-export default function RootLayout() {
+function RootLayout() {
   return (
     <KeyboardProvider>
       <UnistylesThemeProvider>
@@ -35,3 +42,6 @@ export default function RootLayout() {
     </KeyboardProvider>
   );
 }
+
+
+export default AppMetricsRoot.wrap(RootLayout);
