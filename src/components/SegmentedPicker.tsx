@@ -1,4 +1,5 @@
-import { Host, Picker } from '@expo/ui/swift-ui';
+import { Host, Picker, Text } from '@expo/ui/swift-ui';
+import { pickerStyle, tag } from '@expo/ui/swift-ui/modifiers';
 import { StyleProp, View, ViewStyle } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
@@ -17,15 +18,20 @@ export default function SegmentedPicker<T extends string>({
 }: SegmentedPickerProps<T>) {
   return (
     <View style={[styles.container, style]}>
-      <Host matchContents>
+      <Host style={styles.host}>
         <Picker
-          options={options as string[]}
-          selectedIndex={selectedIndex}
-          onOptionSelected={({ nativeEvent: { index } }) => {
-            onOptionSelected(index);
+          selection={selectedIndex}
+          onSelectionChange={(selection) => {
+            onOptionSelected(selection as number);
           }}
-          variant="segmented"
-        />
+          modifiers={[pickerStyle('segmented')]}
+        >
+          {options.map((option, index) => (
+            <Text key={option} modifiers={[tag(index)]}>
+              {option}
+            </Text>
+          ))}
+        </Picker>
       </Host>
     </View>
   );
@@ -33,6 +39,10 @@ export default function SegmentedPicker<T extends string>({
 
 const styles = StyleSheet.create(() => ({
   container: {
+    width: '100%',
+  },
+  host: {
+    height: 36,
     width: '100%',
   },
 }));
