@@ -1,17 +1,12 @@
 import * as Haptics from 'expo-haptics';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  Alert,
-  Dimensions,
-  FlatList,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Alert, Dimensions, ScrollView, Text, View } from 'react-native';
 import ConfettiCannon from 'react-native-confetti-cannon';
-import { StyleSheet } from 'react-native-unistyles';
-import TaskItem from '../../components/TaskItem';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import TaskRow from '../../components/TaskRow';
+import IconButton from '../../components/ui/IconButton';
+import WidgetNudge from '../../components/WidgetNudge';
 import { WidgetProvider } from '../../contexts/WidgetContext';
 import { Task, taskStorage } from '../../lib/storage';
 import {
@@ -24,6 +19,45 @@ import {
   sortTasksByDueDate,
 } from '../../utils/taskUtils';
 
+const MS_DAY = 86400000;
+
+function formatTodayHeading(date = new Date()): string {
+  return date.toLocaleString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+  });
+}
+
+interface Buckets {
+  overdue: Task[];
+  today: Task[];
+  thisWeek: Task[];
+  later: Task[];
+}
+
+function bucketize(tasks: Task[]): Buckets {
+  const now = getTodayTimestamp();
+  const inWeek = now + 7 * MS_DAY;
+  const buckets: Buckets = { overdue: [], today: [], thisWeek: [], later: [] };
+  for (const t of tasks) {
+    if (isCompletedToday(t)) {
+      buckets.today.push(t);
+      continue;
+    }
+    const due = getNextDueDate(t);
+    if (due < now) buckets.overdue.push(t);
+    else if (due === now) buckets.today.push(t);
+    else if (due < inWeek) buckets.thisWeek.push(t);
+    else buckets.later.push(t);
+  }
+  const sortFn = (a: Task, b: Task) => getNextDueDate(a) - getNextDueDate(b);
+  (Object.keys(buckets) as (keyof Buckets)[]).forEach(k =>
+    buckets[k].sort(sortFn)
+  );
+  return buckets;
+}
+
 function HomeContent({
   tasks,
   onTasksChange,
@@ -32,7 +66,12 @@ function HomeContent({
   onTasksChange: () => Promise<void>;
 }) {
   const router = useRouter();
+  const { theme } = useUnistyles();
   const confettiRef = useRef<ConfettiCannon>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  const buckets = useMemo(() => bucketize(tasks), [tasks]);
+  const heading = useMemo(formatTodayHeading, []);
 
   const celebrateCompletion = () => {
     setTimeout(() => {
@@ -42,33 +81,55 @@ function HomeContent({
   };
 
   const isLastTaskDueToday = (allTasks: Task[]): boolean => {
-    const remainingTasksDueToday = allTasks.filter(
-      task => (isOverdue(task) || isDueToday(task)) && !isCompletedToday(task)
+    const remaining = allTasks.filter(
+      t => (isOverdue(t) || isDueToday(t)) && !isCompletedToday(t)
     );
-    return remainingTasksDueToday.length === 0;
+    return remaining.length === 0;
   };
 
-  const handleAddTask = () => {
-    router.push('/new');
+  const markDone = async (task: Task) => {
+    await taskStorage.markTaskCompleted(task.id);
+    const updated = await taskStorage.getAllTasks();
+    if (isLastTaskDueToday(sortTasksByDueDate(updated))) {
+      celebrateCompletion();
+    }
+    await onTasksChange();
   };
 
-  const handleEditTask = (task: Task) => {
-    router.push(`/new?taskId=${task.id}`);
+  const quickDone = async (task: Task) => {
+    const today = getTodayTimestamp();
+    if (isCompletedToday(task)) {
+      const entry = task.completedDates?.find(
+        d => normalizeToMidnight(d) === today
+      );
+      if (entry) {
+        await taskStorage.unmarkTaskCompleted(task.id, entry);
+        await onTasksChange();
+      }
+      return;
+    }
+    const nextDue = normalizeToMidnight(getNextDueDate(task));
+    const diffDays = Math.floor((nextDue - today) / MS_DAY);
+    if (diffDays > 0) {
+      Alert.alert(
+        'Confirm completion',
+        `This task isn't due for another ${diffDays} day${diffDays === 1 ? '' : 's'}. Mark it done anyway?`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Mark as done', onPress: () => markDone(task) },
+        ]
+      );
+    } else {
+      await markDone(task);
+    }
   };
 
-  const handleViewDetails = (task: Task) => {
-    router.push(`/task/${task.id}`);
-  };
-
-  const handleDeleteTask = async (task: Task) => {
+  const deleteTask = (task: Task) => {
     Alert.alert(
-      'Delete Task',
-      `Are you sure you want to delete "${task.title}"? This action cannot be undone.`,
+      'Delete task',
+      `"${task.title}" and its history will be removed.`,
       [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
+        { text: 'Cancel', style: 'cancel' },
         {
           text: 'Delete',
           style: 'destructive',
@@ -81,95 +142,112 @@ function HomeContent({
     );
   };
 
-  const handleToggleComplete = async (task: Task) => {
-    const todayTimestamp = getTodayTimestamp();
+  const pickDate = (task: Task) => {
+    router.push(`/task/${task.id}`);
+  };
 
-    if (isCompletedToday(task)) {
-      const todayCompletionDate = task.completedDates?.find(
-        date => normalizeToMidnight(date) === todayTimestamp
-      );
+  const toggleExpanded = (id: string) => {
+    setExpandedId(prev => (prev === id ? null : id));
+  };
 
-      if (todayCompletionDate) {
-        await taskStorage.unmarkTaskCompleted(task.id, todayCompletionDate);
-        await onTasksChange();
-      }
-      return;
-    }
-
-    const nextDueTimestamp = normalizeToMidnight(getNextDueDate(task));
-
-    const diffDays = Math.floor(
-      (nextDueTimestamp - todayTimestamp) / (1000 * 60 * 60 * 24)
+  const renderSection = (
+    label: string,
+    dotColor: string,
+    items: Task[],
+    key: keyof Buckets
+  ) => {
+    if (items.length === 0) return null;
+    return (
+      <View key={key} style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <View style={[styles.dot, { backgroundColor: dotColor }]} />
+          <Text style={styles.sectionLabel}>{label}</Text>
+          <Text style={styles.sectionCount}>{items.length}</Text>
+        </View>
+        <View style={styles.sectionCard}>
+          {items.map((task, i) => (
+            <View key={task.id}>
+              <TaskRow
+                task={task}
+                isExpanded={expandedId === task.id}
+                onTap={() => toggleExpanded(task.id)}
+                actions={{
+                  toggleComplete: () => quickDone(task),
+                  quickDone: () => quickDone(task),
+                  edit: () => router.push(`/new?taskId=${task.id}`),
+                  delete: () => deleteTask(task),
+                  openHistory: () => router.push(`/task/${task.id}`),
+                  pickDate: () => pickDate(task),
+                }}
+              />
+              {i < items.length - 1 && <View style={styles.separator} />}
+            </View>
+          ))}
+        </View>
+      </View>
     );
-
-    if (diffDays > 0) {
-      Alert.alert(
-        'Confirm Completion',
-        `This task is not due for another ${diffDays} day${diffDays === 1 ? '' : 's'}. Are you sure?`,
-        [
-          {
-            text: 'Cancel',
-            style: 'cancel',
-          },
-          {
-            text: 'Mark as Done',
-            onPress: async () => {
-              await taskStorage.markTaskCompleted(task.id);
-              const updatedTasks = await taskStorage.getAllTasks();
-              const sorted = sortTasksByDueDate(updatedTasks);
-              if (isLastTaskDueToday(sorted)) {
-                celebrateCompletion();
-              }
-              await onTasksChange();
-            },
-          },
-        ]
-      );
-    } else {
-      await taskStorage.markTaskCompleted(task.id);
-      const updatedTasks = await taskStorage.getAllTasks();
-      const sorted = sortTasksByDueDate(updatedTasks);
-      if (isLastTaskDueToday(sorted)) {
-        celebrateCompletion();
-      }
-      await onTasksChange();
-    }
   };
 
   const screenWidth = Dimensions.get('window').width;
+  const emptyState = tasks.length === 0;
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Tasks</Text>
-        <TouchableOpacity style={styles.addButton} onPress={handleAddTask}>
-          <Text style={styles.addButtonText}>+ Add Task</Text>
-        </TouchableOpacity>
+        <View style={styles.headerTop}>
+          <Text style={styles.title}>Tasks</Text>
+          <View style={styles.headerButtons}>
+            <IconButton
+              symbol="chart.bar.fill"
+              onPress={() => {
+                /* stats in Phase 3 */
+              }}
+              accessibilityLabel="Stats"
+            />
+            <IconButton
+              symbol="gearshape.fill"
+              onPress={() => {
+                /* settings in Phase 4 */
+              }}
+              accessibilityLabel="Settings"
+            />
+            <IconButton
+              symbol="plus"
+              filled
+              onPress={() => router.push('/new')}
+              accessibilityLabel="New task"
+            />
+          </View>
+        </View>
+        <Text style={styles.subtitle}>{heading}</Text>
       </View>
 
-      {tasks.length === 0 ? (
+      {emptyState ? (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyStateText}>
+          <Text style={styles.emptyText}>
             No tasks yet. Add your first task to get started!
           </Text>
         </View>
       ) : (
-        <FlatList
-          data={tasks}
-          keyExtractor={item => item.id}
-          renderItem={({ item }) => (
-            <TaskItem
-              task={item}
-              onMarkDone={() => handleToggleComplete(item)}
-              onEdit={() => handleEditTask(item)}
-              onDelete={() => handleDeleteTask(item)}
-              onViewDetails={() => handleViewDetails(item)}
-            />
+        <ScrollView contentContainerStyle={styles.scroll}>
+          <WidgetNudge onLearnMore={() => {}} />
+          {renderSection(
+            'Overdue',
+            theme.colors.error,
+            buckets.overdue,
+            'overdue'
           )}
-          contentContainerStyle={styles.list}
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
-        />
+          {renderSection('Today', theme.colors.blue, buckets.today, 'today')}
+          {renderSection(
+            'This week',
+            theme.colors.warning,
+            buckets.thisWeek,
+            'thisWeek'
+          )}
+          {renderSection('Later', theme.colors.label3, buckets.later, 'later')}
+        </ScrollView>
       )}
+
       <ConfettiCannon
         ref={confettiRef}
         count={200}
@@ -184,35 +262,75 @@ function HomeContent({
 const styles = StyleSheet.create((theme, rt) => ({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background,
+    backgroundColor: theme.colors.groupedBackground,
     paddingTop: rt.insets.top,
   },
   header: {
+    paddingHorizontal: 20,
+    paddingTop: 8,
+    paddingBottom: 14,
+  },
+  headerTop: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingLeft: 20,
-    paddingRight: 8,
-    paddingVertical: 16,
+    justifyContent: 'space-between',
   },
   title: {
-    fontSize: 32,
+    fontSize: 34,
     fontWeight: '700',
-    letterSpacing: -0.5,
     color: theme.colors.text,
+    letterSpacing: 0.37,
+    lineHeight: 41,
   },
-  addButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
+  headerButtons: {
+    flexDirection: 'row',
+    gap: 10,
   },
-  addButtonText: {
+  subtitle: {
     fontSize: 15,
-    fontWeight: '600',
-    color: theme.colors.text,
+    color: theme.colors.label3,
+    marginTop: 4,
   },
-  list: {
-    padding: 12,
+  scroll: {
+    paddingBottom: 40,
+  },
+  section: {
+    marginBottom: 18,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 20,
+    paddingBottom: 8,
+  },
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  sectionLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: theme.colors.label2,
+    textTransform: 'uppercase',
+    letterSpacing: -0.1,
+  },
+  sectionCount: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: theme.colors.label3,
+  },
+  sectionCard: {
+    marginHorizontal: 16,
+    backgroundColor: theme.colors.surfaceElevated,
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
+  separator: {
+    height: 0.5,
+    backgroundColor: theme.colors.sepSubtle,
+    marginLeft: 68,
   },
   emptyState: {
     flex: 1,
@@ -220,14 +338,10 @@ const styles = StyleSheet.create((theme, rt) => ({
     alignItems: 'center',
     padding: 32,
   },
-  emptyStateText: {
+  emptyText: {
     fontSize: 16,
     textAlign: 'center',
-    color: theme.colors.textTertiary,
-  },
-  separator: {
-    height: 1,
-    backgroundColor: theme.colors.border,
+    color: theme.colors.label3,
   },
 }));
 
@@ -235,9 +349,8 @@ export default function Home() {
   const [tasks, setTasks] = useState<Task[]>([]);
 
   const loadTasks = async () => {
-    const allTasks = await taskStorage.getAllTasks();
-    const sorted = sortTasksByDueDate(allTasks);
-    setTasks(sorted);
+    const all = await taskStorage.getAllTasks();
+    setTasks(sortTasksByDueDate(all));
   };
 
   useEffect(() => {

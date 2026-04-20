@@ -7,6 +7,7 @@ import { AppMetrics, AppMetricsRoot } from 'expo-observe';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import {
   ThemeProvider as UnistylesThemeProvider,
@@ -35,11 +36,13 @@ function RootLayoutNav() {
 
 function RootLayout() {
   return (
-    <KeyboardProvider>
-      <UnistylesThemeProvider>
-        <RootLayoutNav />
-      </UnistylesThemeProvider>
-    </KeyboardProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <KeyboardProvider>
+        <UnistylesThemeProvider>
+          <RootLayoutNav />
+        </UnistylesThemeProvider>
+      </KeyboardProvider>
+    </GestureHandlerRootView>
   );
 }
 
