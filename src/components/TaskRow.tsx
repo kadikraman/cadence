@@ -1,5 +1,10 @@
 import { SymbolView } from 'expo-symbols';
 import { Alert, Text, View } from 'react-native';
+import Animated, {
+  FadeIn,
+  FadeOut,
+  LinearTransition,
+} from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { Task } from '../lib/storage';
 import {
@@ -104,85 +109,92 @@ export default function TaskRow({
       rightActions={rightActions}
       onTap={onTap}
       onLongPress={onLongPress}
+      onCheckTap={actions.toggleComplete}
     >
-      <View style={styles.row}>
-        <TaskTile task={task} size={40} overdue={overdue && !completed} />
-        <View style={styles.middle}>
-          <Text
-            style={[styles.title, completed && styles.titleCompleted]}
-            numberOfLines={1}
-          >
-            {task.title}
-          </Text>
-          <View style={styles.metaRow}>
-            <View style={styles.metaItem}>
-              {overdue && !completed && (
+      <Animated.View layout={LinearTransition.duration(220)}>
+        <View style={styles.row}>
+          <TaskTile task={task} size={40} overdue={overdue && !completed} />
+          <View style={styles.middle}>
+            <Text
+              style={[styles.title, completed && styles.titleCompleted]}
+              numberOfLines={1}
+            >
+              {task.title}
+            </Text>
+            <View style={styles.metaRow}>
+              <View style={styles.metaItem}>
+                {overdue && !completed && (
+                  <SymbolView
+                    name="exclamationmark.triangle.fill"
+                    size={11}
+                    tintColor={theme.colors.error}
+                    resizeMode="scaleAspectFit"
+                    fallback={null}
+                  />
+                )}
+                <Text style={[styles.metaText, { color: dueColor }]}>
+                  {dueLabel}
+                </Text>
+              </View>
+              <Text style={styles.metaDivider}>·</Text>
+              <View style={styles.metaItem}>
                 <SymbolView
-                  name="exclamationmark.triangle.fill"
+                  name="arrow.triangle.2.circlepath"
                   size={11}
-                  tintColor={theme.colors.error}
+                  tintColor={theme.colors.label3}
                   resizeMode="scaleAspectFit"
                   fallback={null}
                 />
-              )}
-              <Text style={[styles.metaText, { color: dueColor }]}>
-                {dueLabel}
-              </Text>
+                <Text style={styles.cadenceText}>
+                  {formatCadence(task.cadence)}
+                </Text>
+              </View>
             </View>
-            <Text style={styles.metaDivider}>·</Text>
-            <View style={styles.metaItem}>
+          </View>
+          <View style={styles.checkWrap}>
+            {completed ? (
               <SymbolView
-                name="arrow.triangle.2.circlepath"
-                size={11}
-                tintColor={theme.colors.label3}
+                name="checkmark.circle.fill"
+                size={28}
+                tintColor={theme.colors.success}
                 resizeMode="scaleAspectFit"
                 fallback={null}
               />
-              <Text style={styles.cadenceText}>
-                {formatCadence(task.cadence)}
-              </Text>
-            </View>
+            ) : (
+              <View style={[styles.checkCircle, { borderColor }]} />
+            )}
           </View>
         </View>
-        <View style={styles.checkWrap}>
-          {completed ? (
-            <SymbolView
-              name="checkmark.circle.fill"
-              size={28}
-              tintColor={theme.colors.success}
-              resizeMode="scaleAspectFit"
-              fallback={null}
+        {isExpanded && (
+          <Animated.View
+            entering={FadeIn.duration(160)}
+            exiting={FadeOut.duration(120)}
+            style={styles.inlineBar}
+          >
+            <InlineActionBtn
+              label="Done today"
+              symbol="checkmark"
+              color={theme.colors.success}
+              onPress={actions.quickDone}
             />
-          ) : (
-            <View style={[styles.checkCircle, { borderColor }]} />
-          )}
-        </View>
-      </View>
-      {isExpanded && (
-        <View style={styles.inlineBar}>
-          <InlineActionBtn
-            label="Done today"
-            symbol="checkmark"
-            color={theme.colors.success}
-            onPress={actions.quickDone}
-          />
-          <InlineActionBtn
-            label="Pick date"
-            symbol="calendar"
-            onPress={actions.pickDate}
-          />
-          <InlineActionBtn
-            label="Edit"
-            symbol="pencil"
-            onPress={actions.edit}
-          />
-          <InlineActionBtn
-            label="History"
-            symbol="clock.fill"
-            onPress={actions.openHistory}
-          />
-        </View>
-      )}
+            <InlineActionBtn
+              label="Pick date"
+              symbol="calendar"
+              onPress={actions.pickDate}
+            />
+            <InlineActionBtn
+              label="Edit"
+              symbol="pencil"
+              onPress={actions.edit}
+            />
+            <InlineActionBtn
+              label="History"
+              symbol="clock.fill"
+              onPress={actions.openHistory}
+            />
+          </Animated.View>
+        )}
+      </Animated.View>
     </SwipeRow>
   );
 }

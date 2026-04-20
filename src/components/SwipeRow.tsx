@@ -1,12 +1,13 @@
 import { SFSymbol, SymbolView } from 'expo-symbols';
 import { ReactNode, useEffect, useRef } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { LayoutChangeEvent, Pressable, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
+  Easing,
   runOnJS,
   useAnimatedStyle,
   useSharedValue,
-  withSpring,
+  withTiming,
 } from 'react-native-reanimated';
 import { StyleSheet } from 'react-native-unistyles';
 
@@ -23,11 +24,15 @@ interface SwipeRowProps {
   rightActions?: SwipeAction[];
   onTap?: () => void;
   onLongPress?: () => void;
+  onCheckTap?: () => void;
+  checkAreaWidth?: number;
   backgroundColor?: string;
 }
 
 const ACTION_WIDTH = 78;
 const SETTLE_THRESHOLD = 0.5;
+const SETTLE_DURATION = 220;
+const SETTLE_EASING = Easing.bezier(0.2, 0.8, 0.2, 1);
 
 export default function SwipeRow({
   children,
@@ -35,6 +40,8 @@ export default function SwipeRow({
   rightActions = [],
   onTap,
   onLongPress,
+  onCheckTap,
+  checkAreaWidth = 48,
   backgroundColor,
 }: SwipeRowProps) {
   const leftWidth = leftActions.length * ACTION_WIDTH;
@@ -43,17 +50,24 @@ export default function SwipeRow({
   const offset = useSharedValue(0);
   const settled = useSharedValue(0);
   const settledRef = useRef(0);
+  const rowWidth = useSharedValue(0);
 
   const reset = () => {
     'worklet';
     settled.value = 0;
-    offset.value = withSpring(0, { damping: 20, stiffness: 220 });
+    offset.value = withTiming(0, {
+      duration: SETTLE_DURATION,
+      easing: SETTLE_EASING,
+    });
   };
 
   const fireAction = (action: SwipeAction) => {
     settledRef.current = 0;
     settled.value = 0;
-    offset.value = withSpring(0, { damping: 20, stiffness: 220 });
+    offset.value = withTiming(0, {
+      duration: SETTLE_DURATION,
+      easing: SETTLE_EASING,
+    });
     action.onPress();
   };
 
@@ -67,6 +81,18 @@ export default function SwipeRow({
       return;
     }
     onTap?.();
+  };
+
+  const handleCheckTap = () => {
+    if (settledRef.current !== 0) {
+      reset();
+      return;
+    }
+    onCheckTap?.();
+  };
+
+  const onRowLayout = (e: LayoutChangeEvent) => {
+    rowWidth.value = e.nativeEvent.layout.width;
   };
 
   const pan = Gesture.Pan()
@@ -91,7 +117,10 @@ export default function SwipeRow({
       }
       settled.value = final;
       runOnJS(updateSettledRef)(final);
-      offset.value = withSpring(final, { damping: 20, stiffness: 220 });
+      offset.value = withTiming(final, {
+        duration: SETTLE_DURATION,
+        easing: SETTLE_EASING,
+      });
     });
 
   const longPress = Gesture.LongPress()
@@ -103,8 +132,13 @@ export default function SwipeRow({
 
   const tap = Gesture.Tap()
     .maxDistance(10)
-    .onEnd((_e, success) => {
-      if (success) runOnJS(handleTap)();
+    .onEnd((e, success) => {
+      if (!success) return;
+      if (onCheckTap && e.x > rowWidth.value - checkAreaWidth) {
+        runOnJS(handleCheckTap)();
+      } else {
+        runOnJS(handleTap)();
+      }
     });
 
   const composed = Gesture.Race(pan, Gesture.Exclusive(longPress, tap));
@@ -165,6 +199,7 @@ export default function SwipeRow({
       )}
       <GestureDetector gesture={composed}>
         <Animated.View
+          onLayout={onRowLayout}
           style={[
             styles.content,
             animatedStyle,
