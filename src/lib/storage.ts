@@ -1,4 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import type { ColorKey } from '../utils/taskTints';
+import type { GlyphKey } from '../utils/glyphs';
 
 export interface Task {
   id: string;
@@ -9,6 +11,8 @@ export interface Task {
   completedDates: number[];
   nextDueDate?: number;
   details?: string;
+  color?: ColorKey;
+  glyph?: GlyphKey;
 }
 
 export type Cadence = {
@@ -19,12 +23,22 @@ export type Cadence = {
 
 const TASKS_KEY = 'tasks';
 
+export const DEFAULT_COLOR: ColorKey = 'blue';
+export const DEFAULT_GLYPH: GlyphKey = 'entry';
+
+export const normalizeTask = (task: Task): Task => ({
+  ...task,
+  color: task.color ?? DEFAULT_COLOR,
+  glyph: task.glyph ?? DEFAULT_GLYPH,
+});
+
 export const taskStorage = {
   getAllTasks: async (): Promise<Task[]> => {
     try {
       const tasksJson = await AsyncStorage.getItem(TASKS_KEY);
       if (!tasksJson) return [];
-      return JSON.parse(tasksJson);
+      const raw: Task[] = JSON.parse(tasksJson);
+      return raw.map(normalizeTask);
     } catch {
       return [];
     }

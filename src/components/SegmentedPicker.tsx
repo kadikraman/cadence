@@ -21,7 +21,7 @@ export default function SegmentedPicker<T extends string>({
       <Host style={styles.host}>
         <Picker
           selection={selectedIndex}
-          onSelectionChange={(selection) => {
+          onSelectionChange={selection => {
             onOptionSelected(selection as number);
           }}
           modifiers={[pickerStyle('segmented')]}

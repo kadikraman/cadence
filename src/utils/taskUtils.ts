@@ -96,15 +96,30 @@ export const formatDueIn = (timestamp: number): string => {
     (dueTimestamp - todayTimestamp) / (1000 * 60 * 60 * 24)
   );
 
-  if (diffDays < 0) {
-    return `${Math.abs(diffDays)} day${Math.abs(diffDays) === 1 ? '' : 's'} overdue`;
-  } else if (diffDays === 0) {
-    return 'Today';
-  } else if (diffDays === 1) {
-    return 'Tomorrow';
-  } else {
-    return `${diffDays} days`;
-  }
+  if (diffDays < -1) return `${Math.abs(diffDays)}d overdue`;
+  if (diffDays === -1) return '1d overdue';
+  if (diffDays === 0) return 'Today';
+  if (diffDays === 1) return 'Tomorrow';
+  if (diffDays < 7) return `in ${diffDays}d`;
+  if (diffDays < 14) return 'Next week';
+  if (diffDays < 30) return `in ${Math.round(diffDays / 7)}w`;
+  if (diffDays < 365) return `in ${Math.round(diffDays / 30)}mo`;
+  return `in ${Math.round(diffDays / 365)}y`;
+};
+
+export const relativeLabel = (timestamp: number): string => {
+  const diff = Math.floor(
+    (getTodayTimestamp() - normalizeToMidnight(timestamp)) /
+      (1000 * 60 * 60 * 24)
+  );
+  if (diff === 0) return 'Today';
+  if (diff === 1) return 'Yesterday';
+  if (diff < 7) return `${diff} days ago`;
+  if (diff < 14) return 'Last week';
+  if (diff < 30) return `${Math.round(diff / 7)} weeks ago`;
+  if (diff < 60) return 'Last month';
+  if (diff < 365) return `${Math.round(diff / 30)} months ago`;
+  return `${Math.round(diff / 365)} years ago`;
 };
 
 export const formatCompletionDate = (timestamp: number): string => {

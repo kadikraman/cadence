@@ -16,7 +16,7 @@ import '../unistyles';
 
 function RootLayoutNav() {
   const { isDark } = useTheme();
-  
+
   useEffect(() => {
     AppMetrics.markInteractive();
   }, []);
@@ -42,6 +42,5 @@ function RootLayout() {
     </KeyboardProvider>
   );
 }
-
 
 export default AppMetricsRoot.wrap(RootLayout);
