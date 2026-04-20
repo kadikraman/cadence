@@ -73,16 +73,41 @@ export const taskStorage = {
     const task = await taskStorage.getTask(id);
     if (!task) return;
 
-    const completedDates = [...(task.completedDates || [])];
-    completedDates.push(date);
+    const completedDates = [...(task.completedDates || []), date].sort(
+      (a, b) => b - a
+    );
+    const lastCompletedAt = completedDates[0];
 
     const { calculateNextDueDate } = await import('../utils/taskUtils');
-    const nextDueDate = calculateNextDueDate(task.cadence, date);
+    const nextDueDate = calculateNextDueDate(task.cadence, lastCompletedAt);
 
     await taskStorage.saveTask({
       ...task,
-      lastCompletedAt: date,
-      completedDates: completedDates.sort((a, b) => b - a),
+      lastCompletedAt,
+      completedDates,
+      nextDueDate,
+    });
+  },
+
+  editCompletionDate: async (
+    id: string,
+    oldDate: number,
+    newDate: number
+  ): Promise<void> => {
+    const task = await taskStorage.getTask(id);
+    if (!task) return;
+    const filtered = (task.completedDates || []).filter(d => d !== oldDate);
+    const completedDates = [...filtered, newDate].sort((a, b) => b - a);
+    const lastCompletedAt =
+      completedDates.length > 0 ? completedDates[0] : undefined;
+
+    const { calculateNextDueDate } = await import('../utils/taskUtils');
+    const nextDueDate = calculateNextDueDate(task.cadence, lastCompletedAt);
+
+    await taskStorage.saveTask({
+      ...task,
+      completedDates,
+      lastCompletedAt,
       nextDueDate,
     });
   },

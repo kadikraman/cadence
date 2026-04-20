@@ -199,9 +199,7 @@ function HomeContent({
           <View style={styles.headerButtons}>
             <IconButton
               symbol="chart.bar.fill"
-              onPress={() => {
-                /* stats in Phase 3 */
-              }}
+              onPress={() => router.push('/stats')}
               accessibilityLabel="Stats"
             />
             <IconButton
