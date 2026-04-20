@@ -56,6 +56,7 @@ const config: ExpoConfig = {
     'expo-image',
     'expo-font',
     'expo-web-browser',
+    'expo-sharing',
     [
       'react-native-android-widget',
       {

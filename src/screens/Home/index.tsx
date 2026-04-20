@@ -204,9 +204,7 @@ function HomeContent({
             />
             <IconButton
               symbol="gearshape.fill"
-              onPress={() => {
-                /* settings in Phase 4 */
-              }}
+              onPress={() => router.push('/settings')}
               accessibilityLabel="Settings"
             />
             <IconButton
@@ -228,7 +226,7 @@ function HomeContent({
         </View>
       ) : (
         <ScrollView contentContainerStyle={styles.scroll}>
-          <WidgetNudge onLearnMore={() => {}} />
+          <WidgetNudge onLearnMore={() => router.push('/onboarding')} />
           {renderSection(
             'Overdue',
             theme.colors.error,

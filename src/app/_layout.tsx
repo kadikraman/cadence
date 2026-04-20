@@ -29,6 +29,11 @@ function RootLayoutNav() {
         <Stack.Screen name="new" options={{ presentation: 'modal' }} />
         <Stack.Screen name="task/[taskId]" options={{ headerShown: false }} />
         <Stack.Screen name="stats" options={{ headerShown: false }} />
+        <Stack.Screen name="settings" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="onboarding"
+          options={{ headerShown: false, presentation: 'modal' }}
+        />
       </Stack>
       <StatusBar style={isDark ? 'light' : 'dark'} />
     </ReactNativeThemeProvider>
