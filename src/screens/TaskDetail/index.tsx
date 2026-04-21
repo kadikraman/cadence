@@ -15,11 +15,10 @@ import {
   getNextDueDate,
   getTaskStatus,
 } from '../../utils/taskUtils';
-import CalendarView from './CalendarView';
 import CyclesView from './CyclesView';
 import TimelineView from './TimelineView';
 
-type Tab = 'timeline' | 'cycles' | 'calendar';
+type Tab = 'timeline' | 'cycles';
 
 export default function TaskDetailScreen() {
   const { taskId } = useLocalSearchParams<{ taskId: string }>();
@@ -85,11 +84,6 @@ export default function TaskDetailScreen() {
 
   const deleteCompletion = async (ts: number) => {
     await taskStorage.deleteCompletionDate(task.id, ts);
-    await load();
-  };
-
-  const addCompletion = async (ts: number) => {
-    await taskStorage.markTaskCompleted(task.id, ts);
     await load();
   };
 
@@ -221,7 +215,6 @@ export default function TaskDetailScreen() {
             options={[
               { value: 'timeline', label: 'Timeline' },
               { value: 'cycles', label: 'Cycles' },
-              { value: 'calendar', label: 'Calendar' },
             ]}
           />
         </View>
@@ -236,13 +229,6 @@ export default function TaskDetailScreen() {
         )}
         {tab === 'cycles' && (
           <CyclesView task={task} completedDates={completedDates} />
-        )}
-        {tab === 'calendar' && (
-          <CalendarView
-            task={task}
-            completedDates={completedDates}
-            onDayTap={addCompletion}
-          />
         )}
       </ScrollView>
 
