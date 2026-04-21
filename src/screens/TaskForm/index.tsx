@@ -62,20 +62,34 @@ const formatDueDate = (ts: number): string => {
 
 export default function TaskFormScreen() {
   const router = useRouter();
-  const params = useLocalSearchParams<{ taskId?: string }>();
+  const params = useLocalSearchParams<{
+    taskId?: string;
+    title?: string;
+    cadenceType?: CadenceType;
+    cadenceValue?: string;
+    cadenceUnit?: CadenceUnit;
+    color?: ColorKey;
+    glyph?: GlyphKey;
+  }>();
   const isEdit = !!params.taskId;
   const { theme, rt } = useUnistyles();
   const dark = rt.themeName === 'dark';
 
   const [existing, setExisting] = useState<Task | null>(null);
   const [loaded, setLoaded] = useState(!isEdit);
-  const [title, setTitle] = useState('');
+  const [title, setTitle] = useState(() => params.title ?? '');
   const [details, setDetails] = useState('');
-  const [color, setColor] = useState<ColorKey>('blue');
-  const [glyph, setGlyph] = useState<GlyphKey>('entry');
-  const [cadenceType, setCadenceType] = useState<CadenceType>('weekly');
-  const [customValue, setCustomValue] = useState('2');
-  const [customUnit, setCustomUnit] = useState<CadenceUnit>('weeks');
+  const [color, setColor] = useState<ColorKey>(() => params.color ?? 'blue');
+  const [glyph, setGlyph] = useState<GlyphKey>(() => params.glyph ?? 'entry');
+  const [cadenceType, setCadenceType] = useState<CadenceType>(
+    () => params.cadenceType ?? 'weekly'
+  );
+  const [customValue, setCustomValue] = useState(
+    () => params.cadenceValue ?? '2'
+  );
+  const [customUnit, setCustomUnit] = useState<CadenceUnit>(
+    () => params.cadenceUnit ?? 'weeks'
+  );
   const [nextDueDate, setNextDueDate] = useState<number>(() =>
     getTodayTimestamp()
   );

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, Dimensions, ScrollView, Text, View } from 'react-native';
 import ConfettiCannon from 'react-native-confetti-cannon';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import EmptyStateStarters from '../../components/EmptyStateStarters';
 import TaskRow from '../../components/TaskRow';
 import IconButton from '../../components/ui/IconButton';
 import WidgetNudge from '../../components/WidgetNudge';
@@ -219,11 +220,7 @@ function HomeContent({
       </View>
 
       {emptyState ? (
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyText}>
-            No tasks yet. Add your first task to get started!
-          </Text>
-        </View>
+        <EmptyStateStarters />
       ) : (
         <ScrollView contentContainerStyle={styles.scroll}>
           <WidgetNudge onLearnMore={() => router.push('/onboarding')} />
@@ -327,17 +324,6 @@ const styles = StyleSheet.create((theme, rt) => ({
     height: 0.5,
     backgroundColor: theme.colors.sepSubtle,
     marginLeft: 68,
-  },
-  emptyState: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 32,
-  },
-  emptyText: {
-    fontSize: 16,
-    textAlign: 'center',
-    color: theme.colors.label3,
   },
 }));
 
