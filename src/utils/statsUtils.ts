@@ -156,26 +156,110 @@ export const computeWeeklyCompletions = (
   return out;
 };
 
-export interface HeatmapResult {
-  grid: number[][];
-  max: number;
+export interface LongestStreak {
+  task: Task | null;
+  streak: number;
 }
 
-export const computeHeatmap = (
+export const computeLongestStreak = (tasks: Task[]): LongestStreak => {
+  let best: LongestStreak = { task: null, streak: 0 };
+  for (const task of tasks) {
+    const s = computeTaskStats(task).streak;
+    if (s > best.streak) best = { task, streak: s };
+  }
+  return best;
+};
+
+export const computeAvgLateDrift = (
   tasks: Task[],
   rangeDays: number
-): HeatmapResult => {
+): number => {
   const cutoff = getTodayTimestamp() - rangeDays * MS_DAY;
-  const grid = Array.from({ length: 7 }, () => Array(6).fill(0) as number[]);
+  let totalDrift = 0;
+  let count = 0;
+  for (const task of tasks) {
+    const cadDays = cadenceDays(task.cadence);
+    const sorted = [...(task.completedDates ?? [])].sort((a, b) => a - b);
+    for (let i = 1; i < sorted.length; i++) {
+      if (sorted[i] < cutoff) continue;
+      const delta = (sorted[i] - sorted[i - 1]) / MS_DAY;
+      const drift = delta - cadDays;
+      if (drift > cadDays * 0.1) {
+        totalDrift += drift;
+        count++;
+      }
+    }
+  }
+  return count > 0 ? totalDrift / count : 0;
+};
+
+export interface MostReliable {
+  task: Task | null;
+  pct: number;
+  completions: number;
+}
+
+export const computeMostReliable = (
+  tasks: Task[],
+  rangeDays: number,
+  minCompletions = 3
+): MostReliable => {
+  const cutoff = getTodayTimestamp() - rangeDays * MS_DAY;
+  let best: MostReliable = { task: null, pct: 0, completions: 0 };
+  for (const task of tasks) {
+    const cadDays = cadenceDays(task.cadence);
+    const sorted = [...(task.completedDates ?? [])].sort((a, b) => a - b);
+    let onTime = 0;
+    let late = 0;
+    for (let i = 1; i < sorted.length; i++) {
+      if (sorted[i] < cutoff) continue;
+      const delta = (sorted[i] - sorted[i - 1]) / MS_DAY;
+      if (delta <= cadDays * 1.1) onTime++;
+      else late++;
+    }
+    const total = onTime + late;
+    if (total < minCompletions) continue;
+    const pct = Math.round((onTime / total) * 100);
+    if (pct > best.pct || (pct === best.pct && total > best.completions)) {
+      best = { task, pct, completions: total };
+    }
+  }
+  return best;
+};
+
+export const computeDowCounts = (
+  tasks: Task[],
+  rangeDays: number
+): number[] => {
+  const cutoff = getTodayTimestamp() - rangeDays * MS_DAY;
+  const counts = Array(7).fill(0) as number[];
   for (const task of tasks) {
     for (const ts of task.completedDates ?? []) {
       if (ts < cutoff) continue;
-      const d = new Date(ts);
-      const dow = d.getDay();
-      const bucket = Math.floor(d.getHours() / 4);
-      grid[dow][bucket]++;
+      counts[new Date(ts).getDay()]++;
     }
   }
-  const max = Math.max(1, ...grid.flat());
-  return { grid, max };
+  return counts;
+};
+
+export interface CadenceMix {
+  daily: number;
+  weekly: number;
+  monthly: number;
+  custom: number;
+  total: number;
+}
+
+export const computeCadenceMix = (tasks: Task[]): CadenceMix => {
+  const mix: CadenceMix = {
+    daily: 0,
+    weekly: 0,
+    monthly: 0,
+    custom: 0,
+    total: tasks.length,
+  };
+  for (const task of tasks) {
+    mix[task.cadence.type]++;
+  }
+  return mix;
 };

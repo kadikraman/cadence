@@ -4,14 +4,19 @@ import { useCallback, useMemo, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import BigStatTile from '../../components/BigStatTile';
-import Heatmap from '../../components/Heatmap';
+import CadenceMixBar from '../../components/CadenceMixBar';
+import DowChart from '../../components/DowChart';
 import SectionCard from '../../components/SectionCard';
 import SegmentedControl from '../../components/ui/SegmentedControl';
 import TaskTile from '../../components/ui/TaskTile';
 import WeeklyChart from '../../components/WeeklyChart';
 import { Task, taskStorage } from '../../lib/storage';
 import {
-  computeHeatmap,
+  computeAvgLateDrift,
+  computeCadenceMix,
+  computeDowCounts,
+  computeLongestStreak,
+  computeMostReliable,
   computeOnTimePct,
   computeWeeklyCompletions,
   taskHealth,
@@ -51,10 +56,20 @@ export default function StatsScreen() {
   }, [tasks, rangeDays]);
 
   const weekly = useMemo(() => computeWeeklyCompletions(tasks, 12), [tasks]);
-  const heatmap = useMemo(
-    () => computeHeatmap(tasks, rangeDays),
+  const longestStreak = useMemo(() => computeLongestStreak(tasks), [tasks]);
+  const avgLateDrift = useMemo(
+    () => computeAvgLateDrift(tasks, rangeDays),
     [tasks, rangeDays]
   );
+  const mostReliable = useMemo(
+    () => computeMostReliable(tasks, rangeDays),
+    [tasks, rangeDays]
+  );
+  const dowCounts = useMemo(
+    () => computeDowCounts(tasks, rangeDays),
+    [tasks, rangeDays]
+  );
+  const cadenceMix = useMemo(() => computeCadenceMix(tasks), [tasks]);
 
   const hallOfShame = useMemo(() => {
     return [...tasks]
@@ -109,16 +124,67 @@ export default function StatsScreen() {
           />
         </View>
 
+        <View style={styles.tiles}>
+          <BigStatTile
+            label="Longest streak"
+            value={longestStreak.streak}
+            sub={
+              longestStreak.task ? longestStreak.task.title : 'No active streak'
+            }
+            accent={theme.colors.warning}
+          />
+          <BigStatTile
+            label="Avg drift"
+            value={avgLateDrift > 0 ? `${avgLateDrift.toFixed(1)}d` : '—'}
+            sub={avgLateDrift > 0 ? 'when late' : 'No late completions'}
+            accent={
+              avgLateDrift > 0 ? theme.colors.error : theme.colors.success
+            }
+          />
+        </View>
+
         <SectionCard title="Weekly completions">
           <WeeklyChart weekly={weekly} />
         </SectionCard>
 
-        <SectionCard
-          title="When you actually get it done"
-          subtitle="Day × time completions"
-        >
-          <Heatmap data={heatmap} />
+        <SectionCard title="Busiest day of week">
+          <DowChart counts={dowCounts} />
         </SectionCard>
+
+        {cadenceMix.total > 0 && (
+          <SectionCard title="Cadence mix">
+            <CadenceMixBar mix={cadenceMix} />
+          </SectionCard>
+        )}
+
+        {mostReliable.task && (
+          <SectionCard title="Most reliable" flush>
+            <Pressable
+              style={styles.overdueRow}
+              onPress={() => router.push(`/task/${mostReliable.task!.id}`)}
+            >
+              <TaskTile task={mostReliable.task} size={34} />
+              <View style={styles.overdueBody}>
+                <Text style={styles.overdueTitle}>
+                  {mostReliable.task.title}
+                </Text>
+                <Text
+                  style={[styles.reliableSub, { color: theme.colors.success }]}
+                >
+                  {mostReliable.pct}% on time · {mostReliable.completions}{' '}
+                  completions
+                </Text>
+              </View>
+              <SymbolView
+                name="chevron.right"
+                size={14}
+                tintColor={theme.colors.label4}
+                resizeMode="scaleAspectFit"
+                fallback={null}
+              />
+            </Pressable>
+          </SectionCard>
+        )}
 
         {hallOfShame.length > 0 && (
           <SectionCard title="Most overdue" flush>
@@ -221,6 +287,11 @@ const styles = StyleSheet.create(theme => ({
   overdueSub: {
     fontSize: 12,
     color: theme.colors.error,
+    marginTop: 2,
+    fontWeight: '500',
+  },
+  reliableSub: {
+    fontSize: 12,
     marginTop: 2,
     fontWeight: '500',
   },

@@ -50,6 +50,7 @@ const styles = StyleSheet.create(theme => ({
     gap: 4,
     alignItems: 'flex-end',
     height: 100,
+    paddingTop: 18,
   },
   col: {
     flex: 1,
