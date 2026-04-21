@@ -1,5 +1,10 @@
 import { SymbolView } from 'expo-symbols';
-import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import {
+  Stack,
+  useFocusEffect,
+  useLocalSearchParams,
+  useRouter,
+} from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -88,27 +93,28 @@ export default function TaskDetailScreen() {
   };
 
   return (
-    <View style={[styles.root, { paddingTop: rt.insets.top }]}>
-      <View style={styles.navBar}>
-        <Pressable
-          onPress={() => router.back()}
-          style={styles.backBtn}
-          accessibilityLabel="Back"
-        >
-          <SymbolView
-            name="chevron.left"
-            size={18}
-            tintColor={theme.colors.blue}
-            resizeMode="scaleAspectFit"
-            fallback={null}
-          />
-          <Text style={styles.backText}>Tasks</Text>
-        </Pressable>
-        <Pressable onPress={() => router.push(`/new?taskId=${task.id}`)}>
-          <Text style={styles.editText}>Edit</Text>
-        </Pressable>
-      </View>
-
+    <View style={styles.root}>
+      <Stack.Screen
+        options={{
+          title: '',
+          headerBackTitle: 'Tasks',
+          headerRight: () => (
+            <Pressable
+              onPress={() => router.push(`/new?taskId=${task.id}`)}
+              hitSlop={10}
+            >
+              <Text
+                style={{
+                  color: theme.colors.blue,
+                  fontSize: 17,
+                }}
+              >
+                Edit
+              </Text>
+            </Pressable>
+          ),
+        }}
+      />
       <ScrollView contentContainerStyle={styles.scroll}>
         <View style={[styles.hero, { backgroundColor: heroBg }]}>
           <View style={styles.heroHeader}>
@@ -314,30 +320,6 @@ const styles = StyleSheet.create(theme => ({
   root: {
     flex: 1,
     backgroundColor: theme.colors.groupedBackground,
-  },
-  navBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    borderBottomWidth: 0.5,
-    borderBottomColor: theme.colors.sepSubtle,
-  },
-  backBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
-    padding: 4,
-  },
-  backText: {
-    color: theme.colors.blue,
-    fontSize: 17,
-  },
-  editText: {
-    color: theme.colors.blue,
-    fontSize: 17,
-    padding: 4,
   },
   scroll: {
     paddingBottom: 40,

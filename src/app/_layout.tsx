@@ -26,11 +26,8 @@ function RootLayoutNav() {
     <ReactNativeThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="new"
-          options={{ presentation: 'modal', headerShown: false }}
-        />
-        <Stack.Screen name="task/[taskId]" options={{ headerShown: false }} />
+        <Stack.Screen name="new" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="task/[taskId]" />
         <Stack.Screen name="stats" options={{ headerShown: false }} />
         <Stack.Screen name="settings" options={{ headerShown: false }} />
         <Stack.Screen

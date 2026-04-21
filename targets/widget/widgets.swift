@@ -29,35 +29,47 @@ struct WidgetStats: Codable {
 
 struct SimpleEntry: TimelineEntry {
     let date: Date
-    let configuration: ConfigurationAppIntent
     let tasks: [WidgetTask]
     let stats: WidgetStats?
 }
 
 // MARK: - Provider
 
-struct Provider: AppIntentTimelineProvider {
+struct Provider: TimelineProvider {
+    typealias Entry = SimpleEntry
+
     private let appGroup = "group.dev.kadi.cadence"
 
     func placeholder(in context: Context) -> SimpleEntry {
         SimpleEntry(
             date: Date(),
-            configuration: ConfigurationAppIntent(),
             tasks: placeholderTasks(),
             stats: placeholderStats()
         )
     }
 
-    func snapshot(for configuration: ConfigurationAppIntent, in context: Context) async -> SimpleEntry {
+    func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> Void) {
         let (tasks, stats) = loadPayload()
-        return SimpleEntry(date: Date(), configuration: configuration, tasks: tasks, stats: stats)
+        completion(SimpleEntry(date: Date(), tasks: tasks, stats: stats))
     }
 
-    func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<SimpleEntry> {
+    func getTimeline(in context: Context, completion: @escaping (Timeline<SimpleEntry>) -> Void) {
         let (tasks, stats) = loadPayload()
-        let entry = SimpleEntry(date: Date(), configuration: configuration, tasks: tasks, stats: stats)
-        let nextUpdate = Calendar.current.date(byAdding: .hour, value: 1, to: Date())!
-        return Timeline(entries: [entry], policy: .after(nextUpdate))
+        let entry = SimpleEntry(date: Date(), tasks: tasks, stats: stats)
+        completion(Timeline(entries: [entry], policy: .after(nextRefreshDate())))
+    }
+
+    // Refresh hourly — or at the next midnight, whichever is sooner — so "Today"
+    // and "in Nd" labels always reflect the current day.
+    private func nextRefreshDate() -> Date {
+        let now = Date()
+        let calendar = Calendar.current
+        let hourOut = calendar.date(byAdding: .hour, value: 1, to: now) ?? now
+        guard let tomorrow = calendar.date(byAdding: .day, value: 1, to: now) else {
+            return hourOut
+        }
+        let startOfTomorrow = calendar.startOfDay(for: tomorrow)
+        return min(hourOut, startOfTomorrow)
     }
 
     private func loadPayload() -> ([WidgetTask], WidgetStats?) {
@@ -582,11 +594,6 @@ struct LargeView: View {
                     .font(.system(size: 14, weight: .bold))
                     .foregroundColor(cadenceBlue)
                 Spacer()
-                if let s = stats {
-                    Text("\(s.onTimePct)% on-time")
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundColor(.secondary)
-                }
             }
 
             if entry.tasks.isEmpty {
@@ -691,7 +698,7 @@ struct LargeView: View {
                     Divider().background(Color.primary.opacity(0.06))
                 }
                 TaskRowView(task: visibleRows[i])
-                    .padding(.vertical, 3)
+                    .padding(.vertical, 6)
             }
             if overflow > 0 {
                 HStack {
@@ -765,7 +772,7 @@ struct widget: Widget {
     let kind: String = "widget"
 
     var body: some WidgetConfiguration {
-        AppIntentConfiguration(kind: kind, intent: ConfigurationAppIntent.self, provider: Provider()) { entry in
+        StaticConfiguration(kind: kind, provider: Provider()) { entry in
             widgetEntryView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
         }
@@ -782,7 +789,6 @@ struct widget: Widget {
 } timeline: {
     SimpleEntry(
         date: .now,
-        configuration: ConfigurationAppIntent(),
         tasks: [
             WidgetTask(id: "1", title: "Water the plants", color: "green", glyph: "plant",
                        nextDueDate: Date().timeIntervalSince1970 * 1000,
@@ -801,7 +807,6 @@ struct widget: Widget {
 } timeline: {
     SimpleEntry(
         date: .now,
-        configuration: ConfigurationAppIntent(),
         tasks: [
             WidgetTask(id: "1", title: "Water the plants", color: "green", glyph: "plant",
                        nextDueDate: Date().timeIntervalSince1970 * 1000,
@@ -823,7 +828,6 @@ struct widget: Widget {
 } timeline: {
     SimpleEntry(
         date: .now,
-        configuration: ConfigurationAppIntent(),
         tasks: [
             WidgetTask(id: "0", title: "Replace toothbrush head", color: "plum", glyph: "pill",
                        nextDueDate: (Date().timeIntervalSince1970 - 5 * 86400) * 1000,

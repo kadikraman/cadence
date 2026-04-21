@@ -1,5 +1,10 @@
 import { SymbolView } from 'expo-symbols';
-import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import {
+  Stack,
+  useFocusEffect,
+  useLocalSearchParams,
+  useRouter,
+} from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Alert, Pressable, Text, TextInput, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
@@ -174,23 +179,32 @@ export default function TaskFormScreen() {
   if (!loaded) return <View style={styles.root} />;
 
   return (
-    <View style={[styles.root, { paddingTop: rt.insets.top }]}>
-      <View style={styles.nav}>
-        <Pressable onPress={() => router.back()}>
-          <Text style={styles.cancel}>Cancel</Text>
-        </Pressable>
-        <Text style={styles.title}>{isEdit ? 'Edit Task' : 'New Task'}</Text>
-        <Pressable onPress={save} disabled={!canSave}>
-          <Text
-            style={[
-              styles.save,
-              { color: canSave ? theme.colors.blue : theme.colors.label4 },
-            ]}
-          >
-            Save
-          </Text>
-        </Pressable>
-      </View>
+    <View style={styles.root}>
+      <Stack.Screen
+        options={{
+          title: isEdit ? 'Edit Task' : 'New Task',
+          headerLeft: () => (
+            <Pressable onPress={() => router.back()} hitSlop={10}>
+              <Text style={{ color: theme.colors.blue, fontSize: 17 }}>
+                Cancel
+              </Text>
+            </Pressable>
+          ),
+          headerRight: () => (
+            <Pressable onPress={save} disabled={!canSave} hitSlop={10}>
+              <Text
+                style={{
+                  color: canSave ? theme.colors.blue : theme.colors.label4,
+                  fontSize: 17,
+                  fontWeight: '600',
+                }}
+              >
+                Save
+              </Text>
+            </Pressable>
+          ),
+        }}
+      />
 
       <KeyboardAwareScrollView
         contentContainerStyle={styles.scroll}
@@ -316,28 +330,6 @@ const styles = StyleSheet.create(theme => ({
   root: {
     flex: 1,
     backgroundColor: theme.colors.groupedBackground,
-  },
-  nav: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    borderBottomWidth: 0.5,
-    borderBottomColor: theme.colors.sepSubtle,
-  },
-  cancel: {
-    color: theme.colors.blue,
-    fontSize: 17,
-  },
-  title: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: theme.colors.text,
-  },
-  save: {
-    fontSize: 17,
-    fontWeight: '600',
   },
   scroll: {
     paddingTop: 16,
