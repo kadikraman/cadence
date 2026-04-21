@@ -61,7 +61,7 @@ function buildPayload(tasks: Task[]): {
   const mapped: WidgetTaskPayload[] = tasks.map(task => ({
     id: task.id,
     title: task.title,
-    color: task.color ?? 'blue',
+    color: task.color ?? 'slate',
     glyph: task.glyph ?? 'entry',
     nextDueDate: getNextDueDate(task),
     isDueToday: isDueToday(task),

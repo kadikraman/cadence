@@ -23,7 +23,7 @@ export type Cadence = {
 
 const TASKS_KEY = 'tasks';
 
-export const DEFAULT_COLOR: ColorKey = 'blue';
+export const DEFAULT_COLOR: ColorKey = 'slate';
 export const DEFAULT_GLYPH: GlyphKey = 'entry';
 
 export const normalizeTask = (task: Task): Task => ({

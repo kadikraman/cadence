@@ -1,22 +1,22 @@
 export type ColorKey =
-  | 'blue'
-  | 'cyan'
-  | 'indigo'
   | 'purple'
   | 'lavender'
-  | 'pink'
-  | 'rose'
+  | 'plum'
   | 'orange'
   | 'peach'
+  | 'amber'
+  | 'clay'
   | 'yellow'
   | 'olive'
+  | 'moss'
   | 'green'
   | 'forest'
+  | 'sage'
   | 'teal'
   | 'mint'
-  | 'red'
-  | 'maroon'
   | 'brown'
+  | 'stone'
+  | 'dune'
   | 'slate'
   | 'gray';
 
@@ -27,21 +27,6 @@ export interface Tint {
 }
 
 export const TINTS: Record<ColorKey, Tint> = {
-  blue: {
-    tint: '#E8F1FF',
-    tintDark: 'rgba(10,132,255,0.18)',
-    accent: '#0A84FF',
-  },
-  cyan: {
-    tint: '#DCF1FF',
-    tintDark: 'rgba(50,173,230,0.22)',
-    accent: '#32ADE6',
-  },
-  indigo: {
-    tint: '#ECEBFF',
-    tintDark: 'rgba(94,92,230,0.20)',
-    accent: '#5E5CE6',
-  },
   purple: {
     tint: '#F4EAFF',
     tintDark: 'rgba(175,82,222,0.20)',
@@ -52,15 +37,10 @@ export const TINTS: Record<ColorKey, Tint> = {
     tintDark: 'rgba(191,155,237,0.22)',
     accent: '#B085E0',
   },
-  pink: {
-    tint: '#FFE9EF',
-    tintDark: 'rgba(255,55,95,0.18)',
-    accent: '#FF375F',
-  },
-  rose: {
-    tint: '#FFE0E4',
-    tintDark: 'rgba(255,99,125,0.22)',
-    accent: '#E64D6A',
+  plum: {
+    tint: '#EADFE6',
+    tintDark: 'rgba(123,75,107,0.24)',
+    accent: '#7B4B6B',
   },
   orange: {
     tint: '#FFEFD9',
@@ -72,6 +52,16 @@ export const TINTS: Record<ColorKey, Tint> = {
     tintDark: 'rgba(255,175,120,0.25)',
     accent: '#E8915A',
   },
+  amber: {
+    tint: '#FAE8C6',
+    tintDark: 'rgba(217,162,76,0.22)',
+    accent: '#D9A24C',
+  },
+  clay: {
+    tint: '#F1DDCF',
+    tintDark: 'rgba(181,118,92,0.24)',
+    accent: '#B5765C',
+  },
   yellow: {
     tint: '#FFF6D1',
     tintDark: 'rgba(255,214,10,0.20)',
@@ -81,6 +71,11 @@ export const TINTS: Record<ColorKey, Tint> = {
     tint: '#EDEFC8',
     tintDark: 'rgba(168,182,96,0.24)',
     accent: '#8E9C4A',
+  },
+  moss: {
+    tint: '#DFE3CA',
+    tintDark: 'rgba(111,122,61,0.26)',
+    accent: '#6F7A3D',
   },
   green: {
     tint: '#DCF5E3',
@@ -92,6 +87,11 @@ export const TINTS: Record<ColorKey, Tint> = {
     tintDark: 'rgba(56,127,80,0.24)',
     accent: '#2E6A42',
   },
+  sage: {
+    tint: '#E2EAE1',
+    tintDark: 'rgba(139,168,137,0.24)',
+    accent: '#8BA889',
+  },
   teal: {
     tint: '#D6F0F2',
     tintDark: 'rgba(64,200,224,0.20)',
@@ -102,20 +102,20 @@ export const TINTS: Record<ColorKey, Tint> = {
     tintDark: 'rgba(0,199,190,0.20)',
     accent: '#00C7BE',
   },
-  red: {
-    tint: '#FFE5E5',
-    tintDark: 'rgba(255,69,58,0.20)',
-    accent: '#FF3B30',
-  },
-  maroon: {
-    tint: '#F3D9D7',
-    tintDark: 'rgba(155,50,60,0.25)',
-    accent: '#8A2A32',
-  },
   brown: {
     tint: '#EEE5DB',
     tintDark: 'rgba(172,142,104,0.22)',
     accent: '#AC8E68',
+  },
+  stone: {
+    tint: '#E9E5E0',
+    tintDark: 'rgba(154,145,135,0.24)',
+    accent: '#9A9187',
+  },
+  dune: {
+    tint: '#F1E9D8',
+    tintDark: 'rgba(201,178,140,0.26)',
+    accent: '#C9B28C',
   },
   slate: {
     tint: '#DEE4EA',
@@ -131,5 +131,9 @@ export const TINTS: Record<ColorKey, Tint> = {
 
 export const COLOR_KEYS: ColorKey[] = Object.keys(TINTS) as ColorKey[];
 
-export const getTint = (key: ColorKey | undefined): Tint =>
-  TINTS[key ?? 'gray'] ?? TINTS.gray;
+export const DEFAULT_TINT_KEY: ColorKey = 'slate';
+
+export const getTint = (key: ColorKey | string | undefined): Tint => {
+  if (!key) return TINTS[DEFAULT_TINT_KEY];
+  return TINTS[key as ColorKey] ?? TINTS[DEFAULT_TINT_KEY];
+};

@@ -79,7 +79,7 @@ export default function TaskFormScreen() {
   const [loaded, setLoaded] = useState(!isEdit);
   const [title, setTitle] = useState(() => params.title ?? '');
   const [details, setDetails] = useState('');
-  const [color, setColor] = useState<ColorKey>(() => params.color ?? 'blue');
+  const [color, setColor] = useState<ColorKey>(() => params.color ?? 'slate');
   const [glyph, setGlyph] = useState<GlyphKey>(() => params.glyph ?? 'entry');
   const [cadenceType, setCadenceType] = useState<CadenceType>(
     () => params.cadenceType ?? 'weekly'
@@ -104,7 +104,7 @@ export default function TaskFormScreen() {
           setExisting(t);
           setTitle(t.title);
           setDetails(t.details ?? '');
-          setColor(t.color ?? 'blue');
+          setColor(t.color ?? 'slate');
           setGlyph(t.glyph ?? 'entry');
           setCadenceType(t.cadence.type);
           if (t.cadence.type === 'custom') {

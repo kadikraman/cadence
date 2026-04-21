@@ -63,7 +63,7 @@ const PREVIEW_TASKS: Task[] = [
   {
     id: 'preview-3',
     title: 'Car wash',
-    color: 'blue',
+    color: 'teal',
     glyph: 'car',
     cadence: { type: 'monthly' },
     createdAt: Date.now() - 60 * 86400000,
