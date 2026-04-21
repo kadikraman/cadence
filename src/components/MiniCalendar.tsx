@@ -18,6 +18,7 @@ export default function MiniCalendar({
   maxDate,
 }: MiniCalendarProps) {
   const { theme } = useUnistyles();
+  const c = theme.colors;
   const [cursor, setCursor] = useState(() => {
     const d = new Date(selected);
     d.setDate(1);
@@ -51,22 +52,28 @@ export default function MiniCalendar({
   return (
     <View>
       <View style={styles.header}>
-        <Text style={styles.monthLabel}>{monthLabel}</Text>
+        <Text style={[styles.monthLabel, { color: c.text }]}>{monthLabel}</Text>
         <View style={styles.navRow}>
-          <Pressable onPress={prev} style={styles.navBtn}>
+          <Pressable
+            onPress={prev}
+            style={[styles.navBtn, { backgroundColor: c.fill3 }]}
+          >
             <SymbolView
               name="chevron.left"
               size={14}
-              tintColor={theme.colors.text}
+              tintColor={c.text}
               resizeMode="scaleAspectFit"
               fallback={null}
             />
           </Pressable>
-          <Pressable onPress={next} style={styles.navBtn}>
+          <Pressable
+            onPress={next}
+            style={[styles.navBtn, { backgroundColor: c.fill3 }]}
+          >
             <SymbolView
               name="chevron.right"
               size={14}
-              tintColor={theme.colors.text}
+              tintColor={c.text}
               resizeMode="scaleAspectFit"
               fallback={null}
             />
@@ -75,7 +82,7 @@ export default function MiniCalendar({
       </View>
       <View style={styles.dowRow}>
         {DAYS.map((d, i) => (
-          <Text key={i} style={styles.dow}>
+          <Text key={i} style={[styles.dow, { color: c.label3 }]}>
             {d}
           </Text>
         ))}
@@ -97,12 +104,13 @@ export default function MiniCalendar({
               style={[
                 styles.cell,
                 styles.dayCell,
-                isSelected && { backgroundColor: theme.colors.blue },
+                isSelected && { backgroundColor: c.blue },
               ]}
             >
               <Text
                 style={[
                   styles.dayText,
+                  { color: isSelected ? '#fff' : c.text },
                   isSelected && styles.dayTextSelected,
                   isDisabled && styles.dayTextDisabled,
                 ]}
@@ -117,7 +125,7 @@ export default function MiniCalendar({
   );
 }
 
-const styles = StyleSheet.create(theme => ({
+const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -128,7 +136,6 @@ const styles = StyleSheet.create(theme => ({
   monthLabel: {
     fontSize: 15,
     fontWeight: '600',
-    color: theme.colors.text,
   },
   navRow: {
     flexDirection: 'row',
@@ -138,7 +145,6 @@ const styles = StyleSheet.create(theme => ({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: theme.colors.fill3,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -150,7 +156,6 @@ const styles = StyleSheet.create(theme => ({
     flex: 1,
     textAlign: 'center',
     fontSize: 11,
-    color: theme.colors.label3,
     fontWeight: '600',
   },
   grid: {
@@ -169,14 +174,16 @@ const styles = StyleSheet.create(theme => ({
   },
   dayText: {
     fontSize: 14,
-    color: theme.colors.text,
+    lineHeight: 14,
     fontWeight: '500',
+    textAlign: 'center',
+    includeFontPadding: false,
+    transform: [{ translateY: -8 }],
   },
   dayTextSelected: {
-    color: '#fff',
     fontWeight: '600',
   },
   dayTextDisabled: {
     opacity: 0.3,
   },
-}));
+});
