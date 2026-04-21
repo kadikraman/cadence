@@ -4,10 +4,19 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { getTodayTimestamp, normalizeToMidnight } from '../utils/taskUtils';
 import MiniCalendar from './MiniCalendar';
 
+export interface QuickOption {
+  label: string;
+  ts: number;
+}
+
 interface DatePickerSheetProps {
   visible: boolean;
   initialDate: number;
   mode?: 'new' | 'edit';
+  title?: string;
+  selectedLabel?: string;
+  quickOptions?: QuickOption[];
+  allowFuture?: boolean;
   onClose: () => void;
   onSave: (ts: number) => void;
 }
@@ -18,6 +27,10 @@ export default function DatePickerSheet({
   visible,
   initialDate,
   mode = 'new',
+  title,
+  selectedLabel = 'Completed',
+  quickOptions,
+  allowFuture = false,
   onClose,
   onSave,
 }: DatePickerSheetProps) {
@@ -31,14 +44,17 @@ export default function DatePickerSheet({
     if (visible) setSelected(normalizeToMidnight(initialDate));
   }, [visible, initialDate]);
 
-  const quickOptions = [
+  const options: QuickOption[] = quickOptions ?? [
     { label: 'Today', ts: today },
     { label: 'Yesterday', ts: today - MS_DAY },
     { label: '2 days ago', ts: today - 2 * MS_DAY },
     { label: '3 days ago', ts: today - 3 * MS_DAY },
   ];
 
-  const selectedLabel = new Date(selected).toLocaleString('en-US', {
+  const headerTitle =
+    title ?? (mode === 'edit' ? 'Edit completion' : 'Log completion');
+
+  const selectedDateLabel = new Date(selected).toLocaleString('en-US', {
     weekday: 'long',
     month: 'long',
     day: 'numeric',
@@ -58,21 +74,19 @@ export default function DatePickerSheet({
             <Pressable onPress={onClose}>
               <Text style={styles.cancelText}>Cancel</Text>
             </Pressable>
-            <Text style={styles.title}>
-              {mode === 'edit' ? 'Edit completion' : 'Log completion'}
-            </Text>
+            <Text style={styles.title}>{headerTitle}</Text>
             <Pressable onPress={() => onSave(selected)}>
               <Text style={styles.saveText}>Save</Text>
             </Pressable>
           </View>
 
           <View style={styles.selectedPanel}>
-            <Text style={styles.selectedLabel}>Completed</Text>
-            <Text style={styles.selectedDate}>{selectedLabel}</Text>
+            <Text style={styles.selectedLabel}>{selectedLabel}</Text>
+            <Text style={styles.selectedDate}>{selectedDateLabel}</Text>
           </View>
 
           <View style={styles.quickRow}>
-            {quickOptions.map(o => {
+            {options.map(o => {
               const isSelected = selected === o.ts;
               return (
                 <Pressable
@@ -99,7 +113,7 @@ export default function DatePickerSheet({
           <MiniCalendar
             selected={selected}
             onSelect={setSelected}
-            maxDate={today}
+            maxDate={allowFuture ? undefined : today}
           />
         </Pressable>
       </Pressable>

@@ -5,6 +5,7 @@ import { Alert, Pressable, Text, TextInput, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import ColorPicker from '../../components/ColorPicker';
+import DatePickerSheet, { QuickOption } from '../../components/DatePickerSheet';
 import GlyphPicker from '../../components/GlyphPicker';
 import FormGroup from '../../components/ui/FormGroup';
 import FormLabel from '../../components/ui/FormLabel';
@@ -12,6 +13,11 @@ import SegmentedControl from '../../components/ui/SegmentedControl';
 import { Cadence, Task, taskStorage } from '../../lib/storage';
 import { GlyphKey, getSymbol } from '../../utils/glyphs';
 import { ColorKey, getTint } from '../../utils/taskTints';
+import {
+  calculateNextDueDate,
+  getTodayTimestamp,
+  normalizeToMidnight,
+} from '../../utils/taskUtils';
 
 type CadenceType = Cadence['type'];
 type CadenceUnit = NonNullable<Cadence['unit']>;
@@ -29,6 +35,31 @@ const UNIT_OPTIONS: { value: CadenceUnit; label: string }[] = [
   { value: 'months', label: 'months' },
 ];
 
+const MS_DAY = 86400000;
+
+const getDueQuickOptions = (): QuickOption[] => {
+  const today = getTodayTimestamp();
+  return [
+    { label: 'Yesterday', ts: today - MS_DAY },
+    { label: 'Today', ts: today },
+    { label: 'Tomorrow', ts: today + MS_DAY },
+    { label: 'Next week', ts: today + 7 * MS_DAY },
+  ];
+};
+
+const formatDueDate = (ts: number): string => {
+  const today = getTodayTimestamp();
+  const diffDays = Math.round((normalizeToMidnight(ts) - today) / MS_DAY);
+  if (diffDays === 0) return 'Today';
+  if (diffDays === 1) return 'Tomorrow';
+  if (diffDays === -1) return 'Yesterday';
+  return new Date(ts).toLocaleString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+  });
+};
+
 export default function TaskFormScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ taskId?: string }>();
@@ -45,6 +76,10 @@ export default function TaskFormScreen() {
   const [cadenceType, setCadenceType] = useState<CadenceType>('weekly');
   const [customValue, setCustomValue] = useState('2');
   const [customUnit, setCustomUnit] = useState<CadenceUnit>('weeks');
+  const [nextDueDate, setNextDueDate] = useState<number>(() =>
+    getTodayTimestamp()
+  );
+  const [dueDatePickerOpen, setDueDatePickerOpen] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -62,6 +97,9 @@ export default function TaskFormScreen() {
             setCustomValue(String(t.cadence.value ?? 2));
             setCustomUnit(t.cadence.unit ?? 'weeks');
           }
+          setNextDueDate(
+            t.nextDueDate ?? calculateNextDueDate(t.cadence, t.lastCompletedAt)
+          );
         }
         setLoaded(true);
       })();
@@ -94,7 +132,7 @@ export default function TaskFormScreen() {
       createdAt: existing?.createdAt ?? Date.now(),
       completedDates: existing?.completedDates ?? [],
       lastCompletedAt: existing?.lastCompletedAt,
-      nextDueDate: existing?.nextDueDate,
+      nextDueDate,
     };
     await taskStorage.saveTask(saved);
     router.back();
@@ -204,6 +242,26 @@ export default function TaskFormScreen() {
           </View>
         </FormGroup>
 
+        <FormLabel>Next Due</FormLabel>
+        <FormGroup>
+          <Pressable
+            onPress={() => setDueDatePickerOpen(true)}
+            style={styles.dueRow}
+          >
+            <Text style={styles.dueLabel}>Due</Text>
+            <View style={styles.dueValueWrap}>
+              <Text style={styles.dueValue}>{formatDueDate(nextDueDate)}</Text>
+              <SymbolView
+                name="chevron.right"
+                size={12}
+                tintColor={theme.colors.label3}
+                resizeMode="scaleAspectFit"
+                fallback={null}
+              />
+            </View>
+          </Pressable>
+        </FormGroup>
+
         <FormLabel>Color</FormLabel>
         <FormGroup>
           <ColorPicker value={color} onChange={setColor} />
@@ -222,6 +280,20 @@ export default function TaskFormScreen() {
           </View>
         )}
       </KeyboardAwareScrollView>
+
+      <DatePickerSheet
+        visible={dueDatePickerOpen}
+        initialDate={nextDueDate}
+        title="Next due"
+        selectedLabel="Due"
+        quickOptions={getDueQuickOptions()}
+        allowFuture
+        onClose={() => setDueDatePickerOpen(false)}
+        onSave={ts => {
+          setNextDueDate(ts);
+          setDueDatePickerOpen(false);
+        }}
+      />
     </View>
   );
 }
@@ -314,6 +386,28 @@ const styles = StyleSheet.create(theme => ({
   },
   customUnits: {
     flex: 1,
+  },
+  dueRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+  },
+  dueLabel: {
+    fontSize: 17,
+    color: theme.colors.text,
+    letterSpacing: -0.4,
+  },
+  dueValueWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  dueValue: {
+    fontSize: 17,
+    color: theme.colors.label2,
+    letterSpacing: -0.4,
   },
   deleteWrap: {
     marginHorizontal: 16,
