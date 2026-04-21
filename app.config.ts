@@ -10,7 +10,11 @@ const config: ExpoConfig = {
   userInterfaceStyle: 'automatic',
   ios: {
     supportsTablet: true,
-    icon: './assets/cadence.icon',
+    icon: {
+      light: './assets/icon.png',
+      dark: './assets/icon-dark.png',
+      tinted: './assets/icon-tinted.png',
+    },
     bundleIdentifier: 'dev.kadi.cadence',
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
@@ -22,7 +26,7 @@ const config: ExpoConfig = {
   },
   android: {
     adaptiveIcon: {
-      backgroundColor: '#E6F4FE',
+      backgroundColor: '#F7F9FE',
       foregroundImage: './assets/images/android-icon-foreground.png',
       backgroundImage: './assets/images/android-icon-background.png',
       monochromeImage: './assets/images/android-icon-monochrome.png',
@@ -40,13 +44,13 @@ const config: ExpoConfig = {
     [
       'expo-splash-screen',
       {
-        image: './assets/icon.png',
+        image: './assets/icon-transparent.png',
         imageWidth: 200,
         resizeMode: 'contain',
-        backgroundColor: '#FFFFFF',
+        backgroundColor: '#F7F9FE',
         dark: {
-          image: './assets/icon-dark.png',
-          backgroundColor: '#000000',
+          image: './assets/icon-dark-transparent.png',
+          backgroundColor: '#040A1F',
         },
       },
     ],

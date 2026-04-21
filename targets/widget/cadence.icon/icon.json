@@ -14,10 +14,10 @@
               }
             }
           ],
-          "image-name": "beat.svg",
-          "name": "beat",
+          "image-name": "grid.svg",
+          "name": "grid",
           "position": {
-            "scale": 1.5,
+            "scale": 1.0,
             "translation-in-points": [0, 0]
           }
         }
