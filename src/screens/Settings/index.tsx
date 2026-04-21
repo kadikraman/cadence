@@ -1,8 +1,16 @@
 import { SymbolView } from 'expo-symbols';
 import { useFocusEffect, useRouter } from 'expo-router';
 import Constants from 'expo-constants';
+import * as StoreReview from 'expo-store-review';
 import { useCallback, useState } from 'react';
-import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import {
+  Alert,
+  Linking,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import FormGroup from '../../components/ui/FormGroup';
 import FormLabel from '../../components/ui/FormLabel';
@@ -63,6 +71,22 @@ export default function SettingsScreen() {
   };
 
   const version = Constants.expoConfig?.version ?? '1.0';
+
+  const handleRate = async () => {
+    try {
+      const available = await StoreReview.isAvailableAsync();
+      if (available && (await StoreReview.hasAction())) {
+        await StoreReview.requestReview();
+        return;
+      }
+      const url = await StoreReview.storeUrl();
+      if (url) {
+        await Linking.openURL(url);
+      }
+    } catch (err) {
+      console.warn('rate failed', err);
+    }
+  };
 
   return (
     <View style={[styles.root, { paddingTop: rt.insets.top }]}>
@@ -192,6 +216,61 @@ export default function SettingsScreen() {
 
         <FormLabel>About</FormLabel>
         <FormGroup>
+          <Pressable
+            onPress={() => router.push('/feedback')}
+            style={styles.row}
+          >
+            <View
+              style={[
+                styles.rowIcon,
+                { backgroundColor: theme.colors.blue + '22' },
+              ]}
+            >
+              <SymbolView
+                name="bubble.left.fill"
+                size={15}
+                tintColor={theme.colors.blue}
+                resizeMode="scaleAspectFit"
+                fallback={null}
+              />
+            </View>
+            <View style={styles.rowBody}>
+              <Text style={styles.rowLabel}>
+                Feedback &amp; feature requests
+              </Text>
+              <Text style={styles.rowSub}>Tell us what to build next</Text>
+            </View>
+            <SymbolView
+              name="chevron.right"
+              size={14}
+              tintColor={theme.colors.label4}
+              resizeMode="scaleAspectFit"
+              fallback={null}
+            />
+          </Pressable>
+          <View style={styles.inset} />
+          <Pressable onPress={handleRate} style={styles.row}>
+            <View style={[styles.rowIcon, { backgroundColor: '#FF950029' }]}>
+              <SymbolView
+                name="star.fill"
+                size={15}
+                tintColor="#FF9500"
+                resizeMode="scaleAspectFit"
+                fallback={null}
+              />
+            </View>
+            <Text style={[styles.rowLabel, { marginLeft: 0 }]}>
+              Rate on the App Store
+            </Text>
+            <SymbolView
+              name="chevron.right"
+              size={14}
+              tintColor={theme.colors.label4}
+              resizeMode="scaleAspectFit"
+              fallback={null}
+            />
+          </Pressable>
+          <View style={styles.inset} />
           <View style={styles.row}>
             <Text style={[styles.rowLabel, { marginLeft: 0 }]}>Version</Text>
             <Text style={styles.rowValue}>{version}</Text>
@@ -242,10 +321,25 @@ const styles = StyleSheet.create(theme => ({
     paddingHorizontal: 16,
     paddingVertical: 13,
   },
+  rowIcon: {
+    width: 28,
+    height: 28,
+    borderRadius: 7,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  rowBody: {
+    flex: 1,
+  },
   rowLabel: {
     flex: 1,
     fontSize: 16,
     color: theme.colors.text,
+  },
+  rowSub: {
+    fontSize: 12,
+    color: theme.colors.label3,
+    marginTop: 1,
   },
   rowValue: {
     fontSize: 14,

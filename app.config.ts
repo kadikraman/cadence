@@ -35,7 +35,7 @@ const config: ExpoConfig = {
     package: 'dev.kadi.cadence',
   },
   web: {
-    output: 'static',
+    output: 'server',
     favicon: './assets/images/favicon.png',
   },
   plugins: [

@@ -30,6 +30,7 @@ function RootLayoutNav() {
         <Stack.Screen name="task/[taskId]" />
         <Stack.Screen name="stats" options={{ headerShown: false }} />
         <Stack.Screen name="settings" options={{ headerShown: false }} />
+        <Stack.Screen name="feedback" />
         <Stack.Screen
           name="onboarding"
           options={{ headerShown: false, presentation: 'modal' }}
