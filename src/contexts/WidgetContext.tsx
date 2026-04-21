@@ -47,6 +47,7 @@ interface WidgetStatsPayload {
   todayCount: number;
   doneTodayCount: number;
   moreDueThisWeekCount: number;
+  totalCount: number;
   streak: number;
   onTimePct: number;
 }
@@ -97,6 +98,7 @@ function buildPayload(tasks: Task[]): {
     todayCount,
     doneTodayCount,
     moreDueThisWeekCount,
+    totalCount: tasks.length,
     streak: computeStreak(tasks),
     onTimePct: computeOnTimePct(tasks, 30).pct,
   };
