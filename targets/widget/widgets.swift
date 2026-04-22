@@ -295,11 +295,12 @@ struct SmallView: View {
                     .foregroundColor(cadenceGreen)
             }
             .frame(width: 30, height: 30)
-            Text("All clear\ntoday")
+            Text("All clear today")
                 .font(.system(size: 14, weight: .bold))
                 .foregroundColor(.primary)
                 .padding(.top, 8)
-                .lineLimit(2)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
             Spacer(minLength: 4)
             if let n = next {
                 HStack(spacing: 4) {
@@ -448,9 +449,7 @@ struct MediumView: View {
             if entry.tasks.isEmpty {
                 mediumEmpty
             } else if urgent.isEmpty {
-                mediumAllClear(next: upcoming.first)
-            } else if urgent.count == 1 && !upcoming.isEmpty {
-                mediumOnePlusUpcoming(urgent: urgent[0], next: upcoming.first!)
+                mediumAllClear(upcoming: upcoming)
             } else {
                 mediumList(urgent: urgent, upcoming: upcoming)
             }
@@ -498,53 +497,39 @@ struct MediumView: View {
         .padding(.top, 4)
     }
 
-    private func mediumAllClear(next: WidgetTask?) -> some View {
-        HStack(spacing: 12) {
-            ZStack {
-                Circle().fill(cadenceGreen.opacity(0.15))
-                Image(systemName: "checkmark")
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(cadenceGreen)
-            }
-            .frame(width: 40, height: 40)
-            VStack(alignment: .leading, spacing: 2) {
+    private func mediumAllClear(upcoming: [WidgetTask]) -> some View {
+        let rows = Array(upcoming.prefix(2))
+        return VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 10) {
+                ZStack {
+                    Circle().fill(cadenceGreen.opacity(0.15))
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(cadenceGreen)
+                }
+                .frame(width: 28, height: 28)
                 Text("All clear")
                     .font(.system(size: 15, weight: .bold))
                     .foregroundColor(.primary)
-                if let n = next {
-                    Text("NEXT UP")
-                        .font(.system(size: 9, weight: .bold))
-                        .kerning(0.4)
-                        .foregroundColor(.secondary)
-                        .padding(.top, 2)
-                    HStack(spacing: 6) {
-                        Text(n.title)
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundColor(.primary)
-                            .lineLimit(1)
-                        Text("·")
-                            .foregroundColor(.secondary)
-                        Text(formatDueIn(n.nextDueDate))
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundColor(.secondary)
+                Spacer(minLength: 0)
+            }
+            if !rows.isEmpty {
+                Text("NEXT UP")
+                    .font(.system(size: 9, weight: .bold))
+                    .kerning(0.4)
+                    .foregroundColor(.secondary)
+                    .padding(.top, 2)
+                VStack(spacing: 6) {
+                    ForEach(rows) { task in
+                        TaskRowView(
+                            task: task,
+                            iconSize: 24,
+                            titleSize: 13,
+                            dueSize: 11
+                        )
                     }
                 }
             }
-            Spacer(minLength: 0)
-        }
-        .padding(.top, 2)
-    }
-
-    private func mediumOnePlusUpcoming(urgent: WidgetTask, next: WidgetTask) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            TaskRowView(task: urgent)
-            Divider().background(Color.primary.opacity(0.06))
-            Text("COMING UP")
-                .font(.system(size: 9, weight: .bold))
-                .kerning(0.5)
-                .foregroundColor(.secondary)
-                .padding(.top, 2)
-            TaskRowView(task: next)
         }
     }
 

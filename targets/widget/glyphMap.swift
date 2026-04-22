@@ -1,5 +1,9 @@
 import Foundation
 
+// Keep in sync with src/utils/glyphs.ts — any new GlyphKey added there must
+// also be mapped here, otherwise widget tasks using that glyph fall back to
+// the default house icon.
+
 func sfSymbol(forGlyph key: String) -> String {
     switch key {
     case "car": return "car.fill"
@@ -44,6 +48,52 @@ func sfSymbol(forGlyph key: String) -> String {
     case "card": return "creditcard.fill"
     case "gear": return "gearshape.fill"
     case "tools": return "wrench.and.screwdriver.fill"
+    case "sofa": return "sofa.fill"
+    case "chair": return "chair.fill"
+    case "lamp": return "lamp.desk.fill"
+    case "shower": return "shower.fill"
+    case "washer": return "washer.fill"
+    case "dryer": return "dryer.fill"
+    case "oven": return "oven.fill"
+    case "microwave": return "microwave.fill"
+    case "fridge": return "refrigerator.fill"
+    case "coffee": return "cup.and.saucer.fill"
+    case "wine": return "wineglass.fill"
+    case "carrot": return "carrot.fill"
+    case "airplane": return "airplane"
+    case "bus": return "bus.fill"
+    case "fuel": return "fuelpump.fill"
+    case "laptop": return "laptopcomputer"
+    case "printer": return "printer.fill"
+    case "camera": return "camera.fill"
+    case "folder": return "folder.fill"
+    case "doc": return "doc.text.fill"
+    case "message": return "message.fill"
+    case "bell": return "bell.fill"
+    case "calendar": return "calendar"
+    case "alarm": return "alarm.fill"
+    case "cart": return "cart.fill"
+    case "dollar": return "dollarsign.circle.fill"
+    case "walk": return "figure.walk"
+    case "hiking": return "figure.hiking"
+    case "stethoscope": return "stethoscope"
+    case "dog": return "dog.fill"
+    case "cat": return "cat.fill"
+    case "bird": return "bird.fill"
+    case "fish": return "fish.fill"
+    case "cloud": return "cloud.fill"
+    case "rain": return "cloud.rain.fill"
+    case "moon": return "moon.fill"
+    case "bolt": return "bolt.fill"
+    case "headphones": return "headphones"
+    case "guitar": return "guitars.fill"
+    case "books": return "books.vertical.fill"
+    case "graduation": return "graduationcap.fill"
+    case "bookmark": return "bookmark.fill"
+    case "flag": return "flag.fill"
+    case "tag": return "tag.fill"
+    case "key": return "key.fill"
+    case "scissors": return "scissors"
     default: return "house.fill"
     }
 }
