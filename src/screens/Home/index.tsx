@@ -1,7 +1,6 @@
 import * as Haptics from 'expo-haptics';
-import { useFocusEffect, useRouter } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useRouter } from 'expo-router';
+import { useMemo, useRef, useState } from 'react';
 import { Alert, Dimensions, ScrollView, Text, View } from 'react-native';
 import ConfettiCannon from 'react-native-confetti-cannon';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -10,7 +9,8 @@ import TaskRow from '../../components/TaskRow';
 import IconButton from '../../components/ui/IconButton';
 import WidgetNudge from '../../components/WidgetNudge';
 import { WidgetProvider } from '../../contexts/WidgetContext';
-import { Task, taskStorage } from '../../lib/storage';
+import { Task } from '../../lib/types';
+import { useTasksStore } from '../../stores/tasks';
 import {
   getNextDueDate,
   getTodayTimestamp,
@@ -60,17 +60,14 @@ function bucketize(tasks: Task[]): Buckets {
   return buckets;
 }
 
-function HomeContent({
-  tasks,
-  onTasksChange,
-}: {
-  tasks: Task[];
-  onTasksChange: () => Promise<void>;
-}) {
+function HomeContent({ tasks }: { tasks: Task[] }) {
   const router = useRouter();
   const { theme } = useUnistyles();
   const confettiRef = useRef<ConfettiCannon>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const markCompleted = useTasksStore(s => s.markCompleted);
+  const unmarkCompleted = useTasksStore(s => s.unmarkCompleted);
+  const removeTaskFromStore = useTasksStore(s => s.remove);
 
   const buckets = useMemo(() => bucketize(tasks), [tasks]);
   const heading = useMemo(formatTodayHeading, []);
@@ -82,20 +79,13 @@ function HomeContent({
     }, 200);
   };
 
-  const isLastTaskDueToday = (allTasks: Task[]): boolean => {
-    const remaining = allTasks.filter(
+  const markDone = async (task: Task) => {
+    await markCompleted(task.id);
+    const updated = useTasksStore.getState().tasks;
+    const remaining = updated.filter(
       t => (isOverdue(t) || isDueToday(t)) && !isCompletedToday(t)
     );
-    return remaining.length === 0;
-  };
-
-  const markDone = async (task: Task) => {
-    await taskStorage.markTaskCompleted(task.id);
-    const updated = await taskStorage.getAllTasks();
-    if (isLastTaskDueToday(sortTasksByDueDate(updated))) {
-      celebrateCompletion();
-    }
-    await onTasksChange();
+    if (remaining.length === 0) celebrateCompletion();
   };
 
   const quickDone = async (task: Task) => {
@@ -104,10 +94,7 @@ function HomeContent({
       const entry = task.completedDates?.find(
         d => normalizeToMidnight(d) === today
       );
-      if (entry) {
-        await taskStorage.unmarkTaskCompleted(task.id, entry);
-        await onTasksChange();
-      }
+      if (entry) await unmarkCompleted(task.id, entry);
       return;
     }
     const nextDue = normalizeToMidnight(getNextDueDate(task));
@@ -135,10 +122,7 @@ function HomeContent({
         {
           text: 'Delete',
           style: 'destructive',
-          onPress: async () => {
-            await taskStorage.deleteTask(task.id);
-            await onTasksChange();
-          },
+          onPress: () => removeTaskFromStore(task.id),
         },
       ]
     );
@@ -329,34 +313,12 @@ const styles = StyleSheet.create((theme, rt) => ({
 }));
 
 export default function Home() {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const splashHidden = useRef(false);
-
-  const loadTasks = async () => {
-    try {
-      const all = await taskStorage.getAllTasks();
-      setTasks(sortTasksByDueDate(all));
-    } finally {
-      if (!splashHidden.current) {
-        splashHidden.current = true;
-        SplashScreen.hideAsync().catch(() => {});
-      }
-    }
-  };
-
-  useEffect(() => {
-    loadTasks();
-  }, []);
-
-  useFocusEffect(
-    useCallback(() => {
-      loadTasks();
-    }, [])
-  );
+  const tasks = useTasksStore(s => s.tasks);
+  const sortedTasks = useMemo(() => sortTasksByDueDate(tasks), [tasks]);
 
   return (
-    <WidgetProvider tasks={tasks}>
-      <HomeContent tasks={tasks} onTasksChange={loadTasks} />
+    <WidgetProvider tasks={sortedTasks}>
+      <HomeContent tasks={sortedTasks} />
     </WidgetProvider>
   );
 }

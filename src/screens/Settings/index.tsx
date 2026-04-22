@@ -1,8 +1,7 @@
 import { SymbolView } from 'expo-symbols';
-import { useFocusEffect, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import Constants from 'expo-constants';
 import * as StoreReview from 'expo-store-review';
-import { useCallback, useState } from 'react';
 import {
   Alert,
   Linking,
@@ -16,7 +15,7 @@ import FormGroup from '../../components/ui/FormGroup';
 import FormLabel from '../../components/ui/FormLabel';
 import { useTheme } from '../../contexts/ThemeContext';
 import { exportTasks, importTasks } from '../../lib/exportImport';
-import { taskStorage } from '../../lib/storage';
+import { useTasksStore } from '../../stores/tasks';
 
 type ThemeMode = 'system' | 'light' | 'dark';
 
@@ -34,18 +33,7 @@ export default function SettingsScreen() {
   const { theme, rt } = useUnistyles();
   const router = useRouter();
   const { themeMode, setThemeMode } = useTheme();
-  const [taskCount, setTaskCount] = useState(0);
-
-  const loadCount = useCallback(async () => {
-    const all = await taskStorage.getAllTasks();
-    setTaskCount(all.length);
-  }, []);
-
-  useFocusEffect(
-    useCallback(() => {
-      loadCount();
-    }, [loadCount])
-  );
+  const taskCount = useTasksStore(s => s.tasks.length);
 
   const handleExport = async () => {
     try {
@@ -59,7 +47,6 @@ export default function SettingsScreen() {
     try {
       const res = await importTasks();
       if (res) {
-        await loadCount();
         Alert.alert(
           'Import complete',
           `${res.imported} imported${res.skipped > 0 ? `, ${res.skipped} skipped` : ''}.`

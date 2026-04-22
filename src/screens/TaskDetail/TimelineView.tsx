@@ -1,7 +1,7 @@
 import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import SwipeRow, { SwipeAction } from '../../components/SwipeRow';
-import { Task } from '../../lib/storage';
+import { Task } from '../../lib/types';
 import { cadenceDays, formatDriftLabel } from '../../utils/statsUtils';
 import { relativeLabel } from '../../utils/taskUtils';
 

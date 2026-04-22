@@ -12,13 +12,11 @@ import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import {
-  OnboardingProvider,
-  useOnboarding,
-} from '../contexts/OnboardingContext';
-import {
   ThemeProvider as UnistylesThemeProvider,
   useTheme,
 } from '../contexts/ThemeContext';
+import { useSettingsStore } from '../stores/settings';
+import { useTasksStore } from '../stores/tasks';
 import '../unistyles';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -31,18 +29,30 @@ Sentry.init({
 
 function RootLayoutNav() {
   const { isDark } = useTheme();
-  const { hasSeen } = useOnboarding();
+  const tasksLoaded = useTasksStore(s => s.loaded);
+  const loadTasks = useTasksStore(s => s.load);
+  const settingsLoaded = useSettingsStore(s => s.loaded);
+  const loadSettings = useSettingsStore(s => s.load);
+  const onboardingSeen = useSettingsStore(s => s.onboardingSeen);
 
   useEffect(() => {
-    AppMetrics.markInteractive();
-  }, []);
+    loadTasks();
+    loadSettings();
+  }, [loadTasks, loadSettings]);
 
-  if (hasSeen === null) return null;
+  useEffect(() => {
+    if (tasksLoaded && settingsLoaded) {
+      SplashScreen.hideAsync().catch(() => {});
+      AppMetrics.markInteractive();
+    }
+  }, [tasksLoaded, settingsLoaded]);
+
+  if (!tasksLoaded || !settingsLoaded) return null;
 
   return (
     <ReactNativeThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
       <Stack>
-        <Stack.Protected guard={hasSeen}>
+        <Stack.Protected guard={onboardingSeen}>
           <Stack.Screen name="index" options={{ headerShown: false }} />
           <Stack.Screen name="new" options={{ presentation: 'modal' }} />
           <Stack.Screen name="task/[taskId]" />
@@ -65,9 +75,7 @@ function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <KeyboardProvider>
         <UnistylesThemeProvider>
-          <OnboardingProvider>
-            <RootLayoutNav />
-          </OnboardingProvider>
+          <RootLayoutNav />
         </UnistylesThemeProvider>
       </KeyboardProvider>
     </GestureHandlerRootView>

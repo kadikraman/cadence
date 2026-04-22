@@ -1,16 +1,15 @@
 import { SymbolView } from 'expo-symbols';
 import {
   Stack,
-  useFocusEffect,
   useLocalSearchParams,
   useRouter,
 } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import DatePickerSheet from '../../components/DatePickerSheet';
 import SegmentedControl from '../../components/ui/SegmentedControl';
-import { Task, taskStorage } from '../../lib/storage';
+import { useTasksStore } from '../../stores/tasks';
 import { computeTaskStats } from '../../utils/statsUtils';
 import { getSymbol } from '../../utils/glyphs';
 import { getTint } from '../../utils/taskTints';
@@ -31,22 +30,13 @@ export default function TaskDetailScreen() {
   const { theme, rt } = useUnistyles();
   const dark = rt.themeName === 'dark';
 
-  const [task, setTask] = useState<Task | null>(null);
+  const task = useTasksStore(s => s.tasks.find(t => t.id === taskId) ?? null);
+  const markCompleted = useTasksStore(s => s.markCompleted);
+  const editCompletionDate = useTasksStore(s => s.editCompletionDate);
+  const unmarkCompleted = useTasksStore(s => s.unmarkCompleted);
   const [tab, setTab] = useState<Tab>('timeline');
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<number | null>(null);
-
-  const load = useCallback(async () => {
-    if (!taskId) return;
-    const t = await taskStorage.getTask(taskId);
-    setTask(t);
-  }, [taskId]);
-
-  useFocusEffect(
-    useCallback(() => {
-      load();
-    }, [load])
-  );
 
   if (!task) return <View style={styles.root} />;
 
@@ -73,23 +63,20 @@ export default function TaskDetailScreen() {
   const savePicker = async (ts: number) => {
     if (!task) return;
     if (editingEntry !== null) {
-      await taskStorage.editCompletionDate(task.id, editingEntry, ts);
+      await editCompletionDate(task.id, editingEntry, ts);
     } else {
-      await taskStorage.markTaskCompleted(task.id, ts);
+      await markCompleted(task.id, ts);
     }
     setDatePickerOpen(false);
     setEditingEntry(null);
-    await load();
   };
 
   const markDoneNow = async () => {
-    await taskStorage.markTaskCompleted(task.id);
-    await load();
+    await markCompleted(task.id);
   };
 
   const deleteCompletion = async (ts: number) => {
-    await taskStorage.deleteCompletionDate(task.id, ts);
-    await load();
+    await unmarkCompleted(task.id, ts);
   };
 
   return (

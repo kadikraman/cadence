@@ -1,6 +1,6 @@
 import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import { Task } from '../lib/storage';
+import { Task } from '../lib/types';
 import { formatDueIn, getNextDueDate, getTaskStatus } from '../utils/taskUtils';
 import TaskTile from './ui/TaskTile';
 

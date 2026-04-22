@@ -1,10 +1,7 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SymbolView } from 'expo-symbols';
-import { useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-
-const STORAGE_KEY = 'cadence_widget_nudge_dismissed';
+import { useSettingsStore } from '../stores/settings';
 
 interface WidgetNudgeProps {
   onLearnMore: () => void;
@@ -12,22 +9,10 @@ interface WidgetNudgeProps {
 
 export default function WidgetNudge({ onLearnMore }: WidgetNudgeProps) {
   const { theme } = useUnistyles();
-  const [loaded, setLoaded] = useState(false);
-  const [visible, setVisible] = useState(false);
+  const dismissed = useSettingsStore(s => s.widgetNudgeDismissed);
+  const dismissNudge = useSettingsStore(s => s.dismissWidgetNudge);
 
-  useEffect(() => {
-    AsyncStorage.getItem(STORAGE_KEY).then(v => {
-      setVisible(v !== '1');
-      setLoaded(true);
-    });
-  }, []);
-
-  const dismiss = async () => {
-    setVisible(false);
-    await AsyncStorage.setItem(STORAGE_KEY, '1');
-  };
-
-  if (!loaded || !visible) return null;
+  if (dismissed) return null;
 
   return (
     <View style={styles.container}>
@@ -49,7 +34,7 @@ export default function WidgetNudge({ onLearnMore }: WidgetNudgeProps) {
       <Pressable onPress={onLearnMore} style={styles.cta}>
         <Text style={styles.ctaText}>Show me</Text>
       </Pressable>
-      <Pressable onPress={dismiss} style={styles.dismiss}>
+      <Pressable onPress={dismissNudge} style={styles.dismiss}>
         <SymbolView
           name="xmark"
           size={14}

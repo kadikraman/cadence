@@ -1,11 +1,10 @@
 import { SymbolView } from 'expo-symbols';
 import {
   Stack,
-  useFocusEffect,
   useLocalSearchParams,
   useRouter,
 } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Alert, Pressable, Text, TextInput, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -15,7 +14,8 @@ import GlyphPicker from '../../components/GlyphPicker';
 import FormGroup from '../../components/ui/FormGroup';
 import FormLabel from '../../components/ui/FormLabel';
 import SegmentedControl from '../../components/ui/SegmentedControl';
-import { Cadence, Task, taskStorage } from '../../lib/storage';
+import { Cadence, Task } from '../../lib/types';
+import { useTasksStore } from '../../stores/tasks';
 import { GlyphKey, getSymbol } from '../../utils/glyphs';
 import { ColorKey, getTint } from '../../utils/taskTints';
 import {
@@ -80,50 +80,46 @@ export default function TaskFormScreen() {
   const { theme, rt } = useUnistyles();
   const dark = rt.themeName === 'dark';
 
-  const [existing, setExisting] = useState<Task | null>(null);
-  const [loaded, setLoaded] = useState(!isEdit);
-  const [title, setTitle] = useState(() => params.title ?? '');
-  const [details, setDetails] = useState('');
-  const [color, setColor] = useState<ColorKey>(() => params.color ?? 'slate');
-  const [glyph, setGlyph] = useState<GlyphKey>(() => params.glyph ?? 'entry');
-  const [cadenceType, setCadenceType] = useState<CadenceType>(
-    () => params.cadenceType ?? 'weekly'
+  const saveTask = useTasksStore(s => s.save);
+  const removeTask = useTasksStore(s => s.remove);
+  const existing = useTasksStore(s =>
+    params.taskId ? (s.tasks.find(t => t.id === params.taskId) ?? null) : null
   );
-  const [customValue, setCustomValue] = useState(
-    () => params.cadenceValue ?? '2'
-  );
-  const [customUnit, setCustomUnit] = useState<CadenceUnit>(
-    () => params.cadenceUnit ?? 'weeks'
-  );
-  const [nextDueDate, setNextDueDate] = useState<number>(() =>
-    getTodayTimestamp()
-  );
-  const [dueDatePickerOpen, setDueDatePickerOpen] = useState(false);
 
-  useFocusEffect(
-    useCallback(() => {
-      if (!params.taskId) return;
-      (async () => {
-        const t = await taskStorage.getTask(params.taskId!);
-        if (t) {
-          setExisting(t);
-          setTitle(t.title);
-          setDetails(t.details ?? '');
-          setColor(t.color ?? 'slate');
-          setGlyph(t.glyph ?? 'entry');
-          setCadenceType(t.cadence.type);
-          if (t.cadence.type === 'custom') {
-            setCustomValue(String(t.cadence.value ?? 2));
-            setCustomUnit(t.cadence.unit ?? 'weeks');
-          }
-          setNextDueDate(
-            t.nextDueDate ?? calculateNextDueDate(t.cadence, t.lastCompletedAt)
-          );
-        }
-        setLoaded(true);
-      })();
-    }, [params.taskId])
+  const [title, setTitle] = useState(
+    () => existing?.title ?? params.title ?? ''
   );
+  const [details, setDetails] = useState(() => existing?.details ?? '');
+  const [color, setColor] = useState<ColorKey>(
+    () => existing?.color ?? params.color ?? 'slate'
+  );
+  const [glyph, setGlyph] = useState<GlyphKey>(
+    () => existing?.glyph ?? params.glyph ?? 'entry'
+  );
+  const [cadenceType, setCadenceType] = useState<CadenceType>(
+    () => existing?.cadence.type ?? params.cadenceType ?? 'weekly'
+  );
+  const [customValue, setCustomValue] = useState(() =>
+    existing?.cadence.type === 'custom'
+      ? String(existing.cadence.value ?? 2)
+      : (params.cadenceValue ?? '2')
+  );
+  const [customUnit, setCustomUnit] = useState<CadenceUnit>(() =>
+    existing?.cadence.type === 'custom'
+      ? (existing.cadence.unit ?? 'weeks')
+      : (params.cadenceUnit ?? 'weeks')
+  );
+  const initialNextDue = useMemo(
+    () =>
+      existing
+        ? (existing.nextDueDate ??
+          calculateNextDueDate(existing.cadence, existing.lastCompletedAt))
+        : getTodayTimestamp(),
+    [existing]
+  );
+  const [nextDueDate, setNextDueDate] = useState<number>(initialNextDue);
+  const [dueDatePickerOpen, setDueDatePickerOpen] = useState(false);
+  const loaded = !isEdit || !!existing;
 
   const tint = getTint(color);
   const tintBg = dark ? tint.tintDark : tint.tint;
@@ -153,7 +149,7 @@ export default function TaskFormScreen() {
       lastCompletedAt: existing?.lastCompletedAt,
       nextDueDate,
     };
-    await taskStorage.saveTask(saved);
+    await saveTask(saved);
     router.back();
   };
 
@@ -168,7 +164,7 @@ export default function TaskFormScreen() {
           text: 'Delete',
           style: 'destructive',
           onPress: async () => {
-            await taskStorage.deleteTask(existing.id);
+            await removeTask(existing.id);
             router.back();
           },
         },

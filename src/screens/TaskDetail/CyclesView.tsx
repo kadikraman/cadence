@@ -1,6 +1,6 @@
 import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import { Task } from '../../lib/storage';
+import { Task } from '../../lib/types';
 import { cadenceDays, driftStatus } from '../../utils/statsUtils';
 
 interface CyclesViewProps {

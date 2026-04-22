@@ -1,7 +1,6 @@
 import { SymbolView } from 'expo-symbols';
 import { useRouter } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -9,8 +8,8 @@ import Animated, {
 } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import WidgetPreview from '../../components/WidgetPreview';
-import { useOnboarding } from '../../contexts/OnboardingContext';
-import { Task } from '../../lib/storage';
+import { Task } from '../../lib/types';
+import { useSettingsStore } from '../../stores/settings';
 
 type Visual = 'hero' | 'jiggle' | 'plus' | 'sizes';
 
@@ -82,17 +81,13 @@ const PREVIEW_TASKS: Task[] = [
 export default function OnboardingScreen() {
   const router = useRouter();
   const { rt } = useUnistyles();
-  const { markSeen } = useOnboarding();
+  const setOnboardingSeen = useSettingsStore(s => s.setOnboardingSeen);
   const [step, setStep] = useState(0);
   const current = STEPS[step];
   const isReplay = router.canGoBack();
 
-  useEffect(() => {
-    SplashScreen.hideAsync().catch(() => {});
-  }, []);
-
   const close = async () => {
-    await markSeen();
+    await setOnboardingSeen();
     if (router.canGoBack()) router.back();
     else router.replace('/');
   };

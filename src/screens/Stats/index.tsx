@@ -1,6 +1,6 @@
 import { SymbolView } from 'expo-symbols';
-import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useMemo, useState } from 'react';
+import { useRouter } from 'expo-router';
+import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import BigStatTile from '../../components/BigStatTile';
@@ -10,7 +10,7 @@ import SectionCard from '../../components/SectionCard';
 import SegmentedControl from '../../components/ui/SegmentedControl';
 import TaskTile from '../../components/ui/TaskTile';
 import WeeklyChart from '../../components/WeeklyChart';
-import { Task, taskStorage } from '../../lib/storage';
+import { useTasksStore } from '../../stores/tasks';
 import {
   computeAvgLateDrift,
   computeCadenceMix,
@@ -28,20 +28,9 @@ type Range = '7' | '30' | '90' | '365';
 export default function StatsScreen() {
   const router = useRouter();
   const { theme, rt } = useUnistyles();
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const tasks = useTasksStore(s => s.tasks);
   const [range, setRange] = useState<Range>('30');
   const rangeDays = parseInt(range);
-
-  const load = useCallback(async () => {
-    const all = await taskStorage.getAllTasks();
-    setTasks(all);
-  }, []);
-
-  useFocusEffect(
-    useCallback(() => {
-      load();
-    }, [load])
-  );
 
   const overall = useMemo(() => {
     const { onTime, late, pct } = computeOnTimePct(tasks, rangeDays);

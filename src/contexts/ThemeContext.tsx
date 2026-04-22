@@ -1,8 +1,6 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect } from 'react';
 import { UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
-
-type ThemeMode = 'light' | 'dark' | 'system';
+import { ThemeMode, useSettingsStore } from '../stores/settings';
 
 interface Theme {
   background: string;
@@ -29,46 +27,28 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-const THEME_STORAGE_KEY = 'theme_mode';
+function applyThemeMode(mode: ThemeMode) {
+  if (mode === 'system') {
+    UnistylesRuntime.setAdaptiveThemes(true);
+  } else {
+    UnistylesRuntime.setAdaptiveThemes(false);
+    UnistylesRuntime.setTheme(mode);
+  }
+}
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const { theme: unistylesTheme } = useUnistyles();
-  const [themeMode, setThemeModeState] = useState<ThemeMode>('system');
-  const [isInitialized, setIsInitialized] = useState(false);
+  const themeMode = useSettingsStore(s => s.themeMode);
+  const loaded = useSettingsStore(s => s.loaded);
+  const setThemeModeInStore = useSettingsStore(s => s.setThemeMode);
 
   useEffect(() => {
-    loadThemeMode();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (loaded) applyThemeMode(themeMode);
+  }, [loaded, themeMode]);
 
-  const loadThemeMode = async () => {
-    try {
-      const saved = await AsyncStorage.getItem(THEME_STORAGE_KEY);
-      if (saved === 'light' || saved === 'dark' || saved === 'system') {
-        setThemeModeState(saved);
-        applyThemeMode(saved);
-      }
-    } catch {
-    } finally {
-      setIsInitialized(true);
-    }
-  };
-
-  const applyThemeMode = (mode: ThemeMode) => {
-    if (mode === 'system') {
-      UnistylesRuntime.setAdaptiveThemes(true);
-    } else {
-      UnistylesRuntime.setAdaptiveThemes(false);
-      UnistylesRuntime.setTheme(mode);
-    }
-  };
-
-  const setThemeMode = async (mode: ThemeMode) => {
-    setThemeModeState(mode);
+  const setThemeMode = (mode: ThemeMode) => {
     applyThemeMode(mode);
-    try {
-      await AsyncStorage.setItem(THEME_STORAGE_KEY, mode);
-    } catch {}
+    setThemeModeInStore(mode);
   };
 
   const isDark = UnistylesRuntime.themeName === 'dark';
@@ -88,10 +68,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     buttonInactive: unistylesTheme.colors.buttonInactive,
     buttonInactiveText: unistylesTheme.colors.buttonInactiveText,
   };
-
-  if (!isInitialized) {
-    return null;
-  }
 
   return (
     <ThemeContext.Provider value={{ theme, themeMode, setThemeMode, isDark }}>

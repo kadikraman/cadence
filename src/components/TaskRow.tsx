@@ -6,7 +6,7 @@ import Animated, {
   LinearTransition,
 } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import { Task } from '../lib/storage';
+import { Task } from '../lib/types';
 import {
   formatCadence,
   formatDueIn,

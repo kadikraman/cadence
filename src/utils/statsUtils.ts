@@ -1,4 +1,4 @@
-import { Cadence, Task } from '../lib/storage';
+import { Cadence, Task } from '../lib/types';
 import {
   getNextDueDate,
   getTodayTimestamp,

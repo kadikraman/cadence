@@ -1,7 +1,7 @@
 import { SymbolView } from 'expo-symbols';
 import { View } from 'react-native';
 import { useUnistyles } from 'react-native-unistyles';
-import { Task } from '../../lib/storage';
+import { Task } from '../../lib/types';
 import { getSymbol, GlyphKey } from '../../utils/glyphs';
 import { ColorKey, getTint } from '../../utils/taskTints';
 

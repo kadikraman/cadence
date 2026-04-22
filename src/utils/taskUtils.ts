@@ -1,4 +1,4 @@
-import { Cadence, Task } from '../lib/storage';
+import { Cadence, Task } from '../lib/types';
 
 export type TaskStatus = 'completed' | 'overdue' | 'dueToday' | 'default';
 

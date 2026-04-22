@@ -4,7 +4,7 @@ import * as React from 'react';
 import { createContext, useCallback, useContext } from 'react';
 import { Platform } from 'react-native';
 import { requestWidgetUpdate } from 'react-native-android-widget';
-import { Task } from '../lib/storage';
+import { Task } from '../lib/types';
 import { computeOnTimePct, computeStreak } from '../utils/statsUtils';
 import {
   getNextDueDate,

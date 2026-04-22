@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import TaskTile from './ui/TaskTile';
-import { Cadence } from '../lib/storage';
+import { Cadence } from '../lib/types';
 import { GlyphKey } from '../utils/glyphs';
 import { ColorKey } from '../utils/taskTints';
 

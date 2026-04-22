@@ -2,7 +2,8 @@ import * as DocumentPicker from 'expo-document-picker';
 import { File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import { Alert, Platform } from 'react-native';
-import { Task, normalizeTask, taskStorage } from './storage';
+import { useTasksStore } from '../stores/tasks';
+import { Task } from './types';
 
 const SCHEMA = 'cadence-v1';
 
@@ -21,7 +22,7 @@ function todayStamp(): string {
 }
 
 export async function exportTasks(): Promise<void> {
-  const tasks = await taskStorage.getAllTasks();
+  const tasks = useTasksStore.getState().tasks;
   const envelope: ExportEnvelope = {
     schema: SCHEMA,
     exportedAt: Date.now(),
@@ -69,25 +70,12 @@ async function applyImport(
   envelope: ExportEnvelope,
   mode: 'replace' | 'merge'
 ): Promise<ImportResult> {
-  const normalized = envelope.tasks.map(normalizeTask);
+  const store = useTasksStore.getState();
   if (mode === 'replace') {
-    const existing = await taskStorage.getAllTasks();
-    for (const t of existing) await taskStorage.deleteTask(t.id);
-    for (const t of normalized) await taskStorage.saveTask(t);
-    return { imported: normalized.length, skipped: 0, mode };
+    await store.replaceAll(envelope.tasks);
+    return { imported: envelope.tasks.length, skipped: 0, mode };
   }
-  const existing = await taskStorage.getAllTasks();
-  const existingIds = new Set(existing.map(t => t.id));
-  let imported = 0;
-  let skipped = 0;
-  for (const t of normalized) {
-    if (existingIds.has(t.id)) {
-      skipped++;
-      continue;
-    }
-    await taskStorage.saveTask(t);
-    imported++;
-  }
+  const { imported, skipped } = await store.merge(envelope.tasks);
   return { imported, skipped, mode };
 }
 
