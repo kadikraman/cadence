@@ -125,6 +125,20 @@ describe('unmarkCompleted', () => {
     const [next] = unmarkCompleted([task], task.id, midnight(-99));
     expect(next.completedDates).toEqual([a]);
   });
+
+  test('restores nextDueDate to the unmarked day when no completions remain', () => {
+    const todayTs = midnight();
+    const completionTs = Date.now();
+    const task = makeTask({
+      cadence: { type: 'weekly' },
+      completedDates: [completionTs],
+      lastCompletedAt: completionTs,
+      nextDueDate: todayTs + 7 * DAY,
+    });
+    const [next] = unmarkCompleted([task], task.id, completionTs);
+    expect(next.nextDueDate).toBe(todayTs);
+    expect(next.lastCompletedAt).toBeUndefined();
+  });
 });
 
 describe('editCompletionDate', () => {

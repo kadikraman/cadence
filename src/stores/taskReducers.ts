@@ -35,6 +35,12 @@ export function markCompleted(
   });
 }
 
+function toMidnight(ts: number): number {
+  const d = new Date(ts);
+  d.setHours(0, 0, 0, 0);
+  return d.getTime();
+}
+
 export function unmarkCompleted(
   tasks: Task[],
   id: string,
@@ -45,11 +51,15 @@ export function unmarkCompleted(
     const completedDates = (t.completedDates || []).filter(d => d !== date);
     const lastCompletedAt =
       completedDates.length > 0 ? Math.max(...completedDates) : undefined;
+    const nextDueDate =
+      completedDates.length > 0
+        ? calculateNextDueDate(t.cadence, lastCompletedAt)
+        : toMidnight(date);
     return {
       ...t,
       completedDates,
       lastCompletedAt,
-      nextDueDate: calculateNextDueDate(t.cadence, lastCompletedAt),
+      nextDueDate,
     };
   });
 }

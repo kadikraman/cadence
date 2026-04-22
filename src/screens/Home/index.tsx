@@ -4,6 +4,7 @@ import { useMemo, useRef, useState } from 'react';
 import { Alert, Dimensions, ScrollView, Text, View } from 'react-native';
 import ConfettiCannon from 'react-native-confetti-cannon';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import AllCaughtUp from '../../components/AllCaughtUp';
 import EmptyStateStarters from '../../components/EmptyStateStarters';
 import TaskRow from '../../components/TaskRow';
 import IconButton from '../../components/ui/IconButton';
@@ -209,6 +210,10 @@ function HomeContent({ tasks }: { tasks: Task[] }) {
       ) : (
         <ScrollView contentContainerStyle={styles.scroll}>
           <WidgetNudge onLearnMore={() => router.push('/onboarding')} />
+          {buckets.overdue.length === 0 &&
+            buckets.today.filter(t => !isCompletedToday(t)).length === 0 && (
+              <AllCaughtUp />
+            )}
           {renderSection(
             'Overdue',
             theme.colors.error,
