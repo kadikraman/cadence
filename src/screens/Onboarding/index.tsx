@@ -42,39 +42,43 @@ const STEPS: Step[] = [
   },
 ];
 
+const today = (() => {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d.getTime();
+})();
+
 const PREVIEW_TASKS: Task[] = [
   {
     id: 'preview-1',
-    title: 'Water the plants',
+    title: 'Water plants',
     color: 'green',
     glyph: 'plant',
     cadence: { type: 'custom', value: 3, unit: 'days' },
-    createdAt: Date.now() - 30 * 86400000,
-    lastCompletedAt: Date.now() - 2 * 86400000,
-    nextDueDate: Date.now() + 86400000,
-    completedDates: [Date.now() - 2 * 86400000],
+    createdAt: today - 30 * 86400000,
+    lastCompletedAt: today - 3 * 86400000,
+    nextDueDate: today,
+    completedDates: [today - 3 * 86400000],
   },
   {
     id: 'preview-2',
-    title: 'Take out recycling',
-    color: 'brown',
-    glyph: 'trash',
-    cadence: { type: 'weekly' },
-    createdAt: Date.now() - 30 * 86400000,
-    lastCompletedAt: Date.now() - 6 * 86400000,
-    nextDueDate: Date.now() + 86400000,
-    completedDates: [Date.now() - 6 * 86400000],
+    title: 'Pay car tax',
+    color: 'slate',
+    glyph: 'car',
+    cadence: { type: 'monthly' },
+    createdAt: today - 60 * 86400000,
+    nextDueDate: today + 2 * 86400000,
+    completedDates: [],
   },
   {
     id: 'preview-3',
-    title: 'Car wash',
-    color: 'teal',
-    glyph: 'car',
+    title: 'Clean the dishwasher',
+    color: 'purple',
+    glyph: 'trash',
     cadence: { type: 'monthly' },
-    createdAt: Date.now() - 60 * 86400000,
-    lastCompletedAt: Date.now() - 30 * 86400000,
-    nextDueDate: Date.now() + 2 * 86400000,
-    completedDates: [Date.now() - 30 * 86400000],
+    createdAt: today - 60 * 86400000,
+    nextDueDate: today + 6 * 86400000,
+    completedDates: [],
   },
 ];
 

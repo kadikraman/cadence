@@ -1,7 +1,14 @@
 import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { Task } from '../lib/types';
-import { formatDueIn, getNextDueDate, getTaskStatus } from '../utils/taskUtils';
+import {
+  formatDueIn,
+  getNextDueDate,
+  getTaskStatus,
+  isCompletedToday,
+  isDueToday,
+  isOverdue,
+} from '../utils/taskUtils';
 import TaskTile from './ui/TaskTile';
 
 interface WidgetPreviewProps {
@@ -16,17 +23,34 @@ export default function WidgetPreview({
   scale = 1,
 }: WidgetPreviewProps) {
   const { theme } = useUnistyles();
-  const sorted = [...tasks].sort(
+  const active = tasks.filter(t => !isCompletedToday(t));
+  const sorted = [...active].sort(
     (a, b) => getNextDueDate(a) - getNextDueDate(b)
   );
-  const active = sorted.filter(t => getTaskStatus(t) !== 'completed');
-  const display = active.length > 0 ? active : sorted;
+  const overdueCount = sorted.filter(isOverdue).length;
+  const todayCount = sorted.filter(
+    t => !isOverdue(t) && isDueToday(t)
+  ).length;
+  const urgent = sorted.filter(t => isOverdue(t) || isDueToday(t));
+  const upcoming = sorted.filter(t => !isOverdue(t) && !isDueToday(t));
+
+  const headerTone =
+    overdueCount > 0
+      ? theme.colors.error
+      : todayCount > 0
+        ? theme.colors.blue
+        : theme.colors.label3;
 
   if (size === 'small') {
-    const t = display[0];
-    const status = t ? getTaskStatus(t) : null;
-    const overdue = status === 'overdue';
-    const remaining = active.length;
+    const primary = urgent[0] ?? upcoming[0];
+    const next = urgent[0] ? upcoming[0] : upcoming[1];
+    const primaryOverdue = primary ? isOverdue(primary) : false;
+    const primaryToday = primary ? isDueToday(primary) : false;
+    const labelText = primaryOverdue
+      ? formatDueIn(getNextDueDate(primary)).toUpperCase()
+      : 'TODAY';
+    const labelColor = primaryOverdue ? theme.colors.error : theme.colors.blue;
+    const count = urgent.length;
 
     return (
       <View
@@ -42,41 +66,50 @@ export default function WidgetPreview({
       >
         <View style={styles.header}>
           <Text style={[styles.brand, { fontSize: 13 * scale }]}>Cadence</Text>
-          <Text style={[styles.big, { fontSize: 20 * scale }]}>
-            {remaining}
+          <Text
+            style={[styles.big, { fontSize: 20 * scale, color: headerTone }]}
+          >
+            {count}
           </Text>
         </View>
-        {t ? (
-          <View style={styles.smallBody}>
-            <TaskTile task={t} size={28 * scale} overdue={overdue} />
+
+        {primary && (primaryOverdue || primaryToday) && (
+          <View style={[styles.smallHero, { marginTop: 8 * scale }]}>
+            <TaskTile
+              task={primary}
+              size={34 * scale}
+              overdue={primaryOverdue}
+            />
             <View style={styles.smallText}>
               <Text
-                style={[styles.title, { fontSize: 13 * scale }]}
-                numberOfLines={1}
-              >
-                {t.title}
-              </Text>
-              <Text
                 style={[
-                  styles.due,
-                  {
-                    fontSize: 11 * scale,
-                    color: overdue
-                      ? theme.colors.error
-                      : status === 'dueToday'
-                        ? theme.colors.blue
-                        : theme.colors.label3,
-                  },
+                  styles.heroLabel,
+                  { fontSize: 9 * scale, color: labelColor },
                 ]}
               >
-                {formatDueIn(getNextDueDate(t))}
+                {labelText}
+              </Text>
+              <Text
+                style={[styles.heroTitle, { fontSize: 14 * scale }]}
+                numberOfLines={2}
+              >
+                {primary.title}
               </Text>
             </View>
           </View>
-        ) : (
-          <View style={styles.allClear}>
-            <Text style={{ color: theme.colors.label3, fontSize: 13 }}>
-              All clear
+        )}
+
+        {next && (
+          <View style={[styles.smallNext, { marginTop: 'auto' }]}>
+            <TaskTile task={next} size={18 * scale} overdue={false} />
+            <Text
+              style={[styles.nextTitle, { fontSize: 11 * scale }]}
+              numberOfLines={1}
+            >
+              {next.title}
+            </Text>
+            <Text style={[styles.nextDue, { fontSize: 10 * scale }]}>
+              {formatDueIn(getNextDueDate(next))}
             </Text>
           </View>
         )}
@@ -84,7 +117,17 @@ export default function WidgetPreview({
     );
   }
 
-  const rows = display.slice(0, 3);
+  const rows = sorted.slice(0, 3);
+  const mediumLabel = (() => {
+    if (sorted.length === 0) return 'No tasks';
+    if (overdueCount > 0 && todayCount > 0)
+      return `${overdueCount} overdue · ${todayCount} today`;
+    if (overdueCount > 0)
+      return overdueCount === 1 ? '1 overdue' : `${overdueCount} overdue`;
+    if (todayCount === 0) return 'Nothing due today';
+    return todayCount === 1 ? '1 due today' : `${todayCount} due today`;
+  })();
+
   return (
     <View
       style={[
@@ -99,14 +142,17 @@ export default function WidgetPreview({
     >
       <View style={styles.header}>
         <Text style={[styles.brand, { fontSize: 13 * scale }]}>Cadence</Text>
-        <Text style={[styles.counter, { fontSize: 11 * scale }]}>
-          {active.length} to do
+        <Text
+          style={[styles.counter, { fontSize: 12 * scale, color: headerTone }]}
+        >
+          {mediumLabel}
         </Text>
       </View>
       <View style={styles.mediumBody}>
         {rows.map(t => {
           const status = getTaskStatus(t);
           const overdue = status === 'overdue';
+          const dueToday = status === 'dueToday';
           return (
             <View key={t.id} style={styles.mediumRow}>
               <TaskTile task={t} size={24 * scale} overdue={overdue} />
@@ -123,13 +169,15 @@ export default function WidgetPreview({
                     fontSize: 11 * scale,
                     color: overdue
                       ? theme.colors.error
-                      : status === 'dueToday'
+                      : dueToday
                         ? theme.colors.blue
                         : theme.colors.label3,
                   },
                 ]}
               >
-                {formatDueIn(getNextDueDate(t))}
+                {dueToday
+                  ? 'TODAY'
+                  : formatDueIn(getNextDueDate(t))}
               </Text>
             </View>
           );
@@ -152,7 +200,7 @@ const styles = StyleSheet.create(theme => ({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 8,
+    marginBottom: 4,
   },
   brand: {
     fontWeight: '700',
@@ -161,36 +209,48 @@ const styles = StyleSheet.create(theme => ({
   },
   big: {
     fontWeight: '700',
-    color: theme.colors.text,
     lineHeight: 22,
   },
   counter: {
-    color: theme.colors.label3,
-    fontWeight: '500',
+    fontWeight: '600',
   },
-  smallBody: {
+  smallHero: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginTop: 'auto',
+    gap: 9,
   },
   smallText: {
     flex: 1,
     minWidth: 0,
   },
+  heroLabel: {
+    fontWeight: '700',
+    letterSpacing: 0.5,
+  },
+  heroTitle: {
+    fontWeight: '700',
+    color: theme.colors.text,
+    letterSpacing: -0.2,
+    marginTop: 2,
+  },
+  smallNext: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  nextTitle: {
+    flex: 1,
+    fontWeight: '500',
+    color: theme.colors.label2,
+  },
+  nextDue: {
+    fontWeight: '600',
+    color: theme.colors.label3,
+  },
   title: {
     fontWeight: '600',
     color: theme.colors.text,
     letterSpacing: -0.2,
-  },
-  due: {
-    fontWeight: '500',
-    marginTop: 1,
-  },
-  allClear: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   mediumBody: {
     flex: 1,
@@ -203,7 +263,7 @@ const styles = StyleSheet.create(theme => ({
     gap: 9,
   },
   dueChip: {
-    fontWeight: '600',
+    fontWeight: '700',
     minWidth: 44,
     textAlign: 'right',
   },
