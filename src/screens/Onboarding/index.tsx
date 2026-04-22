@@ -1,9 +1,15 @@
 import { SymbolView } from 'expo-symbols';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import * as SplashScreen from 'expo-splash-screen';
+import { useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  withTiming,
+} from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import WidgetPreview from '../../components/WidgetPreview';
+import { useOnboarding } from '../../contexts/OnboardingContext';
 import { Task } from '../../lib/storage';
 
 type Visual = 'hero' | 'jiggle' | 'plus' | 'sizes';
@@ -75,19 +81,41 @@ const PREVIEW_TASKS: Task[] = [
 
 export default function OnboardingScreen() {
   const router = useRouter();
-  const { theme, rt } = useUnistyles();
+  const { rt } = useUnistyles();
+  const { markSeen } = useOnboarding();
   const [step, setStep] = useState(0);
   const current = STEPS[step];
+  const isReplay = router.canGoBack();
 
-  const close = () => router.back();
+  useEffect(() => {
+    SplashScreen.hideAsync().catch(() => {});
+  }, []);
+
+  const close = async () => {
+    await markSeen();
+    if (router.canGoBack()) router.back();
+    else router.replace('/');
+  };
   const next = () => (step === STEPS.length - 1 ? close() : setStep(step + 1));
+  const back = () => setStep(s => Math.max(0, s - 1));
 
   return (
-    <View style={[styles.root, { paddingTop: rt.insets.top }]}>
+    <View style={[styles.root, !isReplay && { paddingTop: rt.insets.top }]}>
       <View style={styles.topBar}>
-        <Pressable onPress={close}>
-          <Text style={styles.skipText}>Skip</Text>
-        </Pressable>
+        <View style={styles.topBarSide}>
+          {step > 0 && (
+            <Pressable onPress={back}>
+              <Text style={styles.navText}>Back</Text>
+            </Pressable>
+          )}
+        </View>
+        <View style={[styles.topBarSide, styles.topBarRight]}>
+          {!isReplay && (
+            <Pressable onPress={close}>
+              <Text style={styles.navText}>Skip</Text>
+            </Pressable>
+          )}
+        </View>
       </View>
 
       <View style={styles.visualWrap}>
@@ -99,15 +127,7 @@ export default function OnboardingScreen() {
       <View style={styles.footer}>
         <View style={styles.dotRow}>
           {STEPS.map((_, i) => (
-            <View
-              key={i}
-              style={[
-                styles.dot,
-                i === step
-                  ? { width: 22, backgroundColor: theme.colors.blue }
-                  : { width: 6, backgroundColor: theme.colors.fill2 },
-              ]}
-            />
+            <Dot key={i} isActive={i === step} />
           ))}
         </View>
         <Pressable onPress={next} style={styles.nextBtn}>
@@ -118,6 +138,21 @@ export default function OnboardingScreen() {
       </View>
     </View>
   );
+}
+
+function Dot({ isActive }: { isActive: boolean }) {
+  const { theme } = useUnistyles();
+  const animatedStyle = useAnimatedStyle(
+    () => ({
+      width: withTiming(isActive ? 22 : 6, { duration: 220 }),
+      backgroundColor: withTiming(
+        isActive ? theme.colors.blue : theme.colors.fill2,
+        { duration: 220 }
+      ),
+    }),
+    [isActive, theme.colors.blue, theme.colors.fill2]
+  );
+  return <Animated.View style={[styles.dot, animatedStyle]} />;
 }
 
 function OnboardingVisual({ kind }: { kind: Visual }) {
@@ -283,9 +318,15 @@ const styles = StyleSheet.create(theme => ({
     paddingHorizontal: 16,
     paddingTop: 12,
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    alignItems: 'center',
   },
-  skipText: {
+  topBarSide: {
+    flex: 1,
+  },
+  topBarRight: {
+    alignItems: 'flex-end',
+  },
+  navText: {
     color: theme.colors.blue,
     fontSize: 17,
     padding: 4,

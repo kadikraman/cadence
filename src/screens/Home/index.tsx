@@ -1,5 +1,6 @@
 import * as Haptics from 'expo-haptics';
 import { useFocusEffect, useRouter } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, Dimensions, ScrollView, Text, View } from 'react-native';
 import ConfettiCannon from 'react-native-confetti-cannon';
@@ -329,10 +330,18 @@ const styles = StyleSheet.create((theme, rt) => ({
 
 export default function Home() {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const splashHidden = useRef(false);
 
   const loadTasks = async () => {
-    const all = await taskStorage.getAllTasks();
-    setTasks(sortTasksByDueDate(all));
+    try {
+      const all = await taskStorage.getAllTasks();
+      setTasks(sortTasksByDueDate(all));
+    } finally {
+      if (!splashHidden.current) {
+        splashHidden.current = true;
+        SplashScreen.hideAsync().catch(() => {});
+      }
+    }
   };
 
   useEffect(() => {

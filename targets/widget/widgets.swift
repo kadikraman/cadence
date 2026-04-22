@@ -133,15 +133,11 @@ private func daysUntil(_ timestampMs: Double) -> Int {
 
 private func formatDueIn(_ timestampMs: Double) -> String {
     let diff = daysUntil(timestampMs)
-    if diff < -1 { return "\(abs(diff))d overdue" }
-    if diff == -1 { return "1d overdue" }
-    if diff == 0 { return "Today" }
-    if diff == 1 { return "Tomorrow" }
-    if diff < 7 { return "in \(diff)d" }
-    if diff < 14 { return "Next week" }
-    if diff < 30 { return "in \(Int(round(Double(diff) / 7.0)))w" }
-    if diff < 365 { return "in \(Int(round(Double(diff) / 30.0)))mo" }
-    return "in \(Int(round(Double(diff) / 365.0)))y"
+    if diff < 0 { return "\(abs(diff))d late" }
+    if diff == 0 { return "TODAY" }
+    if diff < 30 { return "\(diff)d" }
+    if diff < 365 { return "\(Int(round(Double(diff) / 30.0)))mo" }
+    return "\(Int(round(Double(diff) / 365.0)))y"
 }
 
 private func taskStatus(_ task: WidgetTask) -> (overdue: Bool, dueToday: Bool) {

@@ -1,50 +1,67 @@
-# Welcome to your Expo app 👋
+# Cadence
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A task management app for iOS and Android, built with React Native and Expo.
 
-## Get started
+Track recurring and one-off tasks, see your cadence over time, and glance at what's due from a home screen widget.
 
-1. Install dependencies
+## Tech stack
 
-   ```bash
-   npm install
-   ```
+- Expo SDK 55 with Expo Router (file-based routing)
+- React Native 0.83 and React 19
+- TypeScript
+- [react-native-unistyles](https://www.unistyl.es/) for styling
+- [@bacons/apple-targets](https://github.com/EvanBacon/expo-apple-targets) for the iOS widget
+- [react-native-android-widget](https://github.com/sAleksovski/react-native-android-widget) for the Android widget
+- Sentry for error reporting
+- Bun as the package manager
 
-2. Start the app
+## Getting started
 
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+Install dependencies:
 
 ```bash
-npm run reset-project
+bun install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Start the dev server:
 
-## Learn more
+```bash
+bun run start
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+Run on a device or simulator:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+bun run ios
+bun run android
+```
 
-## Join the community
+Installing new packages: use `npx expo install <package>` so versions stay aligned with the Expo SDK.
 
-Join our community of developers creating universal apps.
+## Project layout
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```
+src/
+├── app/           Expo Router pages
+├── screens/       Screen components rendered by app/ routes
+├── components/    Shared UI components
+├── contexts/      React context providers (theme, etc.)
+├── hooks/         Custom hooks
+├── utils/         Pure utilities (date handling, task status, etc.)
+├── widgets/       Android widget components
+└── lib/           App-wide helpers
+targets/widget/    iOS widget (Swift, via @bacons/apple-targets)
+```
+
+## Scripts
+
+- `bun run start` start the Expo dev server
+- `bun run ios` build and run on iOS
+- `bun run android` build and run on Android
+- `bun run lint` run ESLint
+- `bun run format` format with Prettier
+- `bun run prewidget` regenerate the iOS widget target
+
+## Environment
+
+The app reads `EXPO_PUBLIC_SENTRY_DSN` at build time. For local dev, put it in `.env.local` (gitignored). For EAS Build, also set `SENTRY_AUTH_TOKEN` as a project secret so source maps can upload on release builds.
