@@ -472,7 +472,7 @@ struct MediumView: View {
             Spacer()
             Text(label)
                 .font(.system(size: 12, weight: .semibold))
-                .foregroundColor(overdue > 0 ? cadenceRed : .secondary)
+                .foregroundColor(overdue > 0 ? cadenceRed : today > 0 ? cadenceBlue : .secondary)
         }
     }
 
