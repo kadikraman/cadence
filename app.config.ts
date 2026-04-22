@@ -60,7 +60,13 @@ const config: ExpoConfig = {
     'expo-font',
     'expo-web-browser',
     'expo-sharing',
-    '@sentry/react-native',
+    [
+      '@sentry/react-native',
+      {
+        organization: 'kadi-org',
+        project: 'cadence',
+      },
+    ],
     [
       'react-native-android-widget',
       {
