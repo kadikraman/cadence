@@ -19,6 +19,7 @@
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-community/datetimepicker": "8.6.0",
     "@react-native-community/netinfo": "11.5.2",
+    "@sentry/react-native": "^8.8.0",
     "eslint-plugin-react-native": "^5.0.0",
     "expo": "^55.0.14",
     "expo-constants": "~55.0.13",

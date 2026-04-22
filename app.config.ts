@@ -60,6 +60,7 @@ const config: ExpoConfig = {
     'expo-font',
     'expo-web-browser',
     'expo-sharing',
+    '@sentry/react-native',
     [
       'react-native-android-widget',
       {

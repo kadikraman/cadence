@@ -3,6 +3,7 @@ import {
   DefaultTheme,
   ThemeProvider as ReactNativeThemeProvider,
 } from '@react-navigation/native';
+import * as Sentry from '@sentry/react-native';
 import { AppMetrics, AppMetricsRoot } from 'expo-observe';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -14,6 +15,12 @@ import {
   useTheme,
 } from '../contexts/ThemeContext';
 import '../unistyles';
+
+Sentry.init({
+  dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
+  enabled: !__DEV__,
+  sendDefaultPii: false,
+});
 
 function RootLayoutNav() {
   const { isDark } = useTheme();
@@ -53,4 +60,4 @@ function RootLayout() {
   );
 }
 
-export default AppMetricsRoot.wrap(RootLayout);
+export default Sentry.wrap(AppMetricsRoot.wrap(RootLayout));
