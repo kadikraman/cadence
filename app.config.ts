@@ -23,6 +23,7 @@ const config: ExpoConfig = {
       'com.apple.security.application-groups': ['group.dev.kadi.cadence'],
     },
     appleTeamId: 'XQAX5LF48P',
+    appStoreUrl: 'https://apps.apple.com/app/id6754192837',
   },
   android: {
     adaptiveIcon: {
@@ -33,6 +34,7 @@ const config: ExpoConfig = {
     },
     predictiveBackGestureEnabled: false,
     package: 'dev.kadi.cadence',
+    playStoreUrl: 'https://play.google.com/store/apps/details?id=dev.kadi.cadence',
   },
   web: {
     output: 'server',
