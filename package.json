@@ -12,6 +12,8 @@
     "web": "bun run --cwd apps/cadence web",
     "lint": "bun run --cwd apps/cadence lint",
     "test": "bun run --cwd apps/cadence test",
+    "marketing": "bun run --cwd apps/marketing start",
+    "marketing:build": "bun run --cwd apps/marketing build",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },

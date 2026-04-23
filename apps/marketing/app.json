@@ -1,0 +1,17 @@
+{
+  "expo": {
+    "name": "Cadence",
+    "slug": "cadence-marketing",
+    "version": "1.0.0",
+    "platforms": ["web"],
+    "scheme": "cadence-marketing",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": ["expo-router"]
+  }
+}
