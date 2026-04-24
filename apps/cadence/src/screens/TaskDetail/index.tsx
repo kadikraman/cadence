@@ -1,9 +1,5 @@
 import { SymbolView } from 'expo-symbols';
-import {
-  Stack,
-  useLocalSearchParams,
-  useRouter,
-} from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';

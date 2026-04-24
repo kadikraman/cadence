@@ -28,9 +28,7 @@ export default function WidgetPreview({
     (a, b) => getNextDueDate(a) - getNextDueDate(b)
   );
   const overdueCount = sorted.filter(isOverdue).length;
-  const todayCount = sorted.filter(
-    t => !isOverdue(t) && isDueToday(t)
-  ).length;
+  const todayCount = sorted.filter(t => !isOverdue(t) && isDueToday(t)).length;
   const urgent = sorted.filter(t => isOverdue(t) || isDueToday(t));
   const upcoming = sorted.filter(t => !isOverdue(t) && !isDueToday(t));
 
@@ -175,9 +173,7 @@ export default function WidgetPreview({
                   },
                 ]}
               >
-                {dueToday
-                  ? 'TODAY'
-                  : formatDueIn(getNextDueDate(t))}
+                {dueToday ? 'TODAY' : formatDueIn(getNextDueDate(t))}
               </Text>
             </View>
           );

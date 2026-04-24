@@ -89,7 +89,10 @@ export function replaceAll(tasks: Task[]): Task[] {
   return tasks.map(normalizeTask);
 }
 
-export function mergeTasks(existing: Task[], incoming: Task[]): {
+export function mergeTasks(
+  existing: Task[],
+  incoming: Task[]
+): {
   merged: Task[];
   imported: number;
   skipped: number;

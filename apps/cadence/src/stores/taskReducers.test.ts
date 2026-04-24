@@ -34,7 +34,10 @@ function makeTask(overrides: Partial<Task> = {}): Task {
 describe('upsertTask', () => {
   test('adds a new task when id is not found', () => {
     const existing = [makeTask({ id: 'a' })];
-    const next = upsertTask(existing, makeTask({ id: 'b', title: 'Pay bills' }));
+    const next = upsertTask(
+      existing,
+      makeTask({ id: 'b', title: 'Pay bills' })
+    );
     expect(next).toHaveLength(2);
     expect(next[1].id).toBe('b');
   });
@@ -44,7 +47,10 @@ describe('upsertTask', () => {
       makeTask({ id: 'a' }),
       makeTask({ id: 'b', title: 'old title' }),
     ];
-    const next = upsertTask(existing, makeTask({ id: 'b', title: 'new title' }));
+    const next = upsertTask(
+      existing,
+      makeTask({ id: 'b', title: 'new title' })
+    );
     expect(next).toHaveLength(2);
     expect(next[1].title).toBe('new title');
     expect(next[0]).toBe(existing[0]);

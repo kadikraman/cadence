@@ -1,8 +1,9 @@
 import { SymbolView } from 'expo-symbols';
 import { View } from 'react-native';
 import { useUnistyles } from 'react-native-unistyles';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Task } from '../../lib/types';
-import { getSymbol, GlyphKey } from '../../utils/glyphs';
+import { getMaterialIcon, getSymbol, GlyphKey } from '../../utils/glyphs';
 import { ColorKey, getTint } from '../../utils/taskTints';
 
 interface TaskTileProps {
@@ -31,7 +32,10 @@ export default function TaskTile({
       ? c.tintDark
       : c.tint;
   const fg = overdue ? (dark ? '#FF453A' : '#FF3B30') : c.accent;
-  const symbolName = getSymbol(task?.glyph ?? glyph);
+  const glyphKey = task?.glyph ?? glyph;
+  const symbolName = getSymbol(glyphKey);
+  const materialIconName = getMaterialIcon(glyphKey);
+  const iconSize = Math.round(size * 0.58);
 
   return (
     <View
@@ -46,10 +50,16 @@ export default function TaskTile({
     >
       <SymbolView
         name={symbolName}
-        size={Math.round(size * 0.58)}
+        size={iconSize}
         tintColor={fg}
         resizeMode="scaleAspectFit"
-        fallback={null}
+        fallback={
+          <MaterialCommunityIcons
+            name={materialIconName}
+            size={iconSize}
+            color={fg}
+          />
+        }
       />
     </View>
   );

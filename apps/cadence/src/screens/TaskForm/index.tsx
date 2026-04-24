@@ -1,9 +1,5 @@
 import { SymbolView } from 'expo-symbols';
-import {
-  Stack,
-  useLocalSearchParams,
-  useRouter,
-} from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Alert, Pressable, Text, TextInput, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';

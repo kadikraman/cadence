@@ -53,7 +53,7 @@ const PLACEHOLDERS: Record<Kind, string> = {
 
 function getApiBase(): string {
   if (__DEV__) {
-    return ''
+    return '';
   }
   return 'https://expokadi-cadence.expo.app';
 }
