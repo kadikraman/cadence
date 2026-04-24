@@ -24,6 +24,12 @@ const storage = new ExtensionStorage('group.dev.kadi.cadence');
 
 const MS_DAY = 86400000;
 
+const ANDROID_WIDGET_NAMES = [
+  'CadenceWidgetSmall',
+  'CadenceWidgetMedium',
+  'CadenceWidgetLarge',
+] as const;
+
 type WidgetContextType = {
   refreshWidget: () => void;
 };
@@ -150,8 +156,32 @@ export function WidgetProvider({
             }))
         )
       ).then(() => {
+        ANDROID_WIDGET_NAMES.forEach(widgetName => {
+          requestWidgetUpdate({
+            widgetName,
+            renderWidget: async widgetInfo => {
+              const widgetTasks = await loadWidgetTasks();
+              return (
+                <CadenceWidget
+                  tasks={widgetTasks}
+                  width={widgetInfo.width}
+                  height={widgetInfo.height}
+                />
+              );
+            },
+          });
+        });
+      });
+    }
+  }, [tasks]);
+
+  const refreshWidget = useCallback(() => {
+    if (Platform.OS === 'ios') {
+      ExtensionStorage.reloadWidget();
+    } else if (Platform.OS === 'android') {
+      ANDROID_WIDGET_NAMES.forEach(widgetName => {
         requestWidgetUpdate({
-          widgetName: 'CadenceWidget',
+          widgetName,
           renderWidget: async widgetInfo => {
             const widgetTasks = await loadWidgetTasks();
             return (
@@ -163,26 +193,6 @@ export function WidgetProvider({
             );
           },
         });
-      });
-    }
-  }, [tasks]);
-
-  const refreshWidget = useCallback(() => {
-    if (Platform.OS === 'ios') {
-      ExtensionStorage.reloadWidget();
-    } else if (Platform.OS === 'android') {
-      requestWidgetUpdate({
-        widgetName: 'CadenceWidget',
-        renderWidget: async widgetInfo => {
-          const widgetTasks = await loadWidgetTasks();
-          return (
-            <CadenceWidget
-              tasks={widgetTasks}
-              width={widgetInfo.width}
-              height={widgetInfo.height}
-            />
-          );
-        },
       });
     }
   }, []);

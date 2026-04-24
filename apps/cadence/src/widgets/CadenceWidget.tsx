@@ -174,7 +174,8 @@ function SmallLayout({ tasks }: { tasks: WidgetTask[] }) {
     return (
       <FlexWidget
         style={{
-          flex: 1,
+          width: 'match_parent',
+          height: 'match_parent',
           flexDirection: 'column',
           backgroundColor: M3.primaryContainer,
           padding: 16,
@@ -231,7 +232,8 @@ function SmallLayout({ tasks }: { tasks: WidgetTask[] }) {
     return (
       <FlexWidget
         style={{
-          flex: 1,
+          width: 'match_parent',
+          height: 'match_parent',
           flexDirection: 'column',
           backgroundColor: M3.greenContainer,
           padding: 16,
@@ -311,7 +313,8 @@ function SmallLayout({ tasks }: { tasks: WidgetTask[] }) {
     return (
       <FlexWidget
         style={{
-          flex: 1,
+          width: 'match_parent',
+          height: 'match_parent',
           flexDirection: 'column',
           backgroundColor: bg,
           padding: 16,
@@ -390,7 +393,8 @@ function SmallLayout({ tasks }: { tasks: WidgetTask[] }) {
   return (
     <FlexWidget
       style={{
-        flex: 1,
+        width: 'match_parent',
+        height: 'match_parent',
         flexDirection: 'column',
         backgroundColor: bg,
         padding: 16,
@@ -481,7 +485,8 @@ function MediumLayout({ tasks }: { tasks: WidgetTask[] }) {
     return (
       <FlexWidget
         style={{
-          flex: 1,
+          width: 'match_parent',
+          height: 'match_parent',
           flexDirection: 'column',
           backgroundColor: M3.surface3,
           padding: 16,
@@ -564,7 +569,8 @@ function MediumLayout({ tasks }: { tasks: WidgetTask[] }) {
   return (
     <FlexWidget
       style={{
-        flex: 1,
+        width: 'match_parent',
+        height: 'match_parent',
         flexDirection: 'column',
         backgroundColor: M3.surface3,
         padding: 16,
@@ -624,22 +630,29 @@ function MediumLayout({ tasks }: { tasks: WidgetTask[] }) {
       {extra > 0 && (
         <FlexWidget
           style={{
-            alignSelf: 'flex-start',
+            flexDirection: 'row',
+            alignItems: 'center',
+            width: 'match_parent',
             marginTop: 4,
-            paddingHorizontal: 10,
-            paddingVertical: 4,
-            borderRadius: 100,
-            backgroundColor: M3.primaryContainer,
           }}
         >
-          <TextWidget
-            text={`+ ${extra} more today`}
+          <FlexWidget
             style={{
-              fontSize: 11,
-              fontWeight: '500',
-              color: M3.onPrimaryContainer,
+              paddingHorizontal: 10,
+              paddingVertical: 4,
+              borderRadius: 100,
+              backgroundColor: M3.primaryContainer,
             }}
-          />
+          >
+            <TextWidget
+              text={`+ ${extra} more today`}
+              style={{
+                fontSize: 11,
+                fontWeight: '500',
+                color: M3.onPrimaryContainer,
+              }}
+            />
+          </FlexWidget>
         </FlexWidget>
       )}
     </FlexWidget>
@@ -655,7 +668,8 @@ function LargeLayout({ tasks }: { tasks: WidgetTask[] }) {
     return (
       <FlexWidget
         style={{
-          flex: 1,
+          width: 'match_parent',
+          height: 'match_parent',
           flexDirection: 'column',
           backgroundColor: M3.surface3,
           padding: 20,
@@ -715,7 +729,8 @@ function LargeLayout({ tasks }: { tasks: WidgetTask[] }) {
   return (
     <FlexWidget
       style={{
-        flex: 1,
+        width: 'match_parent',
+        height: 'match_parent',
         flexDirection: 'column',
         backgroundColor: M3.surface3,
         padding: 20,
@@ -927,22 +942,29 @@ function LargeLayout({ tasks }: { tasks: WidgetTask[] }) {
       {extra > 0 && (
         <FlexWidget
           style={{
-            alignSelf: 'flex-start',
+            flexDirection: 'row',
+            alignItems: 'center',
+            width: 'match_parent',
             marginTop: 6,
-            paddingHorizontal: 12,
-            paddingVertical: 6,
-            borderRadius: 100,
-            backgroundColor: M3.primaryContainer,
           }}
         >
-          <TextWidget
-            text={`+ ${extra} more due today`}
+          <FlexWidget
             style={{
-              fontSize: 11,
-              fontWeight: '500',
-              color: M3.onPrimaryContainer,
+              paddingHorizontal: 12,
+              paddingVertical: 6,
+              borderRadius: 100,
+              backgroundColor: M3.primaryContainer,
             }}
-          />
+          >
+            <TextWidget
+              text={`+ ${extra} more due today`}
+              style={{
+                fontSize: 11,
+                fontWeight: '500',
+                color: M3.onPrimaryContainer,
+              }}
+            />
+          </FlexWidget>
         </FlexWidget>
       )}
     </FlexWidget>

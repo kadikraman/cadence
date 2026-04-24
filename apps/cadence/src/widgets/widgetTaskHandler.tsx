@@ -15,27 +15,23 @@ export async function loadWidgetTasks(): Promise<WidgetTask[]> {
 
 export async function widgetTaskHandler(
   props: WidgetTaskHandlerProps
-): Promise<JSX.Element | undefined> {
+): Promise<void> {
   switch (props.widgetAction) {
     case 'WIDGET_ADDED':
     case 'WIDGET_UPDATE':
     case 'WIDGET_RESIZED': {
       const tasks = await loadWidgetTasks();
-      return (
+      props.renderWidget(
         <CadenceWidget
           tasks={tasks}
           width={props.widgetInfo.width}
           height={props.widgetInfo.height}
         />
       );
+      return;
     }
-
     case 'WIDGET_CLICK':
-      break;
-
     case 'WIDGET_DELETED':
-      break;
+      return;
   }
-
-  return undefined;
 }
