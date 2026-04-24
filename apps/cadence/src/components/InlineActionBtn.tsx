@@ -1,6 +1,8 @@
 import { SFSymbol, SymbolView } from 'expo-symbols';
-import { Pressable, Text } from 'react-native';
+import { Platform, Pressable, Text } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { UI_SYMBOL_TO_MATERIAL } from '../utils/glyphs';
 
 interface InlineActionBtnProps {
   label: string;
@@ -17,14 +19,31 @@ export default function InlineActionBtn({
 }: InlineActionBtnProps) {
   const { theme } = useUnistyles();
   const iconColor = color ?? theme.colors.blue;
+  const materialIconName =
+    UI_SYMBOL_TO_MATERIAL[symbol as string] ?? 'help-circle-outline';
+
   return (
-    <Pressable onPress={onPress} style={styles.btn}>
+    <Pressable
+      onPress={onPress}
+      android_ripple={
+        Platform.OS === 'android'
+          ? { color: theme.colors.fill2, borderless: false }
+          : undefined
+      }
+      style={styles.btn}
+    >
       <SymbolView
         name={symbol}
         size={18}
         tintColor={iconColor}
         resizeMode="scaleAspectFit"
-        fallback={null}
+        fallback={
+          <MaterialCommunityIcons
+            name={materialIconName}
+            size={20}
+            color={iconColor}
+          />
+        }
       />
       <Text style={styles.label}>{label}</Text>
     </Pressable>
@@ -40,6 +59,7 @@ const styles = StyleSheet.create(theme => ({
     paddingHorizontal: 6,
     alignItems: 'center',
     gap: 4,
+    overflow: 'hidden',
   },
   label: {
     fontSize: 11,

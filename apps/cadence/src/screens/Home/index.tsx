@@ -173,11 +173,7 @@ function HomeContent({ tasks }: { tasks: Task[] }) {
               <TaskRow
                 task={task}
                 isExpanded={expandedId === task.id}
-                onTap={
-                  IS_ANDROID
-                    ? () => router.push(`/task/${task.id}`)
-                    : () => toggleExpanded(task.id)
-                }
+                onTap={() => toggleExpanded(task.id)}
                 actions={{
                   toggleComplete: () => quickDone(task),
                   quickDone: () => quickDone(task),

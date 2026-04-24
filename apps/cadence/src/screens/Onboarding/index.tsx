@@ -53,18 +53,18 @@ const ANDROID_STEPS: Step[] = [
     visual: 'hero',
   },
   {
-    title: 'Long-press your home screen',
-    body: 'Until the Widgets menu shows up at the bottom.',
+    title: 'Touch and hold your home screen',
+    body: 'Tap "Widgets" when the menu appears.',
     visual: 'jiggle',
   },
   {
-    title: 'Tap Widgets, then Cadence',
-    body: 'Scroll to find Cadence in the list.',
+    title: 'Find Cadence',
+    body: 'Widgets are grouped by app. Scroll or search for Cadence.',
     visual: 'plus',
   },
   {
-    title: 'Pick your size',
-    body: '2×2 for your next task. 4×2 for a list of three.',
+    title: 'Drag your favorite size',
+    body: 'Touch and hold a widget, then drop it where you want it.',
     visual: 'sizes',
   },
 ];
@@ -165,7 +165,12 @@ export default function OnboardingScreen() {
           <Text style={styles.stepBody}>{current.body}</Text>
         </View>
 
-        <View style={styles.androidFooter}>
+        <View
+          style={[
+            styles.androidFooter,
+            { paddingBottom: Math.max(56, rt.insets.bottom + 32) },
+          ]}
+        >
           <View style={styles.dotRow}>
             {STEPS.map((_, i) => (
               <Dot key={i} isActive={i === step} />

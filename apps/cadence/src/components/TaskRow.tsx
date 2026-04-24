@@ -78,67 +78,106 @@ export default function TaskRow({
 
   if (IS_ANDROID) {
     return (
-      <Pressable
-        onPress={onTap}
-        onLongPress={showMenu}
-        android_ripple={{
-          color: theme.colors.fill2,
-          borderless: false,
-        }}
-        style={styles.row}
-      >
-        <TaskTile task={task} size={40} overdue={overdue && !completed} />
-        <View style={styles.middle}>
-          <Text
-            style={[styles.androidTitle, completed && styles.titleCompleted]}
-            numberOfLines={1}
+      <Animated.View layout={LinearTransition.duration(220)}>
+        <Pressable
+          onPress={onTap}
+          android_ripple={{ color: theme.colors.fill2, borderless: false }}
+          style={styles.row}
+        >
+          <TaskTile task={task} size={40} overdue={overdue && !completed} />
+          <View style={styles.middle}>
+            <Text
+              style={[styles.androidTitle, completed && styles.titleCompleted]}
+              numberOfLines={1}
+            >
+              {task.title}
+            </Text>
+            <View style={styles.androidMetaRow}>
+              {overdue && !completed && (
+                <MaterialCommunityIcons
+                  name="alert"
+                  size={14}
+                  color={theme.colors.error}
+                />
+              )}
+              <Text style={[styles.androidMeta, { color: dueColor }]}>
+                {dueLabel}
+              </Text>
+              <Text
+                style={[styles.androidMeta, { color: theme.colors.label3 }]}
+              >
+                ·
+              </Text>
+              <Text
+                style={[styles.androidMeta, { color: theme.colors.label2 }]}
+              >
+                {formatCadence(task.cadence)}
+              </Text>
+            </View>
+          </View>
+          <Pressable
+            onPress={actions.toggleComplete}
+            hitSlop={10}
+            android_ripple={{
+              color: theme.colors.fill2,
+              borderless: true,
+              radius: 20,
+            }}
+            style={styles.androidCheckWrap}
           >
-            {task.title}
-          </Text>
-          <View style={styles.androidMetaRow}>
-            {overdue && !completed && (
-              <MaterialCommunityIcons
-                name="alert"
-                size={14}
-                color={theme.colors.error}
+            {completed ? (
+              <View
+                style={[
+                  styles.androidCheckFilled,
+                  { backgroundColor: theme.colors.primary },
+                ]}
+              >
+                <MaterialCommunityIcons
+                  name="check"
+                  size={14}
+                  color={theme.colors.onPrimary}
+                />
+              </View>
+            ) : (
+              <View
+                style={[
+                  styles.androidCheckOutline,
+                  { borderColor: borderColor },
+                ]}
               />
             )}
-            <Text style={[styles.androidMeta, { color: dueColor }]}>
-              {dueLabel}
-            </Text>
-            <Text style={[styles.androidMeta, { color: theme.colors.label3 }]}>
-              ·
-            </Text>
-            <Text style={[styles.androidMeta, { color: theme.colors.label2 }]}>
-              {formatCadence(task.cadence)}
-            </Text>
-          </View>
-        </View>
-        <Pressable
-          onPress={actions.toggleComplete}
-          hitSlop={10}
-          style={styles.androidCheckWrap}
-        >
-          {completed ? (
-            <View
-              style={[
-                styles.androidCheckFilled,
-                { backgroundColor: theme.colors.primary },
-              ]}
-            >
-              <MaterialCommunityIcons
-                name="check"
-                size={14}
-                color={theme.colors.onPrimary}
-              />
-            </View>
-          ) : (
-            <View
-              style={[styles.androidCheckOutline, { borderColor: borderColor }]}
-            />
-          )}
+          </Pressable>
         </Pressable>
-      </Pressable>
+        {isExpanded && (
+          <Animated.View
+            entering={FadeIn.duration(160)}
+            exiting={FadeOut.duration(120)}
+            style={styles.inlineBar}
+          >
+            <InlineActionBtn
+              label="Done today"
+              symbol="checkmark"
+              color={theme.colors.success}
+              onPress={actions.quickDone}
+            />
+            <InlineActionBtn
+              label="Pick date"
+              symbol="calendar"
+              onPress={actions.pickDate}
+            />
+            <InlineActionBtn
+              label="Edit"
+              symbol="pencil"
+              onPress={actions.edit}
+            />
+            <InlineActionBtn
+              label="History"
+              symbol="clock.fill"
+              onPress={actions.openHistory}
+            />
+          </Animated.View>
+        )}
+      </Animated.View>
     );
   }
 

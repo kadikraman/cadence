@@ -570,4 +570,12 @@ export const UI_SYMBOL_TO_MATERIAL: Record<string, string> = {
   'chevron.left': 'chevron-left',
   'chevron.right': 'chevron-right',
   ellipsis: 'dots-horizontal',
+  checkmark: 'check',
+  'checkmark.circle.fill': 'check-circle',
+  calendar: 'calendar',
+  pencil: 'pencil',
+  'clock.fill': 'history',
+  'trash.fill': 'trash-can',
+  'exclamationmark.triangle.fill': 'alert',
+  'arrow.triangle.2.circlepath': 'repeat',
 };
