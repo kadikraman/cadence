@@ -9,7 +9,7 @@ const config: ExpoConfig = {
   scheme: 'cadence',
   userInterfaceStyle: 'automatic',
   ios: {
-    supportsTablet: true,
+    supportsTablet: false,
     icon: {
       light: './assets/icon.png',
       dark: './assets/icon-dark.png',
