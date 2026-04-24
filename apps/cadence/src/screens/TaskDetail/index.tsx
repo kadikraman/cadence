@@ -1,13 +1,18 @@
-import { SymbolView } from 'expo-symbols';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { SymbolView } from 'expo-symbols';
 import { useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import DatePickerSheet from '../../components/DatePickerSheet';
+import MaterialButton from '../../components/ui/android/MaterialButton';
+import MaterialTabs from '../../components/ui/android/MaterialTabs';
+import TopAppBar from '../../components/ui/android/TopAppBar';
+import IconButton from '../../components/ui/IconButton';
 import SegmentedControl from '../../components/ui/SegmentedControl';
 import { useTasksStore } from '../../stores/tasks';
+import { getMaterialIcon, getSymbol } from '../../utils/glyphs';
 import { computeTaskStats } from '../../utils/statsUtils';
-import { getSymbol } from '../../utils/glyphs';
 import { getTint } from '../../utils/taskTints';
 import {
   formatCadence,
@@ -19,6 +24,8 @@ import CyclesView from './CyclesView';
 import TimelineView from './TimelineView';
 
 type Tab = 'timeline' | 'cycles';
+
+const IS_ANDROID = Platform.OS === 'android';
 
 export default function TaskDetailScreen() {
   const { taskId } = useLocalSearchParams<{ taskId: string }>();
@@ -74,6 +81,147 @@ export default function TaskDetailScreen() {
   const deleteCompletion = async (ts: number) => {
     await unmarkCompleted(task.id, ts);
   };
+
+  if (IS_ANDROID) {
+    return (
+      <View style={[styles.root, { paddingTop: rt.insets.top }]}>
+        <Stack.Screen options={{ headerShown: false }} />
+        <TopAppBar
+          title=""
+          onBack={() => router.back()}
+          right={
+            <IconButton
+              symbol="pencil"
+              onPress={() => router.push(`/new?taskId=${task.id}`)}
+              accessibilityLabel="Edit task"
+            />
+          }
+        />
+        <ScrollView contentContainerStyle={styles.androidScroll}>
+          <View style={[styles.androidHero, { backgroundColor: heroBg }]}>
+            <View style={styles.androidHeroHeader}>
+              <View
+                style={[
+                  styles.androidHeroTile,
+                  {
+                    backgroundColor: dark
+                      ? 'rgba(0,0,0,0.2)'
+                      : 'rgba(255,255,255,0.55)',
+                  },
+                ]}
+              >
+                <SymbolView
+                  name={getSymbol(task.glyph)}
+                  size={30}
+                  tintColor={tint.accent}
+                  resizeMode="scaleAspectFit"
+                  fallback={
+                    <MaterialCommunityIcons
+                      name={getMaterialIcon(task.glyph)}
+                      size={30}
+                      color={tint.accent}
+                    />
+                  }
+                />
+              </View>
+              <View style={styles.androidHeroText}>
+                <Text style={styles.androidHeroTitle}>{task.title}</Text>
+                <View style={styles.androidHeroCadenceRow}>
+                  <MaterialCommunityIcons
+                    name="repeat"
+                    size={14}
+                    color={theme.colors.label2}
+                  />
+                  <Text style={styles.androidHeroCadence}>
+                    {formatCadence(task.cadence)}
+                  </Text>
+                </View>
+              </View>
+            </View>
+            {task.details ? (
+              <Text style={styles.androidHeroDetails}>{task.details}</Text>
+            ) : null}
+            <View
+              style={[
+                styles.androidNextDuePanel,
+                { backgroundColor: heroPanelBg },
+              ]}
+            >
+              <Text style={styles.androidNextDueLabel}>
+                {overdue ? 'OVERDUE' : 'NEXT DUE'}
+              </Text>
+              <Text
+                style={[
+                  styles.androidNextDueValue,
+                  {
+                    color: overdue ? theme.colors.error : theme.colors.text,
+                  },
+                ]}
+              >
+                {formatDueIn(nextDue)}
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.androidStatsRow}>
+            <AndroidStatChip label="On-time" value={`${stats.onTimePct}%`} />
+            <AndroidStatChip
+              label="Streak"
+              value={String(stats.streak)}
+              icon="fire"
+              iconColor={theme.colors.warning}
+            />
+            <AndroidStatChip label="Completed" value={String(stats.total)} />
+          </View>
+
+          <View style={styles.androidActionsRow}>
+            <MaterialButton onPress={markDoneNow} icon="check" full>
+              Mark done
+            </MaterialButton>
+            <MaterialButton
+              onPress={openNewDatePicker}
+              variant="tonal"
+              icon="calendar"
+            >
+              Pick date
+            </MaterialButton>
+          </View>
+
+          <MaterialTabs<Tab>
+            value={tab}
+            onChange={setTab}
+            options={[
+              { value: 'timeline', label: 'Timeline' },
+              { value: 'cycles', label: 'Cycles' },
+            ]}
+          />
+
+          {tab === 'timeline' && (
+            <TimelineView
+              task={task}
+              completedDates={completedDates}
+              onEditEntry={openEditDatePicker}
+              onDeleteEntry={deleteCompletion}
+            />
+          )}
+          {tab === 'cycles' && (
+            <CyclesView task={task} completedDates={completedDates} />
+          )}
+        </ScrollView>
+
+        <DatePickerSheet
+          visible={datePickerOpen}
+          initialDate={editingEntry ?? Date.now()}
+          mode={editingEntry !== null ? 'edit' : 'new'}
+          onClose={() => {
+            setDatePickerOpen(false);
+            setEditingEntry(null);
+          }}
+          onSave={savePicker}
+        />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.root}>
@@ -270,6 +418,47 @@ function StatTile({
   );
 }
 
+function AndroidStatChip({
+  label,
+  value,
+  icon,
+  iconColor,
+}: {
+  label: string;
+  value: string;
+  icon?: string;
+  iconColor?: string;
+}) {
+  const { theme } = useUnistyles();
+  return (
+    <View
+      style={[
+        androidChipStyles.chip,
+        {
+          backgroundColor: theme.colors.surface,
+          borderColor: theme.colors.outlineVariant,
+        },
+      ]}
+    >
+      <Text style={[androidChipStyles.label, { color: theme.colors.label2 }]}>
+        {label}
+      </Text>
+      <View style={androidChipStyles.valueRow}>
+        {icon && (
+          <MaterialCommunityIcons
+            name={icon}
+            size={16}
+            color={iconColor ?? theme.colors.text}
+          />
+        )}
+        <Text style={[androidChipStyles.value, { color: theme.colors.text }]}>
+          {value}
+        </Text>
+      </View>
+    </View>
+  );
+}
+
 const statTileStyles = StyleSheet.create(theme => ({
   tile: {
     flex: 1,
@@ -296,6 +485,31 @@ const statTileStyles = StyleSheet.create(theme => ({
     fontWeight: '700',
     letterSpacing: -0.5,
     lineHeight: 24,
+  },
+}));
+
+const androidChipStyles = StyleSheet.create(() => ({
+  chip: {
+    flex: 1,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    borderRadius: 16,
+    borderWidth: 1,
+  },
+  label: {
+    fontSize: 12,
+    fontWeight: '500',
+    letterSpacing: 0.3,
+  },
+  valueRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 4,
+    marginTop: 3,
+  },
+  value: {
+    fontSize: 22,
+    fontWeight: '400',
   },
 }));
 
@@ -416,5 +630,84 @@ const styles = StyleSheet.create(theme => ({
   tabWrap: {
     marginHorizontal: 16,
     marginBottom: 10,
+  },
+  androidScroll: {
+    paddingBottom: 80,
+  },
+  androidHero: {
+    marginHorizontal: 16,
+    marginBottom: 16,
+    padding: 24,
+    borderRadius: 28,
+  },
+  androidHeroHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 16,
+  },
+  androidHeroTile: {
+    width: 56,
+    height: 56,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  androidHeroText: {
+    flex: 1,
+    minWidth: 0,
+  },
+  androidHeroTitle: {
+    fontSize: 26,
+    fontWeight: '400',
+    color: theme.colors.text,
+    letterSpacing: -0.25,
+    lineHeight: 30,
+  },
+  androidHeroCadenceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 6,
+  },
+  androidHeroCadence: {
+    fontSize: 14,
+    color: theme.colors.label2,
+    letterSpacing: 0.25,
+  },
+  androidHeroDetails: {
+    marginTop: 14,
+    fontSize: 14,
+    color: theme.colors.label2,
+    lineHeight: 20,
+  },
+  androidNextDuePanel: {
+    marginTop: 18,
+    padding: 14,
+    borderRadius: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'baseline',
+  },
+  androidNextDueLabel: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: theme.colors.label2,
+    letterSpacing: 0.5,
+  },
+  androidNextDueValue: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  androidStatsRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginHorizontal: 16,
+    marginBottom: 16,
+  },
+  androidActionsRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginHorizontal: 16,
+    marginBottom: 20,
   },
 }));
