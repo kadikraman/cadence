@@ -44,6 +44,14 @@ const globalStyles = `
 
 * { box-sizing: border-box; }
 
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 72px;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
 html, body {
   margin: 0;
   padding: 0;
@@ -317,6 +325,7 @@ a:hover { color: var(--accent-ink); }
   display: flex; flex-direction: column;
   align-items: center;
   gap: 20px;
+  text-align: center;
 }
 .widget-card .widget-image {
   background: #fff;

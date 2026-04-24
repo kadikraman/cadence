@@ -14,7 +14,7 @@ export default function Home() {
         <title>Cadence · Quiet reminders for the recurring stuff</title>
         <meta
           name="description"
-          content="Cadence is the quiet app for the recurring stuff. Water the plants, change the filter, check on the car. Tracked at a glance, on your Home Screen. No push notifications, ever."
+          content="Cadence is a quiet app for keeping teack of the recurring stuff. Water the plants, change the filter, check on the car. Tracked at a glance, on your Home Screen. No push notifications, ever."
         />
       </Head>
 
@@ -33,8 +33,8 @@ export default function Home() {
               no pings.
             </h1>
             <p className="lede">
-              Cadence is the quiet app for the recurring stuff. Water the plants, change the filter,
-              check on the car. It sits on your Home Screen and waits. Glance when you want.
+              Cadence is a quiet app for the recurring stuff. Water the plants, change the filter,
+              check on the car. It sits on your Home Screen - glance when you unlock your phone.
             </p>
             <div className="dl-row">
               <a href="#" className="dl-btn" aria-label="Download on the App Store">
@@ -100,7 +100,7 @@ export default function Home() {
                     strokeLinejoin="round"
                   />
                 </svg>
-                Free · on-device
+                Free · On-device
               </span>
             </div>
           </div>
@@ -129,7 +129,7 @@ export default function Home() {
             <div className="eyebrow">Home Screen Widgets</div>
             <h2>One glance and you're done.</h2>
             <p>
-              Three sizes. What's due, what's overdue, and what's coming up, without opening the app.
+              Three sizes. See what's due, without opening the app.
             </p>
           </div>
 
@@ -143,7 +143,7 @@ export default function Home() {
                 <h3 style={{ marginTop: 8 }}>The next thing</h3>
               </div>
               <p className="widget-desc">
-                One task, one count. For when you just want to know what's next.
+                For when you just want to focus on what's next.
               </p>
             </div>
 
@@ -169,7 +169,7 @@ export default function Home() {
                 <h3 style={{ marginTop: 8 }}>Everything at once</h3>
               </div>
               <p className="widget-desc">
-                Overdue, today, done. Plus the full list. Your streak, quietly, at the top.
+                Overdue, today, done. Plus the full list. Your totals, at the top.
               </p>
             </div>
           </div>
@@ -181,9 +181,9 @@ export default function Home() {
           <div className="section-head">
             <div className="eyebrow">Built for the recurring stuff</div>
             <h2>
-              Small app. One job.
+              Keep you from forgetting.
               <br />
-              Done well.
+              But without the nagging.
             </h2>
             <p>
               Cadence doesn't replace your todo list. It handles the specific things that come back
@@ -210,8 +210,7 @@ export default function Home() {
               </div>
               <h3>Flexible cadences</h3>
               <p>
-                Every 3 days. Every 2 weeks. First Monday of the month. Set it once. Cadence keeps
-                the schedule.
+                Every 3 days. Every 2 weeks. Cadence keeps track of the schedule.
               </p>
             </div>
 
@@ -235,8 +234,7 @@ export default function Home() {
               </div>
               <h3>On your Home Screen</h3>
               <p>
-                Small, medium, and large widgets, so the list is always one glance away. No need to
-                launch anything.
+                Small, medium, and large widgets, so the list is always one glance away.
               </p>
             </div>
 
@@ -259,8 +257,7 @@ export default function Home() {
               </div>
               <h3>No push notifications</h3>
               <p>
-                Zero pings. Ever. Your phone doesn't buzz at you. You look when you're ready. That's
-                the whole pitch.
+                Zero pings. Ever. Enough of notification hell.
               </p>
             </div>
 
@@ -283,7 +280,7 @@ export default function Home() {
               <h3>Streaks &amp; stats</h3>
               <p>
                 See your on-time rate, your longest streak, and which tasks you're most consistent
-                with. Gentle nudges, not shame.
+                with.
               </p>
             </div>
 
@@ -305,7 +302,7 @@ export default function Home() {
               </div>
               <h3>Your data stays put</h3>
               <p>
-                Tasks live on your device. No account, no cloud by default. Anonymous crash reports
+                Tasks live on your device. No account, no cloud sync. Anonymous crash reports and performance metrics
                 only. Nothing identifying.
               </p>
             </div>
@@ -328,8 +325,7 @@ export default function Home() {
               </div>
               <h3>Pick a color, pick an icon</h3>
               <p>
-                Twenty calm tints. Forty-two glyphs. Your list looks like a shelf, not a
-                spreadsheet.
+                A selection of calm tints and fun glyphs.
               </p>
             </div>
           </div>
@@ -344,7 +340,7 @@ export default function Home() {
             Your data never left your device anyway.
           </p>
           <div className="dl-row" style={{ justifyContent: 'center' }}>
-            <a href="#" className="dl-btn" aria-label="Download on the App Store">
+            <a href="https://apps.apple.com/app/id6754192837" className="dl-btn" aria-label="Download on the App Store" target="_blank">
               <svg className="store-logo" viewBox="0 0 24 24" fill="#fff" aria-hidden="true">
                 <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
               </svg>

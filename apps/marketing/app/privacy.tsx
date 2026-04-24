@@ -21,7 +21,7 @@ export default function Privacy() {
           <h1>The short version.</h1>
           <p>
             Cadence stores your tasks on your device. We collect anonymous crash and performance
-            data so the app keeps working. Nothing that identifies you. That&apos;s it.
+            data so the app keeps working. Nothing that identifies you.
           </p>
         </div>
       </section>
@@ -70,8 +70,7 @@ export default function Privacy() {
             doing, just <em>where</em> the code broke.
           </li>
           <li>
-            <strong>Performance metrics.</strong> Aggregate numbers like app launch time, widget
-            refresh duration, and session length. These tell us if a recent update made the app
+            <strong>Performance metrics.</strong> Aggregate numbers like app launch time and session length. These tell us if a recent update made the app
             slower.
           </li>
         </ul>
@@ -96,8 +95,7 @@ export default function Privacy() {
         <p>
           The anonymous crash and performance data is processed by our analytics provider.
           We&apos;ve picked one that doesn&apos;t build ad profiles and doesn&apos;t correlate
-          across apps. We don&apos;t share data with anyone else. No data brokers, no partners, no
-          buyers.
+          across apps. We don&apos;t share data with anyone else.
         </p>
         <p>
           When you download Cadence from the App Store, Apple collects their own metrics
@@ -111,9 +109,7 @@ export default function Privacy() {
         <h2>Your rights</h2>
         <p>
           Because we don&apos;t store any personally identifiable information, there&apos;s nothing
-          to hand over, correct, or delete on our side. Deleting the app deletes your tasks. If
-          you&apos;d like to stop sharing anonymous crash data, you can turn off analytics in
-          Settings → Privacy.
+          to hand over, correct, or delete on our side. Deleting the app deletes your tasks.
         </p>
 
         <h2>Kids</h2>
