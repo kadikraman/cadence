@@ -2,7 +2,13 @@ import { SymbolView } from 'expo-symbols';
 import { useMemo, useState } from 'react';
 import { Pressable, TextInput, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import { GlyphKey, GLYPHS, VISIBLE_GLYPH_KEYS } from '../utils/glyphs';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {
+  getMaterialIcon,
+  GlyphKey,
+  GLYPHS,
+  VISIBLE_GLYPH_KEYS,
+} from '../utils/glyphs';
 import { ColorKey, getTint } from '../utils/taskTints';
 
 interface GlyphPickerProps {
@@ -44,7 +50,13 @@ export default function GlyphPicker({
           size={14}
           tintColor={theme.colors.label3}
           resizeMode="scaleAspectFit"
-          fallback={null}
+          fallback={
+            <MaterialCommunityIcons
+              name="magnify"
+              size={16}
+              color={theme.colors.label3}
+            />
+          }
         />
         <TextInput
           value={query}
@@ -81,7 +93,13 @@ export default function GlyphPicker({
                     size={18}
                     tintColor={selected ? '#fff' : theme.colors.label2}
                     resizeMode="scaleAspectFit"
-                    fallback={null}
+                    fallback={
+                      <MaterialCommunityIcons
+                        name={getMaterialIcon(key)}
+                        size={20}
+                        color={selected ? '#fff' : theme.colors.label2}
+                      />
+                    }
                   />
                 </Pressable>
               );

@@ -1,12 +1,14 @@
-import { SymbolView } from 'expo-symbols';
 import { useRouter } from 'expo-router';
+import { SymbolView } from 'expo-symbols';
 import { useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Platform, Pressable, Text, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   withTiming,
 } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialButton from '../../components/ui/android/MaterialButton';
 import WidgetPreview from '../../components/WidgetPreview';
 import { Task } from '../../lib/types';
 import { useSettingsStore } from '../../stores/settings';
@@ -19,7 +21,9 @@ interface Step {
   visual: Visual;
 }
 
-const STEPS: Step[] = [
+const IS_ANDROID = Platform.OS === 'android';
+
+const IOS_STEPS: Step[] = [
   {
     title: 'Cadence lives on your Home Screen',
     body: "No notifications, no nagging. Just a glance at what's due.",
@@ -41,6 +45,31 @@ const STEPS: Step[] = [
     visual: 'sizes',
   },
 ];
+
+const ANDROID_STEPS: Step[] = [
+  {
+    title: 'Cadence on your home screen',
+    body: "No notifications, no nagging. Just a glance at what's due.",
+    visual: 'hero',
+  },
+  {
+    title: 'Long-press your home screen',
+    body: 'Until the Widgets menu shows up at the bottom.',
+    visual: 'jiggle',
+  },
+  {
+    title: 'Tap Widgets, then Cadence',
+    body: 'Scroll to find Cadence in the list.',
+    visual: 'plus',
+  },
+  {
+    title: 'Pick your size',
+    body: '2×2 for your next task. 4×2 for a list of three.',
+    visual: 'sizes',
+  },
+];
+
+const STEPS: Step[] = IS_ANDROID ? ANDROID_STEPS : IOS_STEPS;
 
 const today = (() => {
   const d = new Date();
@@ -84,7 +113,7 @@ const PREVIEW_TASKS: Task[] = [
 
 export default function OnboardingScreen() {
   const router = useRouter();
-  const { rt } = useUnistyles();
+  const { theme, rt } = useUnistyles();
   const setOnboardingSeen = useSettingsStore(s => s.setOnboardingSeen);
   const [step, setStep] = useState(0);
   const current = STEPS[step];
@@ -97,6 +126,58 @@ export default function OnboardingScreen() {
   };
   const next = () => (step === STEPS.length - 1 ? close() : setStep(step + 1));
   const back = () => setStep(s => Math.max(0, s - 1));
+
+  if (IS_ANDROID) {
+    return (
+      <View style={[styles.root, !isReplay && { paddingTop: rt.insets.top }]}>
+        <View style={styles.androidTopBar}>
+          {step > 0 ? (
+            <Pressable
+              onPress={back}
+              android_ripple={{
+                color: theme.colors.fill2,
+                borderless: true,
+                radius: 24,
+              }}
+              style={styles.androidIconBtn}
+              accessibilityLabel="Previous step"
+            >
+              <MaterialCommunityIcons
+                name="chevron-left"
+                size={26}
+                color={theme.colors.text}
+              />
+            </Pressable>
+          ) : (
+            <View style={styles.androidIconBtn} />
+          )}
+          <View style={{ flex: 1 }} />
+          {!isReplay && step < STEPS.length - 1 && (
+            <MaterialButton onPress={close} variant="outlined">
+              Skip
+            </MaterialButton>
+          )}
+        </View>
+
+        <View style={styles.visualWrap}>
+          <OnboardingVisual kind={current.visual} />
+          <Text style={styles.stepTitle}>{current.title}</Text>
+          <Text style={styles.stepBody}>{current.body}</Text>
+        </View>
+
+        <View style={styles.androidFooter}>
+          <View style={styles.dotRow}>
+            {STEPS.map((_, i) => (
+              <Dot key={i} isActive={i === step} />
+            ))}
+          </View>
+          <MaterialButton onPress={next} full>
+            {step === STEPS.length - 1 ? 'Done' : 'Next'}
+          </MaterialButton>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={[styles.root, !isReplay && { paddingTop: rt.insets.top }]}>
@@ -160,13 +241,23 @@ function OnboardingVisual({ kind }: { kind: Visual }) {
 
   if (kind === 'hero') {
     return (
-      <View style={[visualStyles.hero, { shadowColor: theme.colors.blue }]}>
+      <View
+        style={[
+          visualStyles.hero,
+          {
+            backgroundColor: theme.colors.blue,
+            shadowColor: theme.colors.blue,
+          },
+        ]}
+      >
         <SymbolView
           name="square.grid.2x2.fill"
           size={80}
           tintColor="#fff"
           resizeMode="scaleAspectFit"
-          fallback={null}
+          fallback={
+            <MaterialCommunityIcons name="apps" size={88} color="#fff" />
+          }
         />
       </View>
     );
@@ -217,7 +308,9 @@ function OnboardingVisual({ kind }: { kind: Visual }) {
             size={22}
             tintColor="#fff"
             resizeMode="scaleAspectFit"
-            fallback={null}
+            fallback={
+              <MaterialCommunityIcons name="plus" size={22} color="#fff" />
+            }
           />
         </View>
         <View style={visualStyles.plusGrid}>
@@ -246,8 +339,7 @@ const visualStyles = StyleSheet.create(() => ({
   hero: {
     width: 200,
     height: 200,
-    borderRadius: 44,
-    backgroundColor: '#0A84FF',
+    borderRadius: IS_ANDROID ? 60 : 44,
     alignItems: 'center',
     justifyContent: 'center',
     shadowOpacity: 0.25,
@@ -330,6 +422,19 @@ const styles = StyleSheet.create(theme => ({
     fontSize: 17,
     padding: 4,
   },
+  androidTopBar: {
+    height: 56,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+  },
+  androidIconBtn: {
+    width: 48,
+    height: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 24,
+  },
   visualWrap: {
     flex: 1,
     alignItems: 'center',
@@ -357,6 +462,11 @@ const styles = StyleSheet.create(theme => ({
     paddingHorizontal: 20,
     paddingBottom: 24,
     gap: 18,
+  },
+  androidFooter: {
+    paddingHorizontal: 24,
+    paddingBottom: 32,
+    gap: 20,
   },
   dotRow: {
     flexDirection: 'row',

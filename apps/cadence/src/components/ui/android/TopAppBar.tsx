@@ -3,11 +3,16 @@ import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
+type Variant = 'large' | 'small';
+
 interface TopAppBarProps {
   title: string;
   onBack?: () => void;
   right?: ReactNode;
   subtitle?: string;
+  variant?: Variant;
+  backIcon?: string;
+  backLabel?: string;
 }
 
 export default function TopAppBar({
@@ -15,17 +20,21 @@ export default function TopAppBar({
   onBack,
   right,
   subtitle,
+  variant = 'large',
+  backIcon = 'chevron-left',
+  backLabel = 'Back',
 }: TopAppBarProps) {
   const { theme } = useUnistyles();
+  const isSmall = variant === 'small';
 
   return (
-    <View style={styles.wrapper}>
-      <View style={styles.bar}>
+    <View style={isSmall ? styles.smallWrapper : styles.wrapper}>
+      <View style={[styles.bar, isSmall && styles.smallBar]}>
         {onBack ? (
           <Pressable
             onPress={onBack}
             accessibilityRole="button"
-            accessibilityLabel="Back"
+            accessibilityLabel={backLabel}
             android_ripple={{
               color: theme.colors.fill2,
               borderless: true,
@@ -34,7 +43,7 @@ export default function TopAppBar({
             style={styles.back}
           >
             <MaterialCommunityIcons
-              name="chevron-left"
+              name={backIcon}
               size={26}
               color={theme.colors.text}
             />
@@ -42,14 +51,29 @@ export default function TopAppBar({
         ) : (
           <View style={styles.back} />
         )}
-        <View style={{ flex: 1 }} />
+        {isSmall ? (
+          <Text
+            numberOfLines={1}
+            style={[styles.smallTitle, { color: theme.colors.text }]}
+          >
+            {title}
+          </Text>
+        ) : (
+          <View style={{ flex: 1 }} />
+        )}
         {right}
       </View>
-      <Text style={[styles.title, { color: theme.colors.text }]}>{title}</Text>
-      {subtitle && (
-        <Text style={[styles.subtitle, { color: theme.colors.label2 }]}>
-          {subtitle}
-        </Text>
+      {!isSmall && (
+        <>
+          <Text style={[styles.title, { color: theme.colors.text }]}>
+            {title}
+          </Text>
+          {subtitle && (
+            <Text style={[styles.subtitle, { color: theme.colors.label2 }]}>
+              {subtitle}
+            </Text>
+          )}
+        </>
       )}
     </View>
   );
@@ -59,12 +83,19 @@ const styles = StyleSheet.create(() => ({
   wrapper: {
     paddingBottom: 12,
   },
+  smallWrapper: {
+    paddingBottom: 0,
+  },
   bar: {
     height: 56,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 4,
     gap: 4,
+  },
+  smallBar: {
+    height: 64,
+    paddingRight: 8,
   },
   back: {
     width: 48,
@@ -86,5 +117,12 @@ const styles = StyleSheet.create(() => ({
     paddingTop: 4,
     fontSize: 14,
     letterSpacing: 0.25,
+  },
+  smallTitle: {
+    flex: 1,
+    fontSize: 22,
+    fontWeight: '500',
+    letterSpacing: 0,
+    paddingHorizontal: 4,
   },
 }));
