@@ -137,20 +137,30 @@ export function WidgetProvider({
       AsyncStorage.setItem(
         ANDROID_WIDGET_TASKS_KEY,
         JSON.stringify(
-          payloadTasks.map(t => ({
-            id: t.id,
-            title: t.title,
-            nextDueDate: t.nextDueDate,
-            isDueToday: t.isDueToday,
-            ...(t.details && { details: t.details }),
-          }))
+          payloadTasks
+            .filter(t => !t.isCompletedToday)
+            .map(t => ({
+              id: t.id,
+              title: t.title,
+              color: t.color,
+              glyph: t.glyph,
+              nextDueDate: t.nextDueDate,
+              isDueToday: t.isDueToday,
+              isOverdue: t.isOverdue,
+            }))
         )
       ).then(() => {
         requestWidgetUpdate({
           widgetName: 'CadenceWidget',
-          renderWidget: async () => {
-            const tasks = await loadWidgetTasks();
-            return <CadenceWidget tasks={tasks} />;
+          renderWidget: async widgetInfo => {
+            const widgetTasks = await loadWidgetTasks();
+            return (
+              <CadenceWidget
+                tasks={widgetTasks}
+                width={widgetInfo.width}
+                height={widgetInfo.height}
+              />
+            );
           },
         });
       });
@@ -163,9 +173,15 @@ export function WidgetProvider({
     } else if (Platform.OS === 'android') {
       requestWidgetUpdate({
         widgetName: 'CadenceWidget',
-        renderWidget: async () => {
-          const tasks = await loadWidgetTasks();
-          return <CadenceWidget tasks={tasks} />;
+        renderWidget: async widgetInfo => {
+          const widgetTasks = await loadWidgetTasks();
+          return (
+            <CadenceWidget
+              tasks={widgetTasks}
+              width={widgetInfo.width}
+              height={widgetInfo.height}
+            />
+          );
         },
       });
     }

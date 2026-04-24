@@ -21,7 +21,13 @@ export async function widgetTaskHandler(
     case 'WIDGET_UPDATE':
     case 'WIDGET_RESIZED': {
       const tasks = await loadWidgetTasks();
-      return <CadenceWidget tasks={tasks} />;
+      return (
+        <CadenceWidget
+          tasks={tasks}
+          width={props.widgetInfo.width}
+          height={props.widgetInfo.height}
+        />
+      );
     }
 
     case 'WIDGET_CLICK':

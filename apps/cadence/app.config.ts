@@ -76,7 +76,7 @@ const config: ExpoConfig = {
           {
             name: 'CadenceWidget',
             label: 'Cadence Tasks',
-            description: 'View your upcoming tasks',
+            description: 'View your upcoming tasks. Resize for a compact tile, a three-row list, or a full overview.',
             minWidth: '110dp',
             minHeight: '110dp',
             targetCellWidth: 2,
