@@ -1,7 +1,10 @@
 import { SymbolView } from 'expo-symbols';
-import { Pressable, Text, View } from 'react-native';
+import { Platform, Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useSettingsStore } from '../stores/settings';
+
+const IS_ANDROID = Platform.OS === 'android';
 
 interface WidgetNudgeProps {
   onLearnMore: () => void;
@@ -13,6 +16,74 @@ export default function WidgetNudge({ onLearnMore }: WidgetNudgeProps) {
   const dismissNudge = useSettingsStore(s => s.dismissWidgetNudge);
 
   if (dismissed) return null;
+
+  if (IS_ANDROID) {
+    return (
+      <View
+        style={[
+          styles.androidContainer,
+          {
+            backgroundColor: theme.colors.surface,
+            borderColor: theme.colors.outlineVariant,
+          },
+        ]}
+      >
+        <View
+          style={[
+            styles.androidIconWrap,
+            { backgroundColor: theme.colors.primaryContainer },
+          ]}
+        >
+          <MaterialCommunityIcons
+            name="apps"
+            size={22}
+            color={theme.colors.onPrimaryContainer}
+          />
+        </View>
+        <View style={styles.body}>
+          <Text style={[styles.androidTitle, { color: theme.colors.text }]}>
+            Add the widget
+          </Text>
+          <Text
+            style={[styles.androidSubtitle, { color: theme.colors.label2 }]}
+          >
+            See what&apos;s due without opening the app.
+          </Text>
+        </View>
+        <Pressable
+          onPress={onLearnMore}
+          android_ripple={{
+            color: 'rgba(255,255,255,0.20)',
+            borderless: false,
+          }}
+          style={[styles.androidCta, { backgroundColor: theme.colors.primary }]}
+        >
+          <Text
+            style={[styles.androidCtaText, { color: theme.colors.onPrimary }]}
+          >
+            Show me
+          </Text>
+        </Pressable>
+        <Pressable
+          onPress={dismissNudge}
+          hitSlop={10}
+          android_ripple={{
+            color: theme.colors.fill2,
+            borderless: true,
+            radius: 18,
+          }}
+          style={styles.androidDismiss}
+          accessibilityLabel="Dismiss"
+        >
+          <MaterialCommunityIcons
+            name="close"
+            size={18}
+            color={theme.colors.label3}
+          />
+        </Pressable>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -96,5 +167,53 @@ const styles = StyleSheet.create(theme => ({
   },
   dismiss: {
     padding: 6,
+  },
+  androidContainer: {
+    marginHorizontal: 16,
+    marginBottom: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderWidth: 1,
+    borderRadius: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  androidIconWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  androidTitle: {
+    fontSize: 14,
+    fontWeight: '500',
+    letterSpacing: 0.1,
+  },
+  androidSubtitle: {
+    fontSize: 12,
+    marginTop: 2,
+    letterSpacing: 0.25,
+  },
+  androidCta: {
+    paddingHorizontal: 16,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  androidCtaText: {
+    fontSize: 13,
+    fontWeight: '500',
+    letterSpacing: 0.1,
+  },
+  androidDismiss: {
+    width: 36,
+    height: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 18,
   },
 }));

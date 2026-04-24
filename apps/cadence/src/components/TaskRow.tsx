@@ -1,11 +1,12 @@
 import { SymbolView } from 'expo-symbols';
-import { Alert, Text, View } from 'react-native';
+import { Alert, Platform, Pressable, Text, View } from 'react-native';
 import Animated, {
   FadeIn,
   FadeOut,
   LinearTransition,
 } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Task } from '../lib/types';
 import {
   formatCadence,
@@ -16,6 +17,8 @@ import {
 import InlineActionBtn from './InlineActionBtn';
 import SwipeRow, { SwipeAction } from './SwipeRow';
 import TaskTile from './ui/TaskTile';
+
+const IS_ANDROID = Platform.OS === 'android';
 
 export interface TaskRowActions {
   toggleComplete: () => void;
@@ -58,7 +61,7 @@ export default function TaskRow({
       ? theme.colors.blue
       : theme.colors.label4;
 
-  const onLongPress = () => {
+  const showMenu = () => {
     Alert.alert(
       task.title,
       undefined,
@@ -72,6 +75,72 @@ export default function TaskRow({
       { cancelable: true }
     );
   };
+
+  if (IS_ANDROID) {
+    return (
+      <Pressable
+        onPress={onTap}
+        onLongPress={showMenu}
+        android_ripple={{
+          color: theme.colors.fill2,
+          borderless: false,
+        }}
+        style={styles.row}
+      >
+        <TaskTile task={task} size={40} overdue={overdue && !completed} />
+        <View style={styles.middle}>
+          <Text
+            style={[styles.androidTitle, completed && styles.titleCompleted]}
+            numberOfLines={1}
+          >
+            {task.title}
+          </Text>
+          <View style={styles.androidMetaRow}>
+            {overdue && !completed && (
+              <MaterialCommunityIcons
+                name="alert"
+                size={14}
+                color={theme.colors.error}
+              />
+            )}
+            <Text style={[styles.androidMeta, { color: dueColor }]}>
+              {dueLabel}
+            </Text>
+            <Text style={[styles.androidMeta, { color: theme.colors.label3 }]}>
+              ·
+            </Text>
+            <Text style={[styles.androidMeta, { color: theme.colors.label2 }]}>
+              {formatCadence(task.cadence)}
+            </Text>
+          </View>
+        </View>
+        <Pressable
+          onPress={actions.toggleComplete}
+          hitSlop={10}
+          style={styles.androidCheckWrap}
+        >
+          {completed ? (
+            <View
+              style={[
+                styles.androidCheckFilled,
+                { backgroundColor: theme.colors.primary },
+              ]}
+            >
+              <MaterialCommunityIcons
+                name="check"
+                size={14}
+                color={theme.colors.onPrimary}
+              />
+            </View>
+          ) : (
+            <View
+              style={[styles.androidCheckOutline, { borderColor: borderColor }]}
+            />
+          )}
+        </Pressable>
+      </Pressable>
+    );
+  }
 
   const rightActions: SwipeAction[] = [
     {
@@ -108,7 +177,7 @@ export default function TaskRow({
       leftActions={leftActions}
       rightActions={rightActions}
       onTap={onTap}
-      onLongPress={onLongPress}
+      onLongPress={showMenu}
       onCheckTap={actions.toggleComplete}
     >
       <Animated.View layout={LinearTransition.duration(220)}>
@@ -266,5 +335,40 @@ const styles = StyleSheet.create(theme => ({
     borderTopWidth: 0.5,
     borderTopColor: theme.colors.sepSubtle,
     marginTop: -2,
+  },
+  androidTitle: {
+    fontSize: 16,
+    color: theme.colors.text,
+    letterSpacing: 0.15,
+  },
+  androidMetaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 2,
+  },
+  androidMeta: {
+    fontSize: 13,
+    letterSpacing: 0.25,
+  },
+  androidCheckWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  androidCheckFilled: {
+    width: 20,
+    height: 20,
+    borderRadius: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  androidCheckOutline: {
+    width: 20,
+    height: 20,
+    borderRadius: 4,
+    borderWidth: 2,
   },
 }));

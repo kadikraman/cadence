@@ -2,10 +2,11 @@ import { SymbolView } from 'expo-symbols';
 import { useRouter } from 'expo-router';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import TaskTile from './ui/TaskTile';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Cadence } from '../lib/types';
 import { GlyphKey } from '../utils/glyphs';
 import { ColorKey } from '../utils/taskTints';
+import TaskTile from './ui/TaskTile';
 
 interface Starter {
   title: string;
@@ -85,7 +86,13 @@ export default function EmptyStateStarters() {
             size={44}
             tintColor={c.blue}
             resizeMode="scaleAspectFit"
-            fallback={null}
+            fallback={
+              <MaterialCommunityIcons
+                name="heart-pulse"
+                size={44}
+                color={c.blue}
+              />
+            }
           />
         </View>
         <View style={styles.heroText}>
@@ -130,7 +137,13 @@ export default function EmptyStateStarters() {
                   size={12}
                   tintColor={c.blue}
                   resizeMode="scaleAspectFit"
-                  fallback={null}
+                  fallback={
+                    <MaterialCommunityIcons
+                      name="plus"
+                      size={14}
+                      color={c.blue}
+                    />
+                  }
                 />
               </View>
             </Pressable>
@@ -157,7 +170,9 @@ export default function EmptyStateStarters() {
             size={16}
             tintColor="#fff"
             resizeMode="scaleAspectFit"
-            fallback={null}
+            fallback={
+              <MaterialCommunityIcons name="plus" size={18} color="#fff" />
+            }
           />
         </View>
         <Text style={[styles.customLabel, { color: c.blue }]}>
@@ -168,7 +183,13 @@ export default function EmptyStateStarters() {
           size={12}
           tintColor={c.blue}
           resizeMode="scaleAspectFit"
-          fallback={null}
+          fallback={
+            <MaterialCommunityIcons
+              name="chevron-right"
+              size={16}
+              color={c.blue}
+            />
+          }
         />
       </Pressable>
     </ScrollView>
