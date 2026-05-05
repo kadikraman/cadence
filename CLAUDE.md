@@ -69,6 +69,13 @@ There is no `src/hooks/` directory; custom hooks (when needed) are colocated wit
 - Use `useSafeAreaInsets` for screen boundaries
 - Tests live alongside the file they test (e.g. `stores/taskReducers.test.ts`)
 
+### Theming
+
+- Read colors and theme tokens directly from `useUnistyles()` (e.g. `theme.colors.text`, `theme.colors.label2`). Do not wrap unistyles in a custom context.
+- Theme mode preference (`'light' | 'dark' | 'system'`) lives in `useSettingsStore`. Read `themeMode` and call `setThemeMode` directly from the store.
+- The bridge between the settings store and the unistyles runtime lives in `app/_layout.tsx` as a single `useEffect` that watches `themeMode` and calls `applyThemeMode` from `unistyles.ts`. Don't call `applyThemeMode` from anywhere else.
+- Detecting dark mode: `useUnistyles().rt.themeName === 'dark'`. Don't introduce a separate `isDark` helper or context.
+
 ### Platform-divergent UI
 
 iOS is the default. The bare `Foo.tsx` file is the iOS implementation. Android only gets its own `Foo.android.tsx` when the layout diverges substantially (more than ~20 lines of divergent JSX). Do NOT branch with `if (Platform.OS === 'android')` inside a single component once the divergence crosses that threshold; use the file split instead. Metro picks `Foo.android.tsx` on Android automatically and falls back to `Foo.tsx` everywhere else.

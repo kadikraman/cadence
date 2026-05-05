@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 import { Platform } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet, UnistylesRuntime } from 'react-native-unistyles';
+import type { ThemeMode } from './stores/settings';
 
 const shadows = {
   sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
@@ -207,3 +208,12 @@ StyleSheet.configure({
     adaptiveThemes: true,
   },
 });
+
+export function applyThemeMode(mode: ThemeMode) {
+  if (mode === 'system') {
+    UnistylesRuntime.setAdaptiveThemes(true);
+  } else {
+    UnistylesRuntime.setAdaptiveThemes(false);
+    UnistylesRuntime.setTheme(mode);
+  }
+}

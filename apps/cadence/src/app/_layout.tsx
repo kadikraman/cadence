@@ -11,13 +11,10 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
-import {
-  ThemeProvider as UnistylesThemeProvider,
-  useTheme,
-} from '../contexts/ThemeContext';
+import { useUnistyles } from 'react-native-unistyles';
 import { useSettingsStore } from '../stores/settings';
 import { useTasksStore } from '../stores/tasks';
-import '../unistyles';
+import { applyThemeMode } from '../unistyles';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -28,17 +25,24 @@ Sentry.init({
 });
 
 function RootLayoutNav() {
-  const { isDark } = useTheme();
+  const { rt } = useUnistyles();
+  const isDark = rt.themeName === 'dark';
+
   const tasksLoaded = useTasksStore(s => s.loaded);
   const loadTasks = useTasksStore(s => s.load);
   const settingsLoaded = useSettingsStore(s => s.loaded);
   const loadSettings = useSettingsStore(s => s.load);
   const onboardingSeen = useSettingsStore(s => s.onboardingSeen);
+  const themeMode = useSettingsStore(s => s.themeMode);
 
   useEffect(() => {
     loadTasks();
     loadSettings();
   }, [loadTasks, loadSettings]);
+
+  useEffect(() => {
+    if (settingsLoaded) applyThemeMode(themeMode);
+  }, [settingsLoaded, themeMode]);
 
   useEffect(() => {
     if (tasksLoaded && settingsLoaded) {
@@ -74,9 +78,7 @@ function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <KeyboardProvider>
-        <UnistylesThemeProvider>
-          <RootLayoutNav />
-        </UnistylesThemeProvider>
+        <RootLayoutNav />
       </KeyboardProvider>
     </GestureHandlerRootView>
   );

@@ -2,13 +2,14 @@ import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 import * as StoreReview from 'expo-store-review';
 import { Alert, Linking } from 'react-native';
-import { useTheme } from '../../contexts/ThemeContext';
 import { exportTasks, importTasks } from '../../lib/exportImport';
+import { useSettingsStore } from '../../stores/settings';
 import { useTasksStore } from '../../stores/tasks';
 
 export function useSettings() {
   const router = useRouter();
-  const { themeMode, setThemeMode } = useTheme();
+  const themeMode = useSettingsStore(s => s.themeMode);
+  const setThemeMode = useSettingsStore(s => s.setThemeMode);
   const taskCount = useTasksStore(s => s.tasks.length);
   const version = Constants.expoConfig?.version ?? '1.0';
 
