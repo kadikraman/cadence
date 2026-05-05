@@ -1,53 +1,67 @@
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialButton from '../../components/ui/android/MaterialButton';
 import { Dot, OnboardingVisual } from './visuals';
 import { Step, useOnboarding } from './useOnboarding';
 
 const STEPS: Step[] = [
   {
-    title: 'Cadence lives on your Home Screen',
+    title: 'Cadence on your home screen',
     body: "No notifications, no nagging. Just a glance at what's due.",
     visual: 'hero',
   },
   {
-    title: 'Long-press your Home Screen',
-    body: 'Keep pressing until the app icons start to jiggle.',
+    title: 'Touch and hold your home screen',
+    body: 'Tap "Widgets" when the menu appears.',
     visual: 'jiggle',
   },
   {
-    title: 'Tap the + in the corner',
-    body: 'Then search for "Cadence" in the widget gallery.',
+    title: 'Find Cadence',
+    body: 'Widgets are grouped by app. Scroll or search for Cadence.',
     visual: 'plus',
   },
   {
-    title: 'Pick your size',
-    body: 'Small shows your next task. Medium shows three.',
+    title: 'Drag your favorite size',
+    body: 'Touch and hold a widget, then drop it where you want it.',
     visual: 'sizes',
   },
 ];
 
 export default function OnboardingScreen() {
-  const { rt } = useUnistyles();
+  const { theme, rt } = useUnistyles();
   const { step, next, back, close, isReplay } = useOnboarding(STEPS.length);
   const current = STEPS[step];
 
   return (
     <View style={[styles.root, !isReplay && { paddingTop: rt.insets.top }]}>
       <View style={styles.topBar}>
-        <View style={styles.topBarSide}>
-          {step > 0 && (
-            <Pressable onPress={back}>
-              <Text style={styles.navText}>Back</Text>
-            </Pressable>
-          )}
-        </View>
-        <View style={[styles.topBarSide, styles.topBarRight]}>
-          {!isReplay && (
-            <Pressable onPress={close}>
-              <Text style={styles.navText}>Skip</Text>
-            </Pressable>
-          )}
-        </View>
+        {step > 0 ? (
+          <Pressable
+            onPress={back}
+            android_ripple={{
+              color: theme.colors.fill2,
+              borderless: true,
+              radius: 24,
+            }}
+            style={styles.iconBtn}
+            accessibilityLabel="Previous step"
+          >
+            <MaterialCommunityIcons
+              name="chevron-left"
+              size={26}
+              color={theme.colors.text}
+            />
+          </Pressable>
+        ) : (
+          <View style={styles.iconBtn} />
+        )}
+        <View style={{ flex: 1 }} />
+        {!isReplay && step < STEPS.length - 1 && (
+          <MaterialButton onPress={close} variant="outlined">
+            Skip
+          </MaterialButton>
+        )}
       </View>
 
       <View style={styles.visualWrap}>
@@ -56,17 +70,20 @@ export default function OnboardingScreen() {
         <Text style={styles.stepBody}>{current.body}</Text>
       </View>
 
-      <View style={styles.footer}>
+      <View
+        style={[
+          styles.footer,
+          { paddingBottom: Math.max(56, rt.insets.bottom + 32) },
+        ]}
+      >
         <View style={styles.dotRow}>
           {STEPS.map((_, i) => (
             <Dot key={i} isActive={i === step} />
           ))}
         </View>
-        <Pressable onPress={next} style={styles.nextBtn}>
-          <Text style={styles.nextText}>
-            {step === STEPS.length - 1 ? 'Done' : 'Next'}
-          </Text>
-        </Pressable>
+        <MaterialButton onPress={next} full>
+          {step === STEPS.length - 1 ? 'Done' : 'Next'}
+        </MaterialButton>
       </View>
     </View>
   );
@@ -78,21 +95,17 @@ const styles = StyleSheet.create(theme => ({
     backgroundColor: theme.colors.groupedBackground,
   },
   topBar: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
+    height: 56,
     flexDirection: 'row',
     alignItems: 'center',
+    paddingHorizontal: 8,
   },
-  topBarSide: {
-    flex: 1,
-  },
-  topBarRight: {
-    alignItems: 'flex-end',
-  },
-  navText: {
-    color: theme.colors.blue,
-    fontSize: 17,
-    padding: 4,
+  iconBtn: {
+    width: 48,
+    height: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 24,
   },
   visualWrap: {
     flex: 1,
@@ -118,24 +131,13 @@ const styles = StyleSheet.create(theme => ({
     maxWidth: 300,
   },
   footer: {
-    paddingHorizontal: 20,
-    paddingBottom: 24,
-    gap: 18,
+    paddingHorizontal: 24,
+    paddingBottom: 32,
+    gap: 20,
   },
   dotRow: {
     flexDirection: 'row',
     justifyContent: 'center',
     gap: 5,
-  },
-  nextBtn: {
-    backgroundColor: theme.colors.blue,
-    alignItems: 'center',
-    paddingVertical: 14,
-    borderRadius: 14,
-  },
-  nextText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
   },
 }));
