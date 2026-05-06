@@ -215,6 +215,12 @@ export const getPriorityTask = (tasks: Task[]): Task | null => {
   return sortedTasks[0] || null;
 };
 
+export function cadenceEquals(a: Cadence, b: Cadence): boolean {
+  if (a.type !== b.type) return false;
+  if (a.type !== 'custom') return true;
+  return a.value === b.value && a.unit === b.unit;
+}
+
 export function formatCadence(cadence: Cadence): string {
   const interval = cadence.value ?? 1;
 

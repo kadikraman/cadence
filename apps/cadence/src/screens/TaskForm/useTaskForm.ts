@@ -6,7 +6,12 @@ import { Cadence, Task } from '../../lib/types';
 import { useTasksStore } from '../../stores/tasks';
 import { GlyphKey } from '../../utils/glyphs';
 import { ColorKey } from '../../utils/taskTints';
-import { calculateNextDueDate, getTodayTimestamp } from '../../utils/taskUtils';
+import {
+  cadenceEquals,
+  calculateNextDueDate,
+  formatDueIn,
+  getTodayTimestamp,
+} from '../../utils/taskUtils';
 import { CadenceType, CadenceUnit } from './helpers';
 
 interface FormParams {
@@ -63,20 +68,20 @@ export function useTaskForm() {
   );
   const [nextDueDate, setNextDueDate] = useState<number>(initialNextDue);
   const [dueDatePickerOpen, setDueDatePickerOpen] = useState(false);
+  const [saveAfterPick, setSaveAfterPick] = useState(false);
   const loaded = !isEdit || !!existing;
   const canSave = title.trim().length > 0;
 
-  const save = async () => {
-    if (!canSave) return;
-    const cadence: Cadence =
-      cadenceType === 'custom'
-        ? {
-            type: 'custom',
-            value: Math.max(1, parseInt(customValue, 10) || 1),
-            unit: customUnit,
-          }
-        : { type: cadenceType };
+  const buildCadence = (): Cadence =>
+    cadenceType === 'custom'
+      ? {
+          type: 'custom',
+          value: Math.max(1, parseInt(customValue, 10) || 1),
+          unit: customUnit,
+        }
+      : { type: cadenceType };
 
+  const persistAndExit = async (cadence: Cadence, nextDue: number) => {
     const saved: Task = {
       id: existing?.id ?? `t_${Date.now()}`,
       title: title.trim(),
@@ -87,11 +92,64 @@ export function useTaskForm() {
       createdAt: existing?.createdAt ?? Date.now(),
       completedDates: existing?.completedDates ?? [],
       lastCompletedAt: existing?.lastCompletedAt,
-      nextDueDate,
+      nextDueDate: nextDue,
     };
     await saveTask(saved);
     if (!existing) logs.taskCreated(!!params.title);
     router.back();
+  };
+
+  const save = async () => {
+    if (!canSave) return;
+    const newCadence = buildCadence();
+
+    if (existing && !cadenceEquals(existing.cadence, newCadence)) {
+      Alert.alert(
+        'Cadence changed',
+        'You changed how often this task repeats. What should happen to the next due date?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: `Leave as is (${formatDueIn(nextDueDate)})`,
+            onPress: () => persistAndExit(newCadence, nextDueDate),
+          },
+          {
+            text: 'Change to end of new cycle',
+            onPress: () => {
+              const recalc = calculateNextDueDate(
+                newCadence,
+                existing.lastCompletedAt
+              );
+              persistAndExit(newCadence, recalc);
+            },
+          },
+          {
+            text: 'Choose custom date',
+            onPress: () => {
+              setSaveAfterPick(true);
+              setDueDatePickerOpen(true);
+            },
+          },
+        ]
+      );
+      return;
+    }
+
+    await persistAndExit(newCadence, nextDueDate);
+  };
+
+  const handlePickerSave = (ts: number) => {
+    setNextDueDate(ts);
+    setDueDatePickerOpen(false);
+    if (saveAfterPick) {
+      setSaveAfterPick(false);
+      persistAndExit(buildCadence(), ts);
+    }
+  };
+
+  const handlePickerClose = () => {
+    setDueDatePickerOpen(false);
+    if (saveAfterPick) setSaveAfterPick(false);
   };
 
   const confirmDelete = () => {
@@ -137,6 +195,8 @@ export function useTaskForm() {
     setNextDueDate,
     dueDatePickerOpen,
     setDueDatePickerOpen,
+    handlePickerSave,
+    handlePickerClose,
     save,
     confirmDelete,
     existing,

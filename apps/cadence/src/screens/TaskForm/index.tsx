@@ -42,9 +42,10 @@ export default function TaskFormScreen() {
     customUnit,
     setCustomUnit,
     nextDueDate,
-    setNextDueDate,
     dueDatePickerOpen,
     setDueDatePickerOpen,
+    handlePickerSave,
+    handlePickerClose,
     save,
     confirmDelete,
   } = useTaskForm();
@@ -193,11 +194,8 @@ export default function TaskFormScreen() {
         selectedLabel="Due"
         quickOptions={getDueQuickOptions()}
         allowFuture
-        onClose={() => setDueDatePickerOpen(false)}
-        onSave={ts => {
-          setNextDueDate(ts);
-          setDueDatePickerOpen(false);
-        }}
+        onClose={handlePickerClose}
+        onSave={handlePickerSave}
       />
     </View>
   );
