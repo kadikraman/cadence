@@ -245,6 +245,8 @@ struct TaskRowView: View {
 
 // MARK: - Small
 
+private let allClearGreen = Color(.sRGB, red: 0.106, green: 0.478, blue: 0.20, opacity: 1)
+
 struct SmallView: View {
     let entry: Provider.Entry
 
@@ -256,16 +258,15 @@ struct SmallView: View {
         let upcoming = active.filter {
             !($0.isOverdue == true) && !($0.isDueToday == true)
         }
-        let urgentN = urgent.count
 
         if entry.tasks.isEmpty {
             smallEmpty
-        } else if urgentN == 0 {
-            smallAllClear(next: upcoming.first)
-        } else if urgentN == 1 {
-            smallOneUrgent(task: urgent[0], next: upcoming.first)
+        } else if urgent.isEmpty {
+            smallAllClear(upcoming: upcoming)
+        } else if urgent.count == 1 && upcoming.isEmpty {
+            smallSingleHero(task: urgent[0])
         } else {
-            smallMultiple(tasks: urgent, count: urgentN, hasOverdue: !overdue.isEmpty)
+            smallList(urgent: urgent, upcoming: upcoming, hasOverdue: !overdue.isEmpty)
         }
     }
 
@@ -277,10 +278,11 @@ struct SmallView: View {
                 Spacer()
                 VStack(spacing: 8) {
                     RhythmMark(size: 44)
-                    Text("No tasks yet")
+                    Text("No tasks yet.\nOpen app to start.")
                         .font(.system(size: 11, weight: .medium))
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
+                        .lineSpacing(1)
                 }
                 Spacer()
             }
@@ -288,83 +290,93 @@ struct SmallView: View {
         }
     }
 
-    private func smallAllClear(next: WidgetTask?) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
+    private func smallAllClear(upcoming: [WidgetTask]) -> some View {
+        let rows = Array(upcoming.prefix(2))
+        return VStack(alignment: .leading, spacing: 0) {
             smallHeader(count: 0, tone: .green)
-            Spacer(minLength: 4)
-            ZStack {
-                Circle()
-                    .fill(cadenceGreen.opacity(0.15))
-                Image(systemName: "checkmark")
-                    .font(.system(size: 15, weight: .bold))
-                    .foregroundColor(cadenceGreen)
-            }
-            .frame(width: 30, height: 30)
-            Text("All clear today")
-                .font(.system(size: 14, weight: .bold))
-                .foregroundColor(.primary)
-                .padding(.top, 8)
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
-            Spacer(minLength: 4)
-            if let n = next {
-                HStack(spacing: 4) {
-                    Text("Next:")
-                        .foregroundColor(.secondary)
-                    Text(n.title)
-                        .foregroundColor(.primary)
-                        .lineLimit(1)
+            HStack(spacing: 5) {
+                ZStack {
+                    Circle().fill(cadenceGreen)
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 7, weight: .heavy))
+                        .foregroundColor(.white)
                 }
-                .font(.system(size: 10, weight: .medium))
+                .frame(width: 14, height: 14)
+                Text("All clear today")
+                    .font(.system(size: 10.5, weight: .bold))
+                    .kerning(-0.1)
+                    .foregroundColor(allClearGreen)
             }
+            .padding(.leading, 5)
+            .padding(.trailing, 8)
+            .padding(.vertical, 3)
+            .background(
+                Capsule().fill(cadenceGreen.opacity(0.14))
+            )
+            .padding(.top, 10)
+
+            if !rows.isEmpty {
+                Spacer(minLength: 10)
+                Text("NEXT UP")
+                    .font(.system(size: 9.5, weight: .bold))
+                    .kerning(0.5)
+                    .foregroundColor(.secondary)
+                    .padding(.bottom, 8)
+                VStack(alignment: .leading, spacing: 10) {
+                    ForEach(rows.indices, id: \.self) { i in
+                        smallTaskRow(task: rows[i])
+                    }
+                }
+            }
+            Spacer(minLength: 0)
         }
     }
 
-    private func smallOneUrgent(task: WidgetTask, next: WidgetTask?) -> some View {
+    private func smallSingleHero(task: WidgetTask) -> some View {
         let status = taskStatus(task)
+        let eyebrow = status.overdue
+            ? formatDueIn(task.nextDueDate).uppercased()
+            : "TODAY"
         return VStack(alignment: .leading, spacing: 0) {
             smallHeader(count: 1, tone: status.overdue ? .red : .blue)
-            Spacer(minLength: 8)
-            HStack(alignment: .center, spacing: 9) {
-                TaskTileView(task: task, size: 34)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(status.overdue
-                         ? formatDueIn(task.nextDueDate).uppercased()
-                         : "TODAY")
-                        .font(.system(size: 9, weight: .bold))
+            Spacer(minLength: 0)
+            VStack(alignment: .leading, spacing: 10) {
+                TaskTileView(task: task, size: 42)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(eyebrow)
+                        .font(.system(size: 10, weight: .bold))
                         .kerning(0.5)
                         .foregroundColor(status.overdue ? cadenceRed : cadenceBlue)
                     Text(task.title)
-                        .font(.system(size: 14, weight: .bold))
+                        .font(.system(size: 17, weight: .bold))
                         .lineLimit(2)
                         .foregroundColor(.primary)
                 }
-                Spacer(minLength: 0)
             }
-            Spacer(minLength: 4)
-            if let n = next {
-                HStack(spacing: 6) {
-                    TaskTileView(task: n, size: 18)
-                    Text(n.title)
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundColor(.secondary)
-                        .lineLimit(1)
-                    Spacer(minLength: 0)
-                    Text(formatDueIn(n.nextDueDate))
-                        .font(.system(size: 10, weight: .semibold))
-                        .foregroundColor(.secondary)
-                }
-            }
+            Spacer(minLength: 0)
         }
     }
 
-    private func smallMultiple(tasks: [WidgetTask], count: Int, hasOverdue: Bool) -> some View {
-        let rows = Array(tasks.prefix(2))
-        let remaining = max(0, count - rows.count)
+    private func smallList(urgent: [WidgetTask], upcoming: [WidgetTask], hasOverdue: Bool) -> some View {
+        let urgentN = urgent.count
+        let highCount = urgentN >= 5
+        let tone: Tone = (hasOverdue || highCount) ? .red : .blue
+
+        let rows: [WidgetTask]
+        let overflow: Int
+        if urgentN > 2 {
+            rows = Array(urgent.prefix(2))
+            overflow = urgentN - 2
+        } else {
+            let combined = urgent + upcoming
+            rows = Array(combined.prefix(3))
+            overflow = 0
+        }
+
         return VStack(alignment: .leading, spacing: 0) {
-            smallHeader(count: count, tone: hasOverdue ? .red : .blue)
+            smallHeader(count: urgentN, tone: tone)
             Spacer(minLength: 6)
-            VStack(spacing: 6) {
+            VStack(spacing: 4) {
                 ForEach(rows.indices, id: \.self) { i in
                     if i > 0 {
                         Rectangle()
@@ -373,33 +385,54 @@ struct SmallView: View {
                     }
                     smallTaskRow(task: rows[i])
                 }
+                if overflow > 0 {
+                    Rectangle()
+                        .fill(Color.primary.opacity(0.06))
+                        .frame(height: 1)
+                    smallMoreRow(remaining: overflow)
+                }
             }
-            Spacer(minLength: 4)
-            if remaining > 0 {
-                Text("+\(remaining) more")
-                    .font(.system(size: 10, weight: .semibold))
-                    .foregroundColor(.secondary)
-            }
+            Spacer(minLength: 0)
         }
     }
 
     private func smallTaskRow(task: WidgetTask) -> some View {
         let status = taskStatus(task)
-        return HStack(spacing: 7) {
-            TaskTileView(task: task, size: 24)
+        return HStack(spacing: 8) {
+            TaskTileView(task: task, size: 26)
             VStack(alignment: .leading, spacing: 1) {
                 Text(task.title)
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(.system(size: 12.5, weight: .semibold))
+                    .kerning(-0.15)
                     .lineLimit(1)
                     .foregroundColor(.primary)
                 Text(formatDueIn(task.nextDueDate))
-                    .font(.system(size: 10, weight: .medium))
+                    .font(.system(size: 10.5, weight: .medium))
                     .foregroundColor(
                         status.overdue ? cadenceRed
-                            : status.dueToday ? .secondary
+                            : status.dueToday ? cadenceBlue
                             : .secondary
                     )
             }
+            Spacer(minLength: 0)
+        }
+    }
+
+    private func smallMoreRow(remaining: Int) -> some View {
+        HStack(spacing: 8) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 7, style: .continuous)
+                    .fill(cadenceBlue.opacity(0.14))
+                    .frame(width: 26, height: 26)
+                Image(systemName: "ellipsis")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundColor(cadenceBlue)
+            }
+            Text("+\(remaining) more today")
+                .font(.system(size: 12.5, weight: .semibold))
+                .kerning(-0.15)
+                .foregroundColor(cadenceBlue)
+                .lineLimit(1)
             Spacer(minLength: 0)
         }
     }
@@ -409,7 +442,7 @@ struct SmallView: View {
     private func smallHeader(count: Int?, tone: Tone) -> some View {
         let countColor: Color = {
             switch tone {
-            case .blue: return .primary
+            case .blue: return cadenceBlue
             case .red: return cadenceRed
             case .green: return cadenceGreen
             }
