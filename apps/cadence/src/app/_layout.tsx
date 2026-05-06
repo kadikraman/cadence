@@ -2,7 +2,7 @@ import {
   DarkTheme,
   DefaultTheme,
   ThemeProvider as ReactNativeThemeProvider,
-} from '@react-navigation/native';
+} from 'expo-router/react-navigation';
 import * as Sentry from '@sentry/react-native';
 import { AppMetrics, AppMetricsRoot } from 'expo-observe';
 import { Stack } from 'expo-router';
