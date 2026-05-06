@@ -67,14 +67,14 @@ function TaskRow({ task, isExpanded, callbacks }: TaskRowProps) {
   ];
 
   return (
-    <SwipeRow
-      leftActions={leftActions}
-      rightActions={rightActions}
-      onTap={() => callbacks.onTap(task)}
-      onLongPress={showMenu}
-      onCheckTap={() => callbacks.onToggleComplete(task)}
-    >
-      <Animated.View layout={LinearTransition.duration(220)}>
+    <Animated.View layout={LinearTransition.duration(220)}>
+      <SwipeRow
+        leftActions={leftActions}
+        rightActions={rightActions}
+        onTap={() => callbacks.onTap(task)}
+        onLongPress={showMenu}
+        onCheckTap={() => callbacks.onToggleComplete(task)}
+      >
         <View style={styles.row}>
           <TaskTile task={task} size={40} overdue={overdue && !completed} />
           <View style={styles.middle}>
@@ -128,9 +128,9 @@ function TaskRow({ task, isExpanded, callbacks }: TaskRowProps) {
             )}
           </View>
         </View>
-        {isExpanded && <ExpandedBar task={task} callbacks={callbacks} />}
-      </Animated.View>
-    </SwipeRow>
+      </SwipeRow>
+      {isExpanded && <ExpandedBar task={task} callbacks={callbacks} />}
+    </Animated.View>
   );
 }
 
