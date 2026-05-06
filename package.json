@@ -21,6 +21,9 @@
     "prettier": "^3.6.2",
     "typescript": "~5.9.2"
   },
+  "overrides": {
+    "expo-updates-interface": "56.0.1"
+  },
   "trustedDependencies": [
     "@sentry/cli",
     "react-native-nitro-modules",

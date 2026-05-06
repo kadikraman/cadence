@@ -43,6 +43,14 @@ const config: ExpoConfig = {
   plugins: [
     'expo-router',
     [
+      'expo-build-properties',
+      {
+        ios: {
+          deploymentTarget: '16.4',
+        },
+      },
+    ],
+    [
       'expo-splash-screen',
       {
         image: './assets/icon-transparent.png',
