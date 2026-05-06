@@ -76,6 +76,16 @@ There is no `src/hooks/` directory; custom hooks (when needed) are colocated wit
 - Add new routes to `lib/routes.ts` when you add a new route file.
 - For routes that build query strings dynamically (e.g. `EmptyStateStarters.buildStarterRoute`), it's fine to construct the full path locally; just keep the base path constant in sync with `lib/routes.ts`.
 
+### Logs
+
+- All structured log events go through helpers in `lib/logs.ts`. Don't call `AppMetrics.logEvent` directly from screens; add a typed helper. The catalog lives in one file so events are reviewable in PRs and attribute shapes are type-checked.
+- Naming: `<surface>.<verb_in_past_tense>` (e.g. `task.completed`, `settings.export_completed`). Don't bake attribute values into the name; use the `attributes` map.
+- Reserved: the `expo.` prefix is rejected by the SDK. Don't use it.
+- **Privacy contract is enforced by the marketing-site policy** (`apps/marketing/app/privacy.tsx`). The policy promises that task names, contents, schedules, completion history, and settings stay on device. Per-event `attributes` therefore MUST NOT include: cadence type or value, color, glyph, days-since-last-completion, on-time/early flags, completion counts, task counts, theme mode, or any other settings value. Bare event firings (no attributes) are fine as aggregate counters.
+- **Never log free-text user content.** No task titles, task details, feedback messages, or emails in `name`, `body`, or `attributes`.
+- For caught errors, pass the `unknown` to the helper and let it derive a class-name `reason`. Don't pass `err.message` (it can wrap server output that includes user data).
+- If you're tempted to add an attribute that the policy disallows, update the policy *first* (and call out the change in release notes per `privacy.tsx`'s "Changes to this policy" section), then add the attribute. Don't ship the data ahead of the policy.
+
 ### Widget payloads
 
 Both home-screen widgets (iOS and Android) read JSON the app writes to platform storage. The producer and consumers must agree on field names, so all widget payload types live in `lib/widgetPayloads.ts`:

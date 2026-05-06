@@ -1,6 +1,7 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Alert } from 'react-native';
+import { logs } from '../../lib/logs';
 import { Cadence, Task } from '../../lib/types';
 import { useTasksStore } from '../../stores/tasks';
 import { GlyphKey } from '../../utils/glyphs';
@@ -89,6 +90,7 @@ export function useTaskForm() {
       nextDueDate,
     };
     await saveTask(saved);
+    if (!existing) logs.taskCreated(!!params.title);
     router.back();
   };
 
@@ -103,6 +105,7 @@ export function useTaskForm() {
           text: 'Delete',
           style: 'destructive',
           onPress: async () => {
+            logs.taskDeleted();
             await removeTask(existing.id);
             router.back();
           },

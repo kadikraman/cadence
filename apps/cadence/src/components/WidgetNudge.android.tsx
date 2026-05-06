@@ -1,6 +1,7 @@
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { logs } from '../lib/logs';
 import { useSettingsStore } from '../stores/settings';
 
 interface WidgetNudgeProps {
@@ -13,6 +14,16 @@ export default function WidgetNudge({ onLearnMore }: WidgetNudgeProps) {
   const dismissNudge = useSettingsStore(s => s.dismissWidgetNudge);
 
   if (dismissed) return null;
+
+  const handleLearnMore = () => {
+    logs.widgetNudgeDismissed('learn_more');
+    onLearnMore();
+  };
+
+  const handleDismiss = () => {
+    logs.widgetNudgeDismissed('dismiss');
+    dismissNudge();
+  };
 
   return (
     <View
@@ -45,7 +56,7 @@ export default function WidgetNudge({ onLearnMore }: WidgetNudgeProps) {
         </Text>
       </View>
       <Pressable
-        onPress={onLearnMore}
+        onPress={handleLearnMore}
         android_ripple={{
           color: 'rgba(255,255,255,0.20)',
           borderless: false,
@@ -57,7 +68,7 @@ export default function WidgetNudge({ onLearnMore }: WidgetNudgeProps) {
         </Text>
       </Pressable>
       <Pressable
-        onPress={dismissNudge}
+        onPress={handleDismiss}
         hitSlop={10}
         android_ripple={{
           color: theme.colors.fill2,

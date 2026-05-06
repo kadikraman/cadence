@@ -4,6 +4,7 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import { Alert } from 'react-native';
 import ConfettiCannon from 'react-native-confetti-cannon';
 import type { TaskRowCallbacks } from '../../components/TaskRow';
+import { logs } from '../../lib/logs';
 import { routes } from '../../lib/routes';
 import { Task } from '../../lib/types';
 import { useTasksStore } from '../../stores/tasks';
@@ -49,6 +50,7 @@ export function useHomeContent(tasks: Task[]) {
 
   const markDone = useCallback(
     async (task: Task) => {
+      logs.taskCompleted();
       await markCompleted(task.id);
       const updated = useTasksStore.getState().tasks;
       const remaining = updated.filter(
@@ -66,7 +68,10 @@ export function useHomeContent(tasks: Task[]) {
         const entry = task.completedDates?.find(
           d => normalizeToMidnight(d) === today
         );
-        if (entry) await unmarkCompleted(task.id, entry);
+        if (entry) {
+          logs.taskUncompleted();
+          await unmarkCompleted(task.id, entry);
+        }
         return;
       }
       const nextDue = normalizeToMidnight(getNextDueDate(task));
@@ -97,7 +102,10 @@ export function useHomeContent(tasks: Task[]) {
           {
             text: 'Delete',
             style: 'destructive',
-            onPress: () => removeTaskFromStore(task.id),
+            onPress: () => {
+              logs.taskDeleted();
+              removeTaskFromStore(task.id);
+            },
           },
         ]
       );

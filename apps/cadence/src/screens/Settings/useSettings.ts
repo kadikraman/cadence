@@ -3,22 +3,27 @@ import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 import * as StoreReview from 'expo-store-review';
 import { Alert, Linking } from 'react-native';
+import { logs } from '../../lib/logs';
 import { exportTasks, importTasks } from '../../lib/exportImport';
-import { useSettingsStore } from '../../stores/settings';
+import { ThemeMode, useSettingsStore } from '../../stores/settings';
 import { useTasksStore } from '../../stores/tasks';
 
 export function useSettings() {
   const router = useRouter();
   const themeMode = useSettingsStore(s => s.themeMode);
-  const setThemeMode = useSettingsStore(s => s.setThemeMode);
+  const setThemeModeStore = useSettingsStore(s => s.setThemeMode);
   const taskCount = useTasksStore(s => s.tasks.length);
   const version = Constants.expoConfig?.version ?? '1.0';
+
+  const setThemeMode = (mode: ThemeMode) => setThemeModeStore(mode);
 
   const handleExport = async () => {
     try {
       await exportTasks();
+      logs.settingsExportCompleted();
     } catch (err) {
       Alert.alert('Export failed', String(err));
+      logs.settingsExportFailed(err);
     }
   };
 
@@ -30,9 +35,11 @@ export function useSettings() {
           'Import complete',
           `${res.imported} imported${res.skipped > 0 ? `, ${res.skipped} skipped` : ''}.`
         );
+        logs.settingsImportCompleted();
       }
     } catch (err) {
       Alert.alert('Import failed', String(err));
+      logs.settingsImportFailed(err);
     }
   };
 
@@ -49,6 +56,7 @@ export function useSettings() {
       }
     } catch (err) {
       Sentry.captureException(err);
+      logs.settingsRateFailed(err);
     }
   };
 

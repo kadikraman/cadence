@@ -1,6 +1,7 @@
 import { SymbolView } from 'expo-symbols';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { logs } from '../lib/logs';
 import { useSettingsStore } from '../stores/settings';
 
 interface WidgetNudgeProps {
@@ -13,6 +14,16 @@ export default function WidgetNudge({ onLearnMore }: WidgetNudgeProps) {
   const dismissNudge = useSettingsStore(s => s.dismissWidgetNudge);
 
   if (dismissed) return null;
+
+  const handleLearnMore = () => {
+    logs.widgetNudgeDismissed('learn_more');
+    onLearnMore();
+  };
+
+  const handleDismiss = () => {
+    logs.widgetNudgeDismissed('dismiss');
+    dismissNudge();
+  };
 
   return (
     <View style={styles.container}>
@@ -31,10 +42,10 @@ export default function WidgetNudge({ onLearnMore }: WidgetNudgeProps) {
           See what&apos;s due without opening the app.
         </Text>
       </View>
-      <Pressable onPress={onLearnMore} style={styles.cta}>
+      <Pressable onPress={handleLearnMore} style={styles.cta}>
         <Text style={styles.ctaText}>Show me</Text>
       </Pressable>
-      <Pressable onPress={dismissNudge} style={styles.dismiss}>
+      <Pressable onPress={handleDismiss} style={styles.dismiss}>
         <SymbolView
           name="xmark"
           size={14}

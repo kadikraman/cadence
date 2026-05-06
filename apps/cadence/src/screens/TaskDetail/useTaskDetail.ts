@@ -1,5 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
+import { logs } from '../../lib/logs';
 import { useTasksStore } from '../../stores/tasks';
 
 export type Tab = 'timeline' | 'cycles';
@@ -37,6 +38,7 @@ export function useTaskDetail() {
     if (editingEntry !== null) {
       await editCompletionDate(task.id, editingEntry, ts);
     } else {
+      logs.taskCompleted();
       await markCompleted(task.id, ts);
     }
     closeDatePicker();
@@ -44,11 +46,13 @@ export function useTaskDetail() {
 
   const markDoneNow = async () => {
     if (!task) return;
+    logs.taskCompleted();
     await markCompleted(task.id);
   };
 
   const deleteCompletion = async (ts: number) => {
     if (!task) return;
+    logs.taskUncompleted();
     await unmarkCompleted(task.id, ts);
   };
 

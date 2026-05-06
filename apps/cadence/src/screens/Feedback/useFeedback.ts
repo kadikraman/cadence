@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
 import { useMemo, useState } from 'react';
 import { Alert, Platform } from 'react-native';
+import { logs } from '../../lib/logs';
 
 export type Kind = 'feedback' | 'feature' | 'bug';
 
@@ -83,6 +84,7 @@ export function useFeedback() {
         [{ text: 'OK' }]
       );
       Sentry.captureException(err);
+      logs.feedbackSendFailed(kind, err);
     } finally {
       setSending(false);
     }

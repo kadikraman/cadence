@@ -1,5 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
+import { logs } from '../../lib/logs';
 import { routes } from '../../lib/routes';
 import { useSettingsStore } from '../../stores/settings';
 
@@ -17,12 +18,26 @@ export function useOnboarding(stepCount: number) {
   const [step, setStep] = useState(0);
   const isReplay = router.canGoBack();
 
-  const close = async () => {
+  const finish = async () => {
     await setOnboardingSeen();
     if (router.canGoBack()) router.back();
     else router.replace(routes.home);
   };
-  const next = () => (step === stepCount - 1 ? close() : setStep(step + 1));
+
+  const close = async () => {
+    logs.onboardingSkipped(step);
+    await finish();
+  };
+
+  const next = () => {
+    if (step === stepCount - 1) {
+      logs.onboardingCompleted(isReplay);
+      finish();
+    } else {
+      setStep(step + 1);
+    }
+  };
+
   const back = () => setStep(s => Math.max(0, s - 1));
 
   return { router, step, next, back, close, isReplay };
