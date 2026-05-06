@@ -51,6 +51,7 @@ export default function TaskFormScreen() {
 
   const tint = getTint(color);
   const tintBg = dark ? tint.tintDark : tint.tint;
+  const tintAccent = dark ? tint.accentDark : tint.accent;
 
   if (!loaded) return <View style={styles.root} />;
 
@@ -91,7 +92,7 @@ export default function TaskFormScreen() {
           <SymbolView
             name={getSymbol(glyph)}
             size={38}
-            tintColor={tint.accent}
+            tintColor={tintAccent}
             resizeMode="scaleAspectFit"
             fallback={null}
           />

@@ -188,17 +188,26 @@ struct RhythmMark: View {
 // MARK: - Shared building blocks
 
 struct TaskTileView: View {
+    @Environment(\.colorScheme) var colorScheme
     let task: WidgetTask
     var size: CGFloat = 28
 
     var body: some View {
         let t = taskTint(forColor: task.color ?? "gray")
         let status = taskStatus(task)
-        let bgLight: Color = status.overdue ? Color(.sRGB, red: 1, green: 0.9, blue: 0.9, opacity: 1) : t.tintLight
-        let fg: Color = status.overdue ? cadenceRed : t.accent
+        let isDark = colorScheme == .dark
+        let overdueBg: Color = isDark
+            ? Color(.sRGB, red: 1, green: 0.27, blue: 0.23, opacity: 0.20)
+            : Color(.sRGB, red: 1, green: 0.9, blue: 0.9, opacity: 1)
+        let bg: Color = status.overdue
+            ? overdueBg
+            : (isDark ? t.tintDark : t.tintLight)
+        let fg: Color = status.overdue
+            ? cadenceRed
+            : (isDark ? t.accentDark : t.accent)
 
         RoundedRectangle(cornerRadius: max(7, size * 0.28), style: .continuous)
-            .fill(bgLight)
+            .fill(bg)
             .frame(width: size, height: size)
             .overlay(
                 Image(systemName: sfSymbol(forGlyph: task.glyph ?? "entry"))

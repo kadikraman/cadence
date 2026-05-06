@@ -39,6 +39,7 @@ export default function TaskDetailScreen() {
   if (!task) return <View style={styles.root} />;
 
   const tint = getTint(task.color);
+  const tintAccent = dark ? tint.accentDark : tint.accent;
   const status = getTaskStatus(task);
   const overdue = status === 'overdue';
   const nextDue = getNextDueDate(task);
@@ -87,7 +88,7 @@ export default function TaskDetailScreen() {
               <SymbolView
                 name={getSymbol(task.glyph)}
                 size={28}
-                tintColor={tint.accent}
+                tintColor={tintAccent}
                 resizeMode="scaleAspectFit"
                 fallback={null}
               />
@@ -136,7 +137,7 @@ export default function TaskDetailScreen() {
           <StatTile
             label="On-time"
             value={`${stats.onTimePct}%`}
-            accent={tint.accent}
+            accent={tintAccent}
           />
           <StatTile
             label="Streak"

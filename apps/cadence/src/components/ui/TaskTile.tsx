@@ -31,7 +31,13 @@ export default function TaskTile({
     : dark
       ? c.tintDark
       : c.tint;
-  const fg = overdue ? (dark ? '#FF453A' : '#FF3B30') : c.accent;
+  const fg = overdue
+    ? dark
+      ? '#FF453A'
+      : '#FF3B30'
+    : dark
+      ? c.accentDark
+      : c.accent;
   const glyphKey = task?.glyph ?? glyph;
   const symbolName = getSymbol(glyphKey);
   const materialIconName = getMaterialIcon(glyphKey);
