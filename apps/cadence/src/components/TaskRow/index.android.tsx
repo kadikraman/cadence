@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -8,14 +9,9 @@ import ExpandedBar from './ExpandedBar';
 import type { TaskRowProps } from './types';
 import { useTaskRowVisuals } from './useTaskRowVisuals';
 
-export type { TaskRowActions, TaskRowProps } from './types';
+export type { TaskRowCallbacks, TaskRowProps } from './types';
 
-export default function TaskRow({
-  task,
-  isExpanded,
-  onTap,
-  actions,
-}: TaskRowProps) {
+function TaskRow({ task, isExpanded, callbacks }: TaskRowProps) {
   const { theme } = useUnistyles();
   const { overdue, completed, dueLabel, dueColor, borderColor } =
     useTaskRowVisuals(task);
@@ -23,7 +19,7 @@ export default function TaskRow({
   return (
     <Animated.View layout={LinearTransition.duration(220)}>
       <Pressable
-        onPress={onTap}
+        onPress={() => callbacks.onTap(task)}
         android_ripple={{ color: theme.colors.fill2, borderless: false }}
         style={styles.row}
       >
@@ -51,7 +47,7 @@ export default function TaskRow({
           </View>
         </View>
         <Pressable
-          onPress={actions.toggleComplete}
+          onPress={() => callbacks.onToggleComplete(task)}
           hitSlop={10}
           android_ripple={{
             color: theme.colors.fill2,
@@ -78,10 +74,12 @@ export default function TaskRow({
           )}
         </Pressable>
       </Pressable>
-      {isExpanded && <ExpandedBar actions={actions} />}
+      {isExpanded && <ExpandedBar task={task} callbacks={callbacks} />}
     </Animated.View>
   );
 }
+
+export default memo(TaskRow);
 
 const styles = StyleSheet.create(theme => ({
   row: {

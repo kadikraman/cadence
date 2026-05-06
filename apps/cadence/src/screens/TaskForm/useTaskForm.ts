@@ -20,7 +20,7 @@ interface FormParams {
 
 export function useTaskForm() {
   const router = useRouter();
-  const params = useLocalSearchParams<FormParams>();
+  const params = useLocalSearchParams() as Partial<FormParams>;
   const isEdit = !!params.taskId;
 
   const saveTask = useTasksStore(s => s.save);

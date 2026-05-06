@@ -3,6 +3,7 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import FormGroup from '../../components/ui/FormGroup';
 import FormLabel from '../../components/ui/FormLabel';
+import { routes } from '../../lib/routes';
 import { ThemeMode } from '../../stores/settings';
 import { useSettings } from './useSettings';
 
@@ -89,7 +90,7 @@ export default function SettingsScreen() {
         <FormLabel>Home Screen Widget</FormLabel>
         <FormGroup>
           <Pressable
-            onPress={() => router.push('/onboarding')}
+            onPress={() => router.push(routes.onboarding)}
             style={styles.row}
           >
             <SymbolView
@@ -160,7 +161,7 @@ export default function SettingsScreen() {
         <FormLabel>About</FormLabel>
         <FormGroup>
           <Pressable
-            onPress={() => router.push('/feedback')}
+            onPress={() => router.push(routes.feedback)}
             style={styles.row}
           >
             <View

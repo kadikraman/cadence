@@ -5,6 +5,11 @@ import { createContext, useCallback, useContext } from 'react';
 import { Platform } from 'react-native';
 import { requestWidgetUpdate } from 'react-native-android-widget';
 import { Task } from '../lib/types';
+import {
+  WidgetStatsPayload,
+  WidgetTask,
+  WidgetTaskPayload,
+} from '../lib/widgetPayloads';
 import { computeOnTimePct, computeStreak } from '../utils/statsUtils';
 import {
   getNextDueDate,
@@ -13,6 +18,7 @@ import {
   isCompletedToday,
   isDueToday,
   isOverdue,
+  MS_DAY,
 } from '../utils/taskUtils';
 import { CadenceWidget } from '../widgets/CadenceWidget';
 import {
@@ -21,8 +27,6 @@ import {
 } from '../widgets/widgetTaskHandler';
 
 const storage = new ExtensionStorage('group.dev.kadi.cadence');
-
-const MS_DAY = 86400000;
 
 const ANDROID_WIDGET_NAMES = [
   'CadenceWidgetSmall',
@@ -35,28 +39,6 @@ type WidgetContextType = {
 };
 
 const WidgetContext = createContext<WidgetContextType | null>(null);
-
-interface WidgetTaskPayload {
-  id: string;
-  title: string;
-  color: string;
-  glyph: string;
-  nextDueDate: number;
-  isDueToday: boolean;
-  isOverdue: boolean;
-  isCompletedToday: boolean;
-  details?: string;
-}
-
-interface WidgetStatsPayload {
-  overdueCount: number;
-  todayCount: number;
-  doneTodayCount: number;
-  moreDueThisWeekCount: number;
-  totalCount: number;
-  streak: number;
-  onTimePct: number;
-}
 
 function buildPayload(tasks: Task[]): {
   tasks: WidgetTaskPayload[];
@@ -140,21 +122,20 @@ export function WidgetProvider({
       storage.set('widget_stats', JSON.stringify(stats));
       ExtensionStorage.reloadWidget();
     } else if (Platform.OS === 'android') {
+      const androidTasks: WidgetTask[] = payloadTasks
+        .filter(t => !t.isCompletedToday)
+        .map(t => ({
+          id: t.id,
+          title: t.title,
+          color: t.color,
+          glyph: t.glyph,
+          nextDueDate: t.nextDueDate,
+          isDueToday: t.isDueToday,
+          isOverdue: t.isOverdue,
+        }));
       AsyncStorage.setItem(
         ANDROID_WIDGET_TASKS_KEY,
-        JSON.stringify(
-          payloadTasks
-            .filter(t => !t.isCompletedToday)
-            .map(t => ({
-              id: t.id,
-              title: t.title,
-              color: t.color,
-              glyph: t.glyph,
-              nextDueDate: t.nextDueDate,
-              isDueToday: t.isDueToday,
-              isOverdue: t.isOverdue,
-            }))
-        )
+        JSON.stringify(androidTasks)
       ).then(() => {
         ANDROID_WIDGET_NAMES.forEach(widgetName => {
           requestWidgetUpdate({

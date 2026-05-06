@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { WidgetTaskHandlerProps } from 'react-native-android-widget';
-import { CadenceWidget, WidgetTask } from './CadenceWidget';
+import type { WidgetTask } from '../lib/widgetPayloads';
+import { CadenceWidget } from './CadenceWidget';
 
 export const ANDROID_WIDGET_TASKS_KEY = 'android_widget_tasks';
 

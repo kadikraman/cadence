@@ -2,13 +2,12 @@ import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { Task } from '../../lib/types';
 import { cadenceDays, driftStatus } from '../../utils/statsUtils';
+import { MS_DAY } from '../../utils/taskUtils';
 
 interface CyclesViewProps {
   task: Task;
   completedDates: number[];
 }
-
-const MS_DAY = 86400000;
 
 export default function CyclesView({ task, completedDates }: CyclesViewProps) {
   const { theme } = useUnistyles();

@@ -58,7 +58,7 @@ There is no `src/hooks/` directory; custom hooks (when needed) are colocated wit
 ## Code Style
 
 - Functional components with hooks only
-- No code comments
+- No code comments, with one exception: comments that pin a TypeScript declaration to its counterpart in another language (e.g. `utils/taskTints.ts` and `utils/glyphs.ts` flag the matching `targets/widget/*.swift` files). Without these notes, adding a new color or glyph will silently rot the iOS widget.
 - Use `useCallback` and `useMemo` when appropriate
 - PascalCase for component files, camelCase for utilities, hooks, and stores
 - Keep components in separate files when >50 lines
@@ -68,6 +68,57 @@ There is no `src/hooks/` directory; custom hooks (when needed) are colocated wit
 - Handle loading and error states for async operations
 - Use `useSafeAreaInsets` for screen boundaries
 - Tests live alongside the file they test (e.g. `stores/taskReducers.test.ts`)
+
+### Routing
+
+- Expo Router typed routes are enabled (`experiments.typedRoutes: true` in `app.config.ts`). Renaming a route file generates a TypeScript error at every callsite.
+- Don't pass literal route strings (`'/stats'`, `\`/task/${id}\``) to `router.push` / `router.replace`. Use `routes` from `lib/routes.ts`. Renames touch one file.
+- Add new routes to `lib/routes.ts` when you add a new route file.
+- For routes that build query strings dynamically (e.g. `EmptyStateStarters.buildStarterRoute`), it's fine to construct the full path locally; just keep the base path constant in sync with `lib/routes.ts`.
+
+### Widget payloads
+
+Both home-screen widgets (iOS and Android) read JSON the app writes to platform storage. The producer and consumers must agree on field names, so all widget payload types live in `lib/widgetPayloads.ts`:
+
+- `WidgetTaskPayload` and `WidgetStatsPayload` for the iOS widget (full shape).
+- `WidgetTask` for the Android widget (subset; completed-today tasks are filtered out by the producer).
+
+Rules:
+
+- Don't redeclare these shapes inline in `WidgetContext.tsx` or `widgets/CadenceWidget.tsx`. Import from `lib/widgetPayloads.ts` so the producer-consumer contract lives in one place.
+- The iOS Swift target (`targets/widget/`) has its own copy of these shapes. When you add or rename a field in `lib/widgetPayloads.ts`, update the Swift side too, otherwise the iOS widget reads stale data silently.
+
+### List rows and memoization
+
+Components rendered inside long lists (e.g. `TaskRow` inside `Home/Section`) must be `React.memo`'d, and their props must be reference-stable across the parent's re-renders. Otherwise tapping or expanding one row re-renders every row.
+
+Rules for the list owner (the screen or hook that produces the items):
+
+- Wrap every callback in `useCallback`. Keep dependency lists minimal so the references stay stable across renders.
+- Bundle the callbacks into a single `useMemo`'d object (e.g. a `TaskRowCallbacks` shape) and pass that object as one prop. Don't pass an inline `{ ... }` literal or the row will re-render every time.
+- The bundle should be threaded straight through any intermediate components (e.g. `Section`) without rebinding. Never write `() => callback(task.id)` at the section level; that defeats memoization.
+
+Rules for the row component:
+
+- Each callback in the bundle takes the item as its argument (e.g. `(task: Task) => void`), so the row can bind at the call site (`onPress={() => callbacks.onEdit(task)}`) without needing the parent to pre-bind. Closures created inside the memoized row are cheap; closures created in the parent break memoization.
+- Wrap the component in `React.memo` (`export default memo(TaskRow)`).
+
+Reference implementation: `screens/Home/useHomeContent.ts` (callbacks bundle) and `components/TaskRow/` (memoized row).
+
+### Per-task stats
+
+- All per-task stats computations that walk completion history go through `iterCompletionDeltas(task, sinceTs?)` from `utils/statsUtils.ts`. The generator handles sorting, the per-pair walk, the cadence comparison, and the binary `isLate` / three-way `status` classification.
+- Don't re-implement the "sort, walk consecutive pairs, classify against cadence" loop locally. Compute functions (`computeOnTimePct`, `computeTaskStats`, `computeAvgLateDrift`, `computeMostReliable`) are short reductions over this generator and serve as reference implementations.
+- The on-time threshold is `drift > cadDays * 0.1` (10% tolerance late). The three-way `DriftStatus` has the same tolerance applied symmetrically (`|drift| <= cadDays * 0.1` is on-time, drift below that band is early).
+- Tests for these helpers live in `utils/statsUtils.test.ts`; they're pure and need no mocking.
+
+### Stores
+
+- Stores live in `apps/cadence/src/stores/` and use `zustand`.
+- Persisted stores must keep their mutation logic as **pure reducers** in a separate `*Reducers.ts` file (e.g. `taskReducers.ts`). The store's `create()` callback wires reducers to state and persistence; it should not contain branching business logic.
+- Inside `create((set, get) => ...)`, define a single helper that captures the "apply reducer → set → persist" pattern and reuse it for every mutation. See `stores/tasks.ts` (`apply`) and `stores/settings.ts` (`updateAndPersist`) for the canonical shapes.
+- New mutations should go through the helper. Don't open-code `set({ ... })` followed by `await persist(...)` in the store body, or the persistence guarantee can drift method-by-method.
+- Tests for the reducers live in `*Reducers.test.ts`. Because reducers are pure they need no AsyncStorage mocking.
 
 ### Theming
 
@@ -124,9 +175,12 @@ Reference implementations: `screens/Settings/`, `screens/TaskForm/`, `screens/Ho
 ## Code Quality Rules
 
 - Remove unused styles immediately, do not leave dead style definitions
-- Never leave `console.log` statements in code
+- No `console.*` calls in app code. Pipe caught errors to Sentry (`Sentry.captureException(err)`). Deliberate logging in API routes (`src/app/*+api.ts`, where logs ARE the delivery mechanism, e.g. `feedback+api.ts`) is allowed; pair with a `TODO` comment if the log is a placeholder for a real delivery path.
 - Remove unused imports
 - Extract repeated patterns (3+ occurrences) into utility functions
 - Date normalization must use `getTodayTimestamp()` or `normalizeToMidnight()` from `utils/taskUtils.ts`
 - Task status determination must use `getTaskStatus()` from `utils/taskUtils.ts`
 - Date formatting must use utilities from `utils/taskUtils.ts` (`formatDueIn`, `formatCompletionDate`, `formatLastCompleted`)
+- The day-in-milliseconds constant (`MS_DAY = 86400000`) is exported from `utils/taskUtils.ts`. Never redeclare it locally or write a bare `86400000` literal; always import `MS_DAY`.
+- For task bucketing into `overdue` / `today` / `thisWeek` / `later`, use `bucketizeTasks(tasks)` from `utils/taskUtils.ts`. It computes "today" once per call and walks the list a single time. Don't recreate the loop locally; the predicate functions (`isOverdue`, `isDueToday`, `isCompletedToday`) re-derive `getTodayTimestamp()` per call, so calling them in a tight loop is wasteful.
+- `Task.completedDates` entries are always midnight timestamps. The `markCompleted` reducer normalizes inputs and dedupes same-day marks; `editCompletionDate` normalizes the new timestamp. Don't push raw `Date.now()` into `completedDates` from anywhere else.

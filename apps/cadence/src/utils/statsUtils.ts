@@ -2,10 +2,9 @@ import { Cadence, Task } from '../lib/types';
 import {
   getNextDueDate,
   getTodayTimestamp,
+  MS_DAY,
   normalizeToMidnight,
 } from './taskUtils';
-
-const MS_DAY = 86400000;
 
 export const cadenceDays = (cadence: Cadence): number => {
   if (cadence.type === 'daily') return 1;
@@ -26,6 +25,71 @@ export const taskHealth = (task: Task): number => {
   return elapsed / span;
 };
 
+export type DriftStatus = 'onTime' | 'late' | 'early';
+
+export const driftStatus = (
+  deltaDays: number,
+  cadDays: number
+): DriftStatus => {
+  const drift = deltaDays - cadDays;
+  if (Math.abs(drift) <= cadDays * 0.1) return 'onTime';
+  if (drift > 0) return 'late';
+  return 'early';
+};
+
+export const formatDriftLabel = (
+  deltaDays: number,
+  cadDays: number
+): { label: string; status: DriftStatus } => {
+  const drift = deltaDays - cadDays;
+  const status = driftStatus(deltaDays, cadDays);
+  if (status === 'onTime') return { label: 'on time', status };
+  if (status === 'late') return { label: `${Math.round(drift)}d late`, status };
+  return { label: `${Math.abs(Math.round(drift))}d early`, status };
+};
+
+export interface CompletionDelta {
+  /** Timestamp of the completion that closed this cycle. */
+  completedAt: number;
+  /** Days between this completion and the previous one. */
+  deltaDays: number;
+  /** deltaDays minus the task's cadence in days (negative = early, positive = late). */
+  drift: number;
+  /** True when drift exceeds 10% of the cadence (the binary on-time/late split). */
+  isLate: boolean;
+  /** Three-way classification using a 10% tolerance band: 'onTime' | 'late' | 'early'. */
+  status: DriftStatus;
+}
+
+/**
+ * Walks a task's completion history in chronological order and yields one
+ * `CompletionDelta` per consecutive pair. Pass `sinceTs` to skip pairs whose
+ * closing completion falls before that timestamp.
+ *
+ * Every per-task stats computation should go through this helper instead of
+ * re-implementing the "sort, walk pairs, classify" loop.
+ */
+export function* iterCompletionDeltas(
+  task: Task,
+  sinceTs = 0
+): Generator<CompletionDelta> {
+  const cadDays = cadenceDays(task.cadence);
+  const tolerance = cadDays * 0.1;
+  const sorted = [...(task.completedDates ?? [])].sort((a, b) => a - b);
+  for (let i = 1; i < sorted.length; i++) {
+    if (sorted[i] < sinceTs) continue;
+    const deltaDays = (sorted[i] - sorted[i - 1]) / MS_DAY;
+    const drift = deltaDays - cadDays;
+    yield {
+      completedAt: sorted[i],
+      deltaDays,
+      drift,
+      isLate: drift > tolerance,
+      status: driftStatus(deltaDays, cadDays),
+    };
+  }
+}
+
 export interface OnTimeResult {
   onTime: number;
   late: number;
@@ -40,13 +104,9 @@ export const computeOnTimePct = (
   let onTime = 0;
   let late = 0;
   for (const task of tasks) {
-    const cadDays = cadenceDays(task.cadence);
-    const sorted = [...(task.completedDates ?? [])].sort((a, b) => a - b);
-    for (let i = 1; i < sorted.length; i++) {
-      if (sorted[i] < cutoff) continue;
-      const delta = (sorted[i] - sorted[i - 1]) / MS_DAY;
-      if (delta <= cadDays * 1.1) onTime++;
-      else late++;
+    for (const d of iterCompletionDeltas(task, cutoff)) {
+      if (d.isLate) late++;
+      else onTime++;
     }
   }
   const total = onTime + late;
@@ -80,55 +140,26 @@ export interface TaskStats {
 }
 
 export const computeTaskStats = (task: Task): TaskStats => {
-  const cadDays = cadenceDays(task.cadence);
-  const sorted = [...(task.completedDates ?? [])].sort((a, b) => a - b);
+  const deltas = [...iterCompletionDeltas(task)];
   let onTime = 0;
   let late = 0;
   let totalDrift = 0;
-  let driftCount = 0;
-  for (let i = 1; i < sorted.length; i++) {
-    const delta = (sorted[i] - sorted[i - 1]) / MS_DAY;
-    const drift = delta - cadDays;
-    totalDrift += drift;
-    driftCount++;
-    if (delta <= cadDays * 1.1) onTime++;
-    else late++;
+  for (const d of deltas) {
+    totalDrift += d.drift;
+    if (d.isLate) late++;
+    else onTime++;
   }
-  const total = sorted.length;
+  const total = (task.completedDates ?? []).length;
   const pct =
     onTime + late > 0 ? Math.round((onTime / (onTime + late)) * 100) : 100;
-  const avgDrift = driftCount > 0 ? totalDrift / driftCount : 0;
+  const avgDrift = deltas.length > 0 ? totalDrift / deltas.length : 0;
 
   let streak = 0;
-  for (let i = sorted.length - 1; i > 0; i--) {
-    const delta = (sorted[i] - sorted[i - 1]) / MS_DAY;
-    if (delta <= cadDays * 1.1) streak++;
-    else break;
+  for (let i = deltas.length - 1; i >= 0; i--) {
+    if (deltas[i].isLate) break;
+    streak++;
   }
   return { onTimePct: pct, onTime, late, total, avgDrift, streak };
-};
-
-export type DriftStatus = 'onTime' | 'late' | 'early';
-
-export const driftStatus = (
-  deltaDays: number,
-  cadDays: number
-): DriftStatus => {
-  const drift = deltaDays - cadDays;
-  if (Math.abs(drift) <= cadDays * 0.1) return 'onTime';
-  if (drift > 0) return 'late';
-  return 'early';
-};
-
-export const formatDriftLabel = (
-  deltaDays: number,
-  cadDays: number
-): { label: string; status: DriftStatus } => {
-  const drift = deltaDays - cadDays;
-  const status = driftStatus(deltaDays, cadDays);
-  if (status === 'onTime') return { label: 'on time', status };
-  if (status === 'late') return { label: `${Math.round(drift)}d late`, status };
-  return { label: `${Math.abs(Math.round(drift))}d early`, status };
 };
 
 export interface WeekBucket {
@@ -178,14 +209,9 @@ export const computeAvgLateDrift = (
   let totalDrift = 0;
   let count = 0;
   for (const task of tasks) {
-    const cadDays = cadenceDays(task.cadence);
-    const sorted = [...(task.completedDates ?? [])].sort((a, b) => a - b);
-    for (let i = 1; i < sorted.length; i++) {
-      if (sorted[i] < cutoff) continue;
-      const delta = (sorted[i] - sorted[i - 1]) / MS_DAY;
-      const drift = delta - cadDays;
-      if (drift > cadDays * 0.1) {
-        totalDrift += drift;
+    for (const d of iterCompletionDeltas(task, cutoff)) {
+      if (d.isLate) {
+        totalDrift += d.drift;
         count++;
       }
     }
@@ -207,15 +233,11 @@ export const computeMostReliable = (
   const cutoff = getTodayTimestamp() - rangeDays * MS_DAY;
   let best: MostReliable = { task: null, pct: 0, completions: 0 };
   for (const task of tasks) {
-    const cadDays = cadenceDays(task.cadence);
-    const sorted = [...(task.completedDates ?? [])].sort((a, b) => a - b);
     let onTime = 0;
     let late = 0;
-    for (let i = 1; i < sorted.length; i++) {
-      if (sorted[i] < cutoff) continue;
-      const delta = (sorted[i] - sorted[i - 1]) / MS_DAY;
-      if (delta <= cadDays * 1.1) onTime++;
-      else late++;
+    for (const d of iterCompletionDeltas(task, cutoff)) {
+      if (d.isLate) late++;
+      else onTime++;
     }
     const total = onTime + late;
     if (total < minCompletions) continue;

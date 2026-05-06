@@ -1,13 +1,15 @@
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import type { Task } from '../../lib/types';
 import InlineActionBtn from '../InlineActionBtn';
-import type { TaskRowActions } from './types';
+import type { TaskRowCallbacks } from './types';
 
 interface ExpandedBarProps {
-  actions: TaskRowActions;
+  task: Task;
+  callbacks: TaskRowCallbacks;
 }
 
-export default function ExpandedBar({ actions }: ExpandedBarProps) {
+export default function ExpandedBar({ task, callbacks }: ExpandedBarProps) {
   const { theme } = useUnistyles();
   return (
     <Animated.View
@@ -19,18 +21,22 @@ export default function ExpandedBar({ actions }: ExpandedBarProps) {
         label="Done today"
         symbol="checkmark"
         color={theme.colors.success}
-        onPress={actions.quickDone}
+        onPress={() => callbacks.onQuickDone(task)}
       />
       <InlineActionBtn
         label="Pick date"
         symbol="calendar"
-        onPress={actions.pickDate}
+        onPress={() => callbacks.onPickDate(task)}
       />
-      <InlineActionBtn label="Edit" symbol="pencil" onPress={actions.edit} />
+      <InlineActionBtn
+        label="Edit"
+        symbol="pencil"
+        onPress={() => callbacks.onEdit(task)}
+      />
       <InlineActionBtn
         label="History"
         symbol="clock.fill"
-        onPress={actions.openHistory}
+        onPress={() => callbacks.onOpenHistory(task)}
       />
     </Animated.View>
   );

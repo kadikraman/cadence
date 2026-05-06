@@ -1,6 +1,10 @@
 import { QuickOption } from '../../components/DatePickerSheet';
 import { Cadence } from '../../lib/types';
-import { getTodayTimestamp, normalizeToMidnight } from '../../utils/taskUtils';
+import {
+  getTodayTimestamp,
+  MS_DAY,
+  normalizeToMidnight,
+} from '../../utils/taskUtils';
 
 export type CadenceType = Cadence['type'];
 export type CadenceUnit = NonNullable<Cadence['unit']>;
@@ -17,8 +21,6 @@ export const UNIT_OPTIONS: { value: CadenceUnit; label: string }[] = [
   { value: 'weeks', label: 'weeks' },
   { value: 'months', label: 'months' },
 ];
-
-const MS_DAY = 86400000;
 
 export const getDueQuickOptions = (): QuickOption[] => {
   const today = getTodayTimestamp();

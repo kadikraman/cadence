@@ -1,6 +1,6 @@
 import { Text, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
-import TaskRow, { TaskRowActions } from '../../components/TaskRow';
+import TaskRow, { TaskRowCallbacks } from '../../components/TaskRow';
 import { Task } from '../../lib/types';
 
 interface SectionProps {
@@ -8,8 +8,7 @@ interface SectionProps {
   dotColor: string;
   items: Task[];
   expandedId: string | null;
-  onToggleExpand: (id: string) => void;
-  buildActions: (task: Task) => TaskRowActions;
+  callbacks: TaskRowCallbacks;
 }
 
 export default function Section({
@@ -17,8 +16,7 @@ export default function Section({
   dotColor,
   items,
   expandedId,
-  onToggleExpand,
-  buildActions,
+  callbacks,
 }: SectionProps) {
   if (items.length === 0) return null;
   return (
@@ -34,8 +32,7 @@ export default function Section({
             <TaskRow
               task={task}
               isExpanded={expandedId === task.id}
-              onTap={() => onToggleExpand(task.id)}
-              actions={buildActions(task)}
+              callbacks={callbacks}
             />
             {i < items.length - 1 && <View style={styles.separator} />}
           </View>

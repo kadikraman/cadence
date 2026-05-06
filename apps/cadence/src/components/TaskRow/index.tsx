@@ -1,4 +1,5 @@
 import { SymbolView } from 'expo-symbols';
+import { memo } from 'react';
 import { Alert, Text, View } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -9,14 +10,9 @@ import ExpandedBar from './ExpandedBar';
 import type { TaskRowProps } from './types';
 import { useTaskRowVisuals } from './useTaskRowVisuals';
 
-export type { TaskRowActions, TaskRowProps } from './types';
+export type { TaskRowCallbacks, TaskRowProps } from './types';
 
-export default function TaskRow({
-  task,
-  isExpanded,
-  onTap,
-  actions,
-}: TaskRowProps) {
+function TaskRow({ task, isExpanded, callbacks }: TaskRowProps) {
   const { theme } = useUnistyles();
   const { overdue, completed, dueLabel, dueColor, borderColor } =
     useTaskRowVisuals(task);
@@ -26,10 +22,14 @@ export default function TaskRow({
       task.title,
       undefined,
       [
-        { text: 'Edit', onPress: actions.edit },
-        { text: 'View history', onPress: actions.openHistory },
-        { text: 'Pick date', onPress: actions.pickDate },
-        { text: 'Delete', style: 'destructive', onPress: actions.delete },
+        { text: 'Edit', onPress: () => callbacks.onEdit(task) },
+        { text: 'View history', onPress: () => callbacks.onOpenHistory(task) },
+        { text: 'Pick date', onPress: () => callbacks.onPickDate(task) },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => callbacks.onDelete(task),
+        },
         { text: 'Cancel', style: 'cancel' },
       ],
       { cancelable: true }
@@ -41,19 +41,19 @@ export default function TaskRow({
       label: 'History',
       symbol: 'clock.fill',
       color: theme.colors.textSecondary,
-      onPress: actions.openHistory,
+      onPress: () => callbacks.onOpenHistory(task),
     },
     {
       label: 'Edit',
       symbol: 'pencil',
       color: theme.colors.blue,
-      onPress: actions.edit,
+      onPress: () => callbacks.onEdit(task),
     },
     {
       label: 'Delete',
       symbol: 'trash.fill',
       color: theme.colors.error,
-      onPress: actions.delete,
+      onPress: () => callbacks.onDelete(task),
     },
   ];
 
@@ -62,7 +62,7 @@ export default function TaskRow({
       label: completed ? 'Undo' : 'Done',
       symbol: 'checkmark',
       color: theme.colors.success,
-      onPress: actions.quickDone,
+      onPress: () => callbacks.onQuickDone(task),
     },
   ];
 
@@ -70,9 +70,9 @@ export default function TaskRow({
     <SwipeRow
       leftActions={leftActions}
       rightActions={rightActions}
-      onTap={onTap}
+      onTap={() => callbacks.onTap(task)}
       onLongPress={showMenu}
-      onCheckTap={actions.toggleComplete}
+      onCheckTap={() => callbacks.onToggleComplete(task)}
     >
       <Animated.View layout={LinearTransition.duration(220)}>
         <View style={styles.row}>
@@ -128,11 +128,13 @@ export default function TaskRow({
             )}
           </View>
         </View>
-        {isExpanded && <ExpandedBar actions={actions} />}
+        {isExpanded && <ExpandedBar task={task} callbacks={callbacks} />}
       </Animated.View>
     </SwipeRow>
   );
 }
+
+export default memo(TaskRow);
 
 const styles = StyleSheet.create(theme => ({
   row: {

@@ -1,11 +1,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
-import { Task, normalizeTask } from '../lib/types';
+import { Task } from '../lib/types';
 import {
   editCompletionDate as editCompletionDateReducer,
   markCompleted as markCompletedReducer,
   mergeTasks as mergeTasksReducer,
   removeTask as removeTaskReducer,
+  replaceAll as replaceAllReducer,
   unmarkCompleted as unmarkCompletedReducer,
   upsertTask as upsertTaskReducer,
 } from './taskReducers';
@@ -33,63 +34,51 @@ async function persist(tasks: Task[]): Promise<void> {
   await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
 }
 
-export const useTasksStore = create<TasksStore>((set, get) => ({
-  tasks: [],
-  loaded: false,
+export const useTasksStore = create<TasksStore>((set, get) => {
+  const apply =
+    <Args extends readonly unknown[]>(
+      reducer: (tasks: Task[], ...args: Args) => Task[]
+    ) =>
+    async (...args: Args): Promise<void> => {
+      const tasks = reducer(get().tasks, ...args);
+      set({ tasks });
+      await persist(tasks);
+    };
 
-  load: async () => {
-    try {
-      const json = await AsyncStorage.getItem(STORAGE_KEY);
-      const raw: Task[] = json ? JSON.parse(json) : [];
-      set({ tasks: raw.map(normalizeTask), loaded: true });
-    } catch {
-      set({ tasks: [], loaded: true });
-    }
-  },
+  return {
+    tasks: [],
+    loaded: false,
 
-  save: async task => {
-    const tasks = upsertTaskReducer(get().tasks, task);
-    set({ tasks });
-    await persist(tasks);
-  },
+    load: async () => {
+      try {
+        const json = await AsyncStorage.getItem(STORAGE_KEY);
+        const raw: Task[] = json ? JSON.parse(json) : [];
+        set({ tasks: replaceAllReducer(raw), loaded: true });
+      } catch {
+        set({ tasks: [], loaded: true });
+      }
+    },
 
-  remove: async id => {
-    const tasks = removeTaskReducer(get().tasks, id);
-    set({ tasks });
-    await persist(tasks);
-  },
+    save: apply(upsertTaskReducer),
+    remove: apply(removeTaskReducer),
+    markCompleted: apply(markCompletedReducer),
+    unmarkCompleted: apply(unmarkCompletedReducer),
+    editCompletionDate: apply(editCompletionDateReducer),
 
-  markCompleted: async (id, date) => {
-    const tasks = markCompletedReducer(get().tasks, id, date);
-    set({ tasks });
-    await persist(tasks);
-  },
+    replaceAll: async incoming => {
+      const tasks = replaceAllReducer(incoming);
+      set({ tasks });
+      await persist(tasks);
+    },
 
-  unmarkCompleted: async (id, date) => {
-    const tasks = unmarkCompletedReducer(get().tasks, id, date);
-    set({ tasks });
-    await persist(tasks);
-  },
-
-  editCompletionDate: async (id, oldDate, newDate) => {
-    const tasks = editCompletionDateReducer(get().tasks, id, oldDate, newDate);
-    set({ tasks });
-    await persist(tasks);
-  },
-
-  replaceAll: async incoming => {
-    const tasks = incoming.map(normalizeTask);
-    set({ tasks });
-    await persist(tasks);
-  },
-
-  merge: async incoming => {
-    const { merged, imported, skipped } = mergeTasksReducer(
-      get().tasks,
-      incoming
-    );
-    set({ tasks: merged });
-    await persist(merged);
-    return { imported, skipped };
-  },
-}));
+    merge: async incoming => {
+      const { merged, imported, skipped } = mergeTasksReducer(
+        get().tasks,
+        incoming
+      );
+      set({ tasks: merged });
+      await persist(merged);
+      return { imported, skipped };
+    },
+  };
+});

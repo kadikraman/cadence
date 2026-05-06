@@ -1,5 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
+import { routes } from '../../lib/routes';
 import { useSettingsStore } from '../../stores/settings';
 
 export type Visual = 'hero' | 'jiggle' | 'plus' | 'sizes';
@@ -19,7 +20,7 @@ export function useOnboarding(stepCount: number) {
   const close = async () => {
     await setOnboardingSeen();
     if (router.canGoBack()) router.back();
-    else router.replace('/');
+    else router.replace(routes.home);
   };
   const next = () => (step === stepCount - 1 ? close() : setStep(step + 1));
   const back = () => setStep(s => Math.max(0, s - 1));

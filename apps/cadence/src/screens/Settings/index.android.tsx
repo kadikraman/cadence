@@ -1,9 +1,11 @@
-import React from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import TopAppBar from '../../components/ui/android/TopAppBar';
+import { routes } from '../../lib/routes';
 import { ThemeMode } from '../../stores/settings';
+import AndroidGroup from './AndroidGroup';
+import AndroidSettingsRow from './AndroidSettingsRow';
 import { useSettings } from './useSettings';
 
 interface AppearanceOption {
@@ -35,11 +37,11 @@ export default function SettingsScreen() {
     <View style={[styles.root, { paddingTop: rt.insets.top }]}>
       <TopAppBar title="Settings" onBack={() => router.back()} />
       <ScrollView contentContainerStyle={styles.scroll}>
-        <Group title="Appearance">
+        <AndroidGroup title="Appearance">
           {APPEARANCE.map((opt, i) => {
             const selected = themeMode === opt.value;
             return (
-              <Row
+              <AndroidSettingsRow
                 key={opt.value}
                 icon={opt.materialIcon}
                 title={opt.label}
@@ -57,14 +59,14 @@ export default function SettingsScreen() {
               />
             );
           })}
-        </Group>
+        </AndroidGroup>
 
-        <Group title="Home screen widget">
-          <Row
+        <AndroidGroup title="Home screen widget">
+          <AndroidSettingsRow
             icon="apps"
             title="Set up the widget"
             subtitle="Pin Cadence to your home screen"
-            onPress={() => router.push('/onboarding')}
+            onPress={() => router.push(routes.onboarding)}
             trailing={
               <MaterialCommunityIcons
                 name="chevron-right"
@@ -74,10 +76,10 @@ export default function SettingsScreen() {
             }
             last
           />
-        </Group>
+        </AndroidGroup>
 
-        <Group title="Data">
-          <Row
+        <AndroidGroup title="Data">
+          <AndroidSettingsRow
             icon="arrow-up"
             title="Export all tasks"
             subtitle={`${taskCount} task${taskCount === 1 ? '' : 's'}`}
@@ -90,7 +92,7 @@ export default function SettingsScreen() {
               />
             }
           />
-          <Row
+          <AndroidSettingsRow
             icon="arrow-down"
             title="Import from file"
             onPress={handleImport}
@@ -103,14 +105,14 @@ export default function SettingsScreen() {
             }
             last
           />
-        </Group>
+        </AndroidGroup>
 
-        <Group title="About">
-          <Row
+        <AndroidGroup title="About">
+          <AndroidSettingsRow
             icon="message-text"
             title="Feedback & feature requests"
             subtitle="Tell us what to build next"
-            onPress={() => router.push('/feedback')}
+            onPress={() => router.push(routes.feedback)}
             trailing={
               <MaterialCommunityIcons
                 name="chevron-right"
@@ -119,7 +121,7 @@ export default function SettingsScreen() {
               />
             }
           />
-          <Row
+          <AndroidSettingsRow
             icon="star"
             title="Rate on Google Play"
             onPress={handleRate}
@@ -131,7 +133,7 @@ export default function SettingsScreen() {
               />
             }
           />
-          <Row
+          <AndroidSettingsRow
             icon="information-outline"
             title="Version"
             trailing={
@@ -141,82 +143,9 @@ export default function SettingsScreen() {
             }
             last
           />
-        </Group>
+        </AndroidGroup>
       </ScrollView>
     </View>
-  );
-}
-
-function Group({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  const { theme } = useUnistyles();
-  return (
-    <View style={styles.group}>
-      <Text style={[styles.groupLabel, { color: theme.colors.primary }]}>
-        {title}
-      </Text>
-      <View
-        style={[
-          styles.groupBody,
-          {
-            backgroundColor: theme.colors.surface,
-            borderColor: theme.colors.outlineVariant,
-          },
-        ]}
-      >
-        {children}
-      </View>
-    </View>
-  );
-}
-
-interface RowProps {
-  icon: string;
-  title: string;
-  subtitle?: string;
-  onPress?: () => void;
-  trailing?: React.ReactNode;
-  last?: boolean;
-}
-
-function Row({ icon, title, subtitle, onPress, trailing, last }: RowProps) {
-  const { theme } = useUnistyles();
-  return (
-    <Pressable
-      onPress={onPress}
-      android_ripple={
-        onPress ? { color: theme.colors.fill2, borderless: false } : undefined
-      }
-      style={[
-        styles.row,
-        !last && {
-          borderBottomWidth: 1,
-          borderBottomColor: theme.colors.outlineVariant,
-        },
-      ]}
-    >
-      <MaterialCommunityIcons
-        name={icon}
-        size={22}
-        color={theme.colors.label2}
-      />
-      <View style={{ flex: 1 }}>
-        <Text style={[styles.rowTitle, { color: theme.colors.text }]}>
-          {title}
-        </Text>
-        {subtitle && (
-          <Text style={[styles.rowSubtitle, { color: theme.colors.label2 }]}>
-            {subtitle}
-          </Text>
-        )}
-      </View>
-      {trailing}
-    </Pressable>
   );
 }
 
@@ -228,39 +157,6 @@ const styles = StyleSheet.create(theme => ({
   scroll: {
     paddingHorizontal: 16,
     paddingBottom: 40,
-  },
-  group: {
-    marginBottom: 20,
-  },
-  groupLabel: {
-    fontSize: 12,
-    fontWeight: '500',
-    letterSpacing: 0.5,
-    textTransform: 'uppercase',
-    paddingHorizontal: 8,
-    paddingTop: 10,
-    paddingBottom: 8,
-  },
-  groupBody: {
-    borderRadius: 20,
-    borderWidth: 1,
-    overflow: 'hidden',
-  },
-  row: {
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-    minHeight: 56,
-  },
-  rowTitle: {
-    fontSize: 16,
-    letterSpacing: 0.15,
-  },
-  rowSubtitle: {
-    fontSize: 13,
-    marginTop: 2,
   },
   version: {
     fontSize: 13,

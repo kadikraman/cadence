@@ -5,6 +5,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import DatePickerSheet from '../../components/DatePickerSheet';
 import IconButton from '../../components/ui/IconButton';
+import { routes } from '../../lib/routes';
 import MaterialButton from '../../components/ui/android/MaterialButton';
 import MaterialTabs from '../../components/ui/android/MaterialTabs';
 import TopAppBar from '../../components/ui/android/TopAppBar';
@@ -60,7 +61,7 @@ export default function TaskDetailScreen() {
         right={
           <IconButton
             symbol="pencil"
-            onPress={() => router.push(`/new?taskId=${task.id}`)}
+            onPress={() => router.push(routes.editTask(task.id))}
             accessibilityLabel="Edit task"
           />
         }

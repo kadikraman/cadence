@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { routes } from '../lib/routes';
 import { Cadence } from '../lib/types';
 import { GlyphKey } from '../utils/glyphs';
 import { ColorKey } from '../utils/taskTints';
@@ -157,7 +158,7 @@ export default function EmptyStateStarters() {
       </View>
 
       <Pressable
-        onPress={() => router.push('/new')}
+        onPress={() => router.push(routes.newTask)}
         style={({ pressed }) => [
           styles.customRow,
           { backgroundColor: c.blue + '14' },

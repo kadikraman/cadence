@@ -74,7 +74,7 @@ function RootLayoutNav() {
   );
 }
 
-function RootLayout() {
+function RootLayout(_props: Record<string, unknown>) {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <KeyboardProvider>

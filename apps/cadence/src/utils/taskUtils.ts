@@ -2,6 +2,8 @@ import { Cadence, Task } from '../lib/types';
 
 export type TaskStatus = 'completed' | 'overdue' | 'dueToday' | 'default';
 
+export const MS_DAY = 86400000;
+
 export const getTodayTimestamp = (): number => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -92,9 +94,7 @@ export const formatDueIn = (timestamp: number): string => {
   const todayTimestamp = getTodayTimestamp();
   const dueTimestamp = normalizeToMidnight(timestamp);
 
-  const diffDays = Math.floor(
-    (dueTimestamp - todayTimestamp) / (1000 * 60 * 60 * 24)
-  );
+  const diffDays = Math.floor((dueTimestamp - todayTimestamp) / MS_DAY);
 
   if (diffDays < -1) return `${Math.abs(diffDays)}d overdue`;
   if (diffDays === -1) return '1d overdue';
@@ -109,8 +109,7 @@ export const formatDueIn = (timestamp: number): string => {
 
 export const relativeLabel = (timestamp: number): string => {
   const diff = Math.floor(
-    (getTodayTimestamp() - normalizeToMidnight(timestamp)) /
-      (1000 * 60 * 60 * 24)
+    (getTodayTimestamp() - normalizeToMidnight(timestamp)) / MS_DAY
   );
   if (diff === 0) return 'Today';
   if (diff === 1) return 'Yesterday';
@@ -160,6 +159,47 @@ export const sortTasksByDueDate = (tasks: Task[]): Task[] => {
     return a.createdAt - b.createdAt;
   });
 };
+
+export interface Buckets {
+  overdue: Task[];
+  today: Task[];
+  thisWeek: Task[];
+  later: Task[];
+}
+
+export function bucketizeTasks(tasks: Task[]): Buckets {
+  const todayTs = getTodayTimestamp();
+  const inWeek = todayTs + 7 * MS_DAY;
+  const buckets: Buckets = {
+    overdue: [],
+    today: [],
+    thisWeek: [],
+    later: [],
+  };
+  const dueOf = new Map<string, number>();
+  for (const t of tasks) {
+    const nextDue = getNextDueDate(t);
+    dueOf.set(t.id, nextDue);
+    const completedToday = (t.completedDates ?? []).some(
+      d => normalizeToMidnight(d) === todayTs
+    );
+    if (completedToday) {
+      buckets.today.push(t);
+      continue;
+    }
+    if (nextDue < todayTs) buckets.overdue.push(t);
+    else if (nextDue === todayTs) buckets.today.push(t);
+    else if (nextDue < inWeek) buckets.thisWeek.push(t);
+    else buckets.later.push(t);
+  }
+  const sortFn = (a: Task, b: Task) =>
+    (dueOf.get(a.id) ?? 0) - (dueOf.get(b.id) ?? 0);
+  buckets.overdue.sort(sortFn);
+  buckets.today.sort(sortFn);
+  buckets.thisWeek.sort(sortFn);
+  buckets.later.sort(sortFn);
+  return buckets;
+}
 
 export const getPriorityTask = (tasks: Task[]): Task | null => {
   if (tasks.length === 0) return null;

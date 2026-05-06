@@ -3,6 +3,8 @@ import type { SFSymbol } from 'expo-symbols';
 // When adding/removing a GlyphKey, also update targets/widget/glyphMap.swift
 // so the iOS widget renders the new icon. Missing cases fall back to house.fill.
 
+export const DEFAULT_GLYPH = 'entry' as const;
+
 export type GlyphKey =
   | 'car'
   | 'bed'

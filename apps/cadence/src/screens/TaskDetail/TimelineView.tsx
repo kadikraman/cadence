@@ -3,7 +3,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import SwipeRow, { SwipeAction } from '../../components/SwipeRow';
 import { Task } from '../../lib/types';
 import { cadenceDays, formatDriftLabel } from '../../utils/statsUtils';
-import { relativeLabel } from '../../utils/taskUtils';
+import { MS_DAY, relativeLabel } from '../../utils/taskUtils';
 
 interface TimelineViewProps {
   task: Task;
@@ -11,8 +11,6 @@ interface TimelineViewProps {
   onEditEntry: (ts: number) => void;
   onDeleteEntry: (ts: number) => void;
 }
-
-const MS_DAY = 86400000;
 
 export default function TimelineView({
   task,

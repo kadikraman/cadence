@@ -9,6 +9,7 @@ import MaterialCard from '../../components/ui/android/MaterialCard';
 import TopAppBar from '../../components/ui/android/TopAppBar';
 import TaskTile from '../../components/ui/TaskTile';
 import WeeklyChart from '../../components/WeeklyChart';
+import { routes } from '../../lib/routes';
 import { formatDueIn, getNextDueDate } from '../../utils/taskUtils';
 import { Range, useStats } from './useStats';
 
@@ -114,7 +115,9 @@ export default function StatsScreen() {
         {mostReliable.task && (
           <MaterialCard title="Most reliable" flush>
             <Pressable
-              onPress={() => router.push(`/task/${mostReliable.task!.id}`)}
+              onPress={() =>
+                router.push(routes.taskDetail(mostReliable.task!.id))
+              }
               android_ripple={{
                 color: theme.colors.fill2,
                 borderless: false,
@@ -146,7 +149,7 @@ export default function StatsScreen() {
             {hallOfShame.map((x, i) => (
               <Pressable
                 key={x.t.id}
-                onPress={() => router.push(`/task/${x.t.id}`)}
+                onPress={() => router.push(routes.taskDetail(x.t.id))}
                 android_ripple={{
                   color: theme.colors.fill2,
                   borderless: false,

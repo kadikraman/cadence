@@ -10,6 +10,7 @@ import {
   computeWeeklyCompletions,
   taskHealth,
 } from '../../utils/statsUtils';
+import { MS_DAY } from '../../utils/taskUtils';
 
 export type Range = '7' | '30' | '90' | '365';
 
@@ -20,7 +21,7 @@ export function useStats() {
 
   const overall = useMemo(() => {
     const { onTime, late, pct } = computeOnTimePct(tasks, rangeDays);
-    const cutoff = Date.now() - rangeDays * 86400000;
+    const cutoff = Date.now() - rangeDays * MS_DAY;
     let completions = 0;
     for (const t of tasks) {
       for (const d of t.completedDates ?? []) {

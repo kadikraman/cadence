@@ -4,6 +4,7 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import DatePickerSheet from '../../components/DatePickerSheet';
 import SegmentedControl from '../../components/ui/SegmentedControl';
+import { routes } from '../../lib/routes';
 import { getSymbol } from '../../utils/glyphs';
 import { computeTaskStats } from '../../utils/statsUtils';
 import { getTint } from '../../utils/taskTints';
@@ -55,7 +56,7 @@ export default function TaskDetailScreen() {
           headerBackTitle: 'Tasks',
           headerRight: () => (
             <Pressable
-              onPress={() => router.push(`/new?taskId=${task.id}`)}
+              onPress={() => router.push(routes.editTask(task.id))}
               hitSlop={10}
             >
               <Text

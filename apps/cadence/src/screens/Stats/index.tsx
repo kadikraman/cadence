@@ -9,6 +9,7 @@ import SectionCard from '../../components/SectionCard';
 import SegmentedControl from '../../components/ui/SegmentedControl';
 import TaskTile from '../../components/ui/TaskTile';
 import WeeklyChart from '../../components/WeeklyChart';
+import { routes } from '../../lib/routes';
 import { formatDueIn, getNextDueDate } from '../../utils/taskUtils';
 import { Range, useStats } from './useStats';
 
@@ -113,7 +114,9 @@ export default function StatsScreen() {
           <SectionCard title="Most reliable" flush>
             <Pressable
               style={styles.overdueRow}
-              onPress={() => router.push(`/task/${mostReliable.task!.id}`)}
+              onPress={() =>
+                router.push(routes.taskDetail(mostReliable.task!.id))
+              }
             >
               <TaskTile task={mostReliable.task} size={34} />
               <View style={styles.overdueBody}>
@@ -150,7 +153,7 @@ export default function StatsScreen() {
                     borderTopColor: theme.colors.sepSubtle,
                   },
                 ]}
-                onPress={() => router.push(`/task/${x.t.id}`)}
+                onPress={() => router.push(routes.taskDetail(x.t.id))}
               >
                 <TaskTile task={x.t} size={34} overdue />
                 <View style={styles.overdueBody}>

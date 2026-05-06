@@ -8,7 +8,11 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import { getTodayTimestamp, normalizeToMidnight } from '../utils/taskUtils';
+import {
+  getTodayTimestamp,
+  MS_DAY,
+  normalizeToMidnight,
+} from '../utils/taskUtils';
 import MiniCalendar from './MiniCalendar';
 
 export interface QuickOption {
@@ -28,7 +32,6 @@ interface DatePickerSheetProps {
   onSave: (ts: number) => void;
 }
 
-const MS_DAY = 86400000;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const SHOW_DURATION = 280;
 const HIDE_DURATION = 220;

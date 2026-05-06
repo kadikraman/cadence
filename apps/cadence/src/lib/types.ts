@@ -1,5 +1,5 @@
-import type { ColorKey } from '../utils/taskTints';
-import type { GlyphKey } from '../utils/glyphs';
+import { ColorKey, DEFAULT_COLOR } from '../utils/taskTints';
+import { DEFAULT_GLYPH, GlyphKey } from '../utils/glyphs';
 
 export interface Task {
   id: string;
@@ -19,9 +19,6 @@ export type Cadence = {
   value?: number;
   unit?: 'days' | 'weeks' | 'months';
 };
-
-export const DEFAULT_COLOR: ColorKey = 'slate';
-export const DEFAULT_GLYPH: GlyphKey = 'entry';
 
 export const normalizeTask = (task: Task): Task => ({
   ...task,

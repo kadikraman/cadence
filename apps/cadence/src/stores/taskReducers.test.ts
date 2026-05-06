@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { Task } from '../lib/types';
+import { MS_DAY } from '../utils/taskUtils';
 import {
   editCompletionDate,
   markCompleted,
@@ -10,12 +11,10 @@ import {
   upsertTask,
 } from './taskReducers';
 
-const DAY = 86400000;
-
 function midnight(offsetDays = 0): number {
   const d = new Date();
   d.setHours(0, 0, 0, 0);
-  return d.getTime() + offsetDays * DAY;
+  return d.getTime() + offsetDays * MS_DAY;
 }
 
 function makeTask(overrides: Partial<Task> = {}): Task {
@@ -105,6 +104,22 @@ describe('markCompleted', () => {
     const next = markCompleted(existing, 'missing', midnight());
     expect(next).toEqual(existing);
   });
+
+  test('normalizes the completion timestamp to midnight', () => {
+    const task = makeTask({ completedDates: [] });
+    const today = midnight();
+    const middayTs = today + 12 * 60 * 60 * 1000;
+    const [next] = markCompleted([task], task.id, middayTs);
+    expect(next.completedDates).toEqual([today]);
+    expect(next.lastCompletedAt).toBe(today);
+  });
+
+  test('dedupes when the same day is marked twice', () => {
+    const today = midnight();
+    const task = makeTask({ completedDates: [today] });
+    const [next] = markCompleted([task], task.id, today);
+    expect(next.completedDates).toEqual([today]);
+  });
 });
 
 describe('unmarkCompleted', () => {
@@ -139,7 +154,7 @@ describe('unmarkCompleted', () => {
       cadence: { type: 'weekly' },
       completedDates: [completionTs],
       lastCompletedAt: completionTs,
-      nextDueDate: todayTs + 7 * DAY,
+      nextDueDate: todayTs + 7 * MS_DAY,
     });
     const [next] = unmarkCompleted([task], task.id, completionTs);
     expect(next.nextDueDate).toBe(todayTs);
@@ -171,6 +186,15 @@ describe('editCompletionDate', () => {
       midnight(-1)
     );
     expect(next.nextDueDate).toBe(midnight());
+  });
+
+  test('normalizes the new timestamp to midnight', () => {
+    const a = midnight(-2);
+    const middayToday = midnight() + 12 * 60 * 60 * 1000;
+    const task = makeTask({ completedDates: [a], lastCompletedAt: a });
+    const [next] = editCompletionDate([task], task.id, a, middayToday);
+    expect(next.completedDates).toEqual([midnight()]);
+    expect(next.lastCompletedAt).toBe(midnight());
   });
 });
 

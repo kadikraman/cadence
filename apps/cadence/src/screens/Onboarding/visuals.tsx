@@ -8,6 +8,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import WidgetPreview from '../../components/WidgetPreview';
 import { Task } from '../../lib/types';
+import { MS_DAY } from '../../utils/taskUtils';
 import { Visual } from './useOnboarding';
 
 const today = (() => {
@@ -23,10 +24,10 @@ const PREVIEW_TASKS: Task[] = [
     color: 'green',
     glyph: 'plant',
     cadence: { type: 'custom', value: 3, unit: 'days' },
-    createdAt: today - 30 * 86400000,
-    lastCompletedAt: today - 3 * 86400000,
+    createdAt: today - 30 * MS_DAY,
+    lastCompletedAt: today - 3 * MS_DAY,
     nextDueDate: today,
-    completedDates: [today - 3 * 86400000],
+    completedDates: [today - 3 * MS_DAY],
   },
   {
     id: 'preview-2',
@@ -34,8 +35,8 @@ const PREVIEW_TASKS: Task[] = [
     color: 'slate',
     glyph: 'car',
     cadence: { type: 'monthly' },
-    createdAt: today - 60 * 86400000,
-    nextDueDate: today + 2 * 86400000,
+    createdAt: today - 60 * MS_DAY,
+    nextDueDate: today + 2 * MS_DAY,
     completedDates: [],
   },
   {
@@ -44,8 +45,8 @@ const PREVIEW_TASKS: Task[] = [
     color: 'purple',
     glyph: 'trash',
     cadence: { type: 'monthly' },
-    createdAt: today - 60 * 86400000,
-    nextDueDate: today + 6 * 86400000,
+    createdAt: today - 60 * MS_DAY,
+    nextDueDate: today + 6 * MS_DAY,
     completedDates: [],
   },
 ];

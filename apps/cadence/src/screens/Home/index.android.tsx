@@ -8,6 +8,7 @@ import Chip from '../../components/ui/android/Chip';
 import FAB from '../../components/ui/android/FAB';
 import IconButton from '../../components/ui/IconButton';
 import WidgetNudge from '../../components/WidgetNudge';
+import { routes } from '../../lib/routes';
 import { Task } from '../../lib/types';
 import { isCompletedToday } from '../../utils/taskUtils';
 import Section from './Section';
@@ -18,15 +19,8 @@ type HomeFilter = 'all' | 'today' | 'overdue';
 export default function Home({ tasks }: { tasks: Task[] }) {
   const { theme } = useUnistyles();
   const [filter, setFilter] = useState<HomeFilter>('all');
-  const {
-    router,
-    confettiRef,
-    buckets,
-    dueTodayCount,
-    expandedId,
-    toggleExpanded,
-    buildActions,
-  } = useHomeContent(tasks);
+  const { router, confettiRef, buckets, dueTodayCount, expandedId, callbacks } =
+    useHomeContent(tasks);
 
   const screenWidth = Dimensions.get('window').width;
   const emptyState = tasks.length === 0;
@@ -43,12 +37,12 @@ export default function Home({ tasks }: { tasks: Task[] }) {
           <View style={{ flex: 1 }} />
           <IconButton
             symbol="chart.bar.fill"
-            onPress={() => router.push('/stats')}
+            onPress={() => router.push(routes.stats)}
             accessibilityLabel="Stats"
           />
           <IconButton
             symbol="gearshape.fill"
-            onPress={() => router.push('/settings')}
+            onPress={() => router.push(routes.settings)}
             accessibilityLabel="Settings"
           />
         </View>
@@ -83,7 +77,7 @@ export default function Home({ tasks }: { tasks: Task[] }) {
       ) : (
         <ScrollView contentContainerStyle={styles.scroll}>
           {filter === 'all' && (
-            <WidgetNudge onLearnMore={() => router.push('/onboarding')} />
+            <WidgetNudge onLearnMore={() => router.push(routes.onboarding)} />
           )}
           {buckets.overdue.length === 0 &&
             buckets.today.filter(t => !isCompletedToday(t)).length === 0 && (
@@ -95,8 +89,7 @@ export default function Home({ tasks }: { tasks: Task[] }) {
               dotColor={theme.colors.error}
               items={buckets.overdue}
               expandedId={expandedId}
-              onToggleExpand={toggleExpanded}
-              buildActions={buildActions}
+              callbacks={callbacks}
             />
           )}
           {showToday && (
@@ -105,8 +98,7 @@ export default function Home({ tasks }: { tasks: Task[] }) {
               dotColor={theme.colors.blue}
               items={buckets.today}
               expandedId={expandedId}
-              onToggleExpand={toggleExpanded}
-              buildActions={buildActions}
+              callbacks={callbacks}
             />
           )}
           {showLaterGroups && (
@@ -115,8 +107,7 @@ export default function Home({ tasks }: { tasks: Task[] }) {
               dotColor={theme.colors.warning}
               items={buckets.thisWeek}
               expandedId={expandedId}
-              onToggleExpand={toggleExpanded}
-              buildActions={buildActions}
+              callbacks={callbacks}
             />
           )}
           {showLaterGroups && (
@@ -125,8 +116,7 @@ export default function Home({ tasks }: { tasks: Task[] }) {
               dotColor={theme.colors.label3}
               items={buckets.later}
               expandedId={expandedId}
-              onToggleExpand={toggleExpanded}
-              buildActions={buildActions}
+              callbacks={callbacks}
             />
           )}
         </ScrollView>
@@ -136,7 +126,7 @@ export default function Home({ tasks }: { tasks: Task[] }) {
         icon="plus"
         label="New task"
         extended
-        onPress={() => router.push('/new')}
+        onPress={() => router.push(routes.newTask)}
         accessibilityLabel="New task"
       />
 

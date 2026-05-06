@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/react-native';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 import * as StoreReview from 'expo-store-review';
@@ -47,7 +48,7 @@ export function useSettings() {
         await Linking.openURL(url);
       }
     } catch (err) {
-      console.warn('rate failed', err);
+      Sentry.captureException(err);
     }
   };
 

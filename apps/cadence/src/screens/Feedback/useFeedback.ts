@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/react-native';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
@@ -81,7 +82,7 @@ export function useFeedback() {
         "We couldn't reach the server. Please try again.",
         [{ text: 'OK' }]
       );
-      console.warn('feedback send failed', err);
+      Sentry.captureException(err);
     } finally {
       setSending(false);
     }

@@ -1,6 +1,8 @@
 // When adding/removing a ColorKey, also update targets/widget/tints.swift so
 // the iOS widget renders the new color. Missing cases fall back to slate.
 
+export const DEFAULT_COLOR = 'slate' as const;
+
 export type ColorKey =
   | 'purple'
   | 'lavender'

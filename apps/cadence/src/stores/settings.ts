@@ -37,46 +37,42 @@ async function persist(settings: Settings): Promise<void> {
   await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
 }
 
-export const useSettingsStore = create<SettingsStore>((set, get) => ({
-  ...DEFAULTS,
-  loaded: false,
+export const useSettingsStore = create<SettingsStore>((set, get) => {
+  const updateAndPersist = async (patch: Partial<Settings>): Promise<void> => {
+    set(patch);
+    await persist(pickSettings(get()));
+  };
 
-  load: async () => {
-    try {
-      const json = await AsyncStorage.getItem(STORAGE_KEY);
-      if (!json) {
+  return {
+    ...DEFAULTS,
+    loaded: false,
+
+    load: async () => {
+      try {
+        const json = await AsyncStorage.getItem(STORAGE_KEY);
+        if (!json) {
+          set({ loaded: true });
+          return;
+        }
+        const parsed = JSON.parse(json) as Partial<Settings>;
+        set({
+          themeMode:
+            parsed.themeMode === 'light' ||
+            parsed.themeMode === 'dark' ||
+            parsed.themeMode === 'system'
+              ? parsed.themeMode
+              : DEFAULTS.themeMode,
+          onboardingSeen: !!parsed.onboardingSeen,
+          widgetNudgeDismissed: !!parsed.widgetNudgeDismissed,
+          loaded: true,
+        });
+      } catch {
         set({ loaded: true });
-        return;
       }
-      const parsed = JSON.parse(json) as Partial<Settings>;
-      set({
-        themeMode:
-          parsed.themeMode === 'light' ||
-          parsed.themeMode === 'dark' ||
-          parsed.themeMode === 'system'
-            ? parsed.themeMode
-            : DEFAULTS.themeMode,
-        onboardingSeen: !!parsed.onboardingSeen,
-        widgetNudgeDismissed: !!parsed.widgetNudgeDismissed,
-        loaded: true,
-      });
-    } catch {
-      set({ loaded: true });
-    }
-  },
+    },
 
-  setThemeMode: async mode => {
-    set({ themeMode: mode });
-    await persist(pickSettings(get()));
-  },
-
-  setOnboardingSeen: async () => {
-    set({ onboardingSeen: true });
-    await persist(pickSettings(get()));
-  },
-
-  dismissWidgetNudge: async () => {
-    set({ widgetNudgeDismissed: true });
-    await persist(pickSettings(get()));
-  },
-}));
+    setThemeMode: mode => updateAndPersist({ themeMode: mode }),
+    setOnboardingSeen: () => updateAndPersist({ onboardingSeen: true }),
+    dismissWidgetNudge: () => updateAndPersist({ widgetNudgeDismissed: true }),
+  };
+});
