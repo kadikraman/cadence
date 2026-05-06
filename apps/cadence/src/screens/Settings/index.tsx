@@ -1,11 +1,16 @@
 import { SymbolView } from 'expo-symbols';
+import { useRef, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import FormGroup from '../../components/ui/FormGroup';
 import FormLabel from '../../components/ui/FormLabel';
 import { routes } from '../../lib/routes';
 import { ThemeMode } from '../../stores/settings';
+import EventInspectorModal from './EventInspectorModal';
 import { useSettings } from './useSettings';
+
+const SECRET_TAP_COUNT = 3;
+const SECRET_TAP_TIMEOUT = 1500;
 
 interface AppearanceOption {
   value: ThemeMode;
@@ -31,6 +36,23 @@ export default function SettingsScreen() {
     handleImport,
     handleRate,
   } = useSettings();
+
+  const [inspectorOpen, setInspectorOpen] = useState(false);
+  const tapCountRef = useRef(0);
+  const tapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const onVersionTap = () => {
+    tapCountRef.current += 1;
+    if (tapTimerRef.current) clearTimeout(tapTimerRef.current);
+    if (tapCountRef.current >= SECRET_TAP_COUNT) {
+      tapCountRef.current = 0;
+      setInspectorOpen(true);
+      return;
+    }
+    tapTimerRef.current = setTimeout(() => {
+      tapCountRef.current = 0;
+    }, SECRET_TAP_TIMEOUT);
+  };
 
   return (
     <View style={[styles.root, { paddingTop: rt.insets.top }]}>
@@ -215,12 +237,16 @@ export default function SettingsScreen() {
             />
           </Pressable>
           <View style={styles.inset} />
-          <View style={styles.row}>
+          <Pressable onPress={onVersionTap} style={styles.row}>
             <Text style={[styles.rowLabel, { marginLeft: 0 }]}>Version</Text>
             <Text style={styles.rowValue}>{version}</Text>
-          </View>
+          </Pressable>
         </FormGroup>
       </ScrollView>
+      <EventInspectorModal
+        visible={inspectorOpen}
+        onClose={() => setInspectorOpen(false)}
+      />
     </View>
   );
 }
