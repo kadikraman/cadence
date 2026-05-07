@@ -70,6 +70,7 @@ const config: ExpoConfig = {
     'expo-font',
     'expo-web-browser',
     'expo-sharing',
+    "expo-status-bar",
     [
       '@sentry/react-native',
       {
