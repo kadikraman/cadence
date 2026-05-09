@@ -141,8 +141,9 @@ private func formatDueIn(_ timestampMs: Double) -> String {
 }
 
 private func taskStatus(_ task: WidgetTask) -> (overdue: Bool, dueToday: Bool) {
-    if task.isOverdue == true { return (true, false) }
-    if task.isDueToday == true { return (false, true) }
+    let diff = daysUntil(task.nextDueDate)
+    if diff < 0 { return (true, false) }
+    if diff == 0 { return (false, true) }
     return (false, false)
 }
 
@@ -252,11 +253,12 @@ struct SmallView: View {
 
     var body: some View {
         let active = activeTasks(entry.tasks)
-        let overdue = active.filter { $0.isOverdue == true }
-        let today = active.filter { !($0.isOverdue == true) && ($0.isDueToday == true) }
+        let overdue = active.filter { taskStatus($0).overdue }
+        let today = active.filter { taskStatus($0).dueToday }
         let urgent = overdue + today
         let upcoming = active.filter {
-            !($0.isOverdue == true) && !($0.isDueToday == true)
+            let s = taskStatus($0)
+            return !s.overdue && !s.dueToday
         }
 
         if entry.tasks.isEmpty {
@@ -469,11 +471,12 @@ struct MediumView: View {
 
     var body: some View {
         let active = activeTasks(entry.tasks)
-        let overdue = active.filter { $0.isOverdue == true }
-        let today = active.filter { !($0.isOverdue == true) && ($0.isDueToday == true) }
+        let overdue = active.filter { taskStatus($0).overdue }
+        let today = active.filter { taskStatus($0).dueToday }
         let urgent = overdue + today
         let upcoming = active.filter {
-            !($0.isOverdue == true) && !($0.isDueToday == true)
+            let s = taskStatus($0)
+            return !s.overdue && !s.dueToday
         }
 
         VStack(alignment: .leading, spacing: 6) {
@@ -604,11 +607,12 @@ struct LargeView: View {
     var body: some View {
         let stats = entry.stats
         let active = activeTasks(entry.tasks)
-        let overdue = active.filter { $0.isOverdue == true }
-        let today = active.filter { !($0.isOverdue == true) && ($0.isDueToday == true) }
+        let overdue = active.filter { taskStatus($0).overdue }
+        let today = active.filter { taskStatus($0).dueToday }
         let urgent = overdue + today
         let upcoming = active.filter {
-            !($0.isOverdue == true) && !($0.isDueToday == true)
+            let s = taskStatus($0)
+            return !s.overdue && !s.dueToday
         }
 
         VStack(alignment: .leading, spacing: 10) {
