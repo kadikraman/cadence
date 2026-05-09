@@ -9,6 +9,7 @@ struct WidgetTask: Codable, Identifiable {
     let color: String?
     let glyph: String?
     let nextDueDate: Double
+    let lastCompletedAt: Double?
     let isDueToday: Bool?
     let isOverdue: Bool?
     let isCompletedToday: Bool?
@@ -99,13 +100,13 @@ struct Provider: TimelineProvider {
         [
             WidgetTask(id: "1", title: "Water the plants", color: "green", glyph: "plant",
                        nextDueDate: Date().timeIntervalSince1970 * 1000,
-                       isDueToday: true, isOverdue: false, isCompletedToday: false, details: nil),
+                       lastCompletedAt: nil, isDueToday: true, isOverdue: false, isCompletedToday: false, details: nil),
             WidgetTask(id: "2", title: "Take out recycling", color: "brown", glyph: "trash",
                        nextDueDate: (Date().timeIntervalSince1970 + 86400) * 1000,
-                       isDueToday: false, isOverdue: false, isCompletedToday: false, details: nil),
+                       lastCompletedAt: nil, isDueToday: false, isOverdue: false, isCompletedToday: false, details: nil),
             WidgetTask(id: "3", title: "Car wash", color: "teal", glyph: "car",
                        nextDueDate: (Date().timeIntervalSince1970 + 2 * 86400) * 1000,
-                       isDueToday: false, isOverdue: false, isCompletedToday: false, details: nil),
+                       lastCompletedAt: nil, isDueToday: false, isOverdue: false, isCompletedToday: false, details: nil),
         ]
     }
 
@@ -147,8 +148,13 @@ private func taskStatus(_ task: WidgetTask) -> (overdue: Bool, dueToday: Bool) {
     return (false, false)
 }
 
+private func isCompletedToday(_ task: WidgetTask) -> Bool {
+    guard let last = task.lastCompletedAt else { return false }
+    return daysUntil(last) == 0
+}
+
 private func activeTasks(_ tasks: [WidgetTask]) -> [WidgetTask] {
-    tasks.filter { !($0.isCompletedToday ?? false) }
+    tasks.filter { !isCompletedToday($0) }
 }
 
 private func urgentCount(_ stats: WidgetStats?) -> Int {
@@ -819,10 +825,10 @@ struct widget: Widget {
         tasks: [
             WidgetTask(id: "1", title: "Water the plants", color: "green", glyph: "plant",
                        nextDueDate: Date().timeIntervalSince1970 * 1000,
-                       isDueToday: true, isOverdue: false, isCompletedToday: false, details: nil),
+                       lastCompletedAt: nil, isDueToday: true, isOverdue: false, isCompletedToday: false, details: nil),
             WidgetTask(id: "2", title: "Take out the trash", color: "slate", glyph: "trash",
                        nextDueDate: Date().timeIntervalSince1970 * 1000,
-                       isDueToday: true, isOverdue: false, isCompletedToday: false, details: nil),
+                       lastCompletedAt: nil, isDueToday: true, isOverdue: false, isCompletedToday: false, details: nil),
         ],
         stats: WidgetStats(overdueCount: 0, todayCount: 2, doneTodayCount: 0,
                            moreDueThisWeekCount: 2, totalCount: 6, streak: 7, onTimePct: 92)
@@ -837,13 +843,13 @@ struct widget: Widget {
         tasks: [
             WidgetTask(id: "1", title: "Water the plants", color: "green", glyph: "plant",
                        nextDueDate: Date().timeIntervalSince1970 * 1000,
-                       isDueToday: true, isOverdue: false, isCompletedToday: false, details: nil),
+                       lastCompletedAt: nil, isDueToday: true, isOverdue: false, isCompletedToday: false, details: nil),
             WidgetTask(id: "2", title: "Take out the trash", color: "slate", glyph: "trash",
                        nextDueDate: (Date().timeIntervalSince1970 + 2 * 86400) * 1000,
-                       isDueToday: false, isOverdue: false, isCompletedToday: false, details: nil),
+                       lastCompletedAt: nil, isDueToday: false, isOverdue: false, isCompletedToday: false, details: nil),
             WidgetTask(id: "3", title: "Refill vitamins", color: "orange", glyph: "pill",
                        nextDueDate: (Date().timeIntervalSince1970 + 4 * 86400) * 1000,
-                       isDueToday: false, isOverdue: false, isCompletedToday: false, details: nil),
+                       lastCompletedAt: nil, isDueToday: false, isOverdue: false, isCompletedToday: false, details: nil),
         ],
         stats: WidgetStats(overdueCount: 0, todayCount: 1, doneTodayCount: 0,
                            moreDueThisWeekCount: 2, totalCount: 8, streak: 7, onTimePct: 92)
@@ -858,22 +864,22 @@ struct widget: Widget {
         tasks: [
             WidgetTask(id: "0", title: "Replace toothbrush head", color: "plum", glyph: "pill",
                        nextDueDate: (Date().timeIntervalSince1970 - 5 * 86400) * 1000,
-                       isDueToday: false, isOverdue: true, isCompletedToday: false, details: nil),
+                       lastCompletedAt: nil, isDueToday: false, isOverdue: true, isCompletedToday: false, details: nil),
             WidgetTask(id: "1", title: "Water the plants", color: "green", glyph: "plant",
                        nextDueDate: Date().timeIntervalSince1970 * 1000,
-                       isDueToday: true, isOverdue: false, isCompletedToday: false, details: nil),
+                       lastCompletedAt: nil, isDueToday: true, isOverdue: false, isCompletedToday: false, details: nil),
             WidgetTask(id: "2", title: "Take out recycling", color: "brown", glyph: "trash",
                        nextDueDate: (Date().timeIntervalSince1970 + 86400) * 1000,
-                       isDueToday: false, isOverdue: false, isCompletedToday: false, details: nil),
+                       lastCompletedAt: nil, isDueToday: false, isOverdue: false, isCompletedToday: false, details: nil),
             WidgetTask(id: "3", title: "Car wash", color: "teal", glyph: "car",
                        nextDueDate: (Date().timeIntervalSince1970 + 2 * 86400) * 1000,
-                       isDueToday: false, isOverdue: false, isCompletedToday: false, details: nil),
+                       lastCompletedAt: nil, isDueToday: false, isOverdue: false, isCompletedToday: false, details: nil),
             WidgetTask(id: "4", title: "Change bedsheets", color: "purple", glyph: "bed",
                        nextDueDate: (Date().timeIntervalSince1970 + 5 * 86400) * 1000,
-                       isDueToday: false, isOverdue: false, isCompletedToday: false, details: nil),
+                       lastCompletedAt: nil, isDueToday: false, isOverdue: false, isCompletedToday: false, details: nil),
             WidgetTask(id: "5", title: "Pay rent", color: "orange", glyph: "wallet",
                        nextDueDate: (Date().timeIntervalSince1970 + 7 * 86400) * 1000,
-                       isDueToday: false, isOverdue: false, isCompletedToday: false, details: nil),
+                       lastCompletedAt: nil, isDueToday: false, isOverdue: false, isCompletedToday: false, details: nil),
         ],
         stats: WidgetStats(overdueCount: 1, todayCount: 1, doneTodayCount: 0,
                            moreDueThisWeekCount: 3, totalCount: 8, streak: 7, onTimePct: 92)

@@ -53,6 +53,9 @@ function buildPayload(tasks: Task[]): {
     color: task.color ?? 'slate',
     glyph: task.glyph ?? 'entry',
     nextDueDate: getNextDueDate(task),
+    ...(task.lastCompletedAt !== undefined && {
+      lastCompletedAt: task.lastCompletedAt,
+    }),
     isDueToday: isDueToday(task),
     isOverdue: isOverdue(task),
     isCompletedToday: isCompletedToday(task),

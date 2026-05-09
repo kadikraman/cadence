@@ -12,6 +12,7 @@ export interface WidgetTaskPayload {
   color: string;
   glyph: string;
   nextDueDate: number;
+  lastCompletedAt?: number;
   isDueToday: boolean;
   isOverdue: boolean;
   isCompletedToday: boolean;
