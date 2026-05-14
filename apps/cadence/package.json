@@ -24,6 +24,7 @@
     "expo-constants": "~56.0.9",
     "expo-dev-client": "~56.0.9",
     "expo-document-picker": "~56.0.3",
+    "expo-eas-client": "^56.0.1",
     "expo-file-system": "~56.0.4",
     "expo-font": "~56.0.3",
     "expo-glass-effect": "~56.0.4",
