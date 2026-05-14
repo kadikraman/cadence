@@ -149,13 +149,19 @@ export function Small({ tasks }: { tasks: WidgetTask[] }) {
   }
 
   const hasOverdue = overdue.length > 0;
-  const bg = hasOverdue ? M3.errorContainer : M3.primaryContainer;
-  const fg = hasOverdue ? M3.onErrorContainer : M3.onPrimaryContainer;
-  const countColor = hasOverdue ? M3.error : M3.onPrimaryContainer;
+  const highCount = urgentCount >= 5;
+  const redTone = hasOverdue || highCount;
+  const bg = redTone ? M3.errorContainer : M3.primaryContainer;
+  const fg = redTone ? M3.onErrorContainer : M3.onPrimaryContainer;
+  const countColor = redTone ? M3.error : M3.onPrimaryContainer;
 
-  if (urgentCount === 1 && !hasOverdue) {
+  if (urgentCount === 1 && upcoming.length === 0) {
     const t = urgent[0];
-    const tint = tintFor(t.color);
+    const tint = hasOverdue
+      ? { tint: M3.errorContainer, fg: M3.error }
+      : tintFor(t.color);
+    const eyebrow = hasOverdue ? formatDue(t.nextDueDate).toUpperCase() : 'TODAY';
+    const eyebrowColor = hasOverdue ? M3.error : M3.primary;
     return (
       <FlexWidget
         style={{
@@ -209,11 +215,11 @@ export function Small({ tasks }: { tasks: WidgetTask[] }) {
           </FlexWidget>
           <FlexWidget style={{ flex: 1, marginLeft: 10 }}>
             <TextWidget
-              text="TODAY"
+              text={eyebrow}
               style={{
                 fontSize: 9,
                 fontWeight: '500',
-                color: M3.primary,
+                color: eyebrowColor,
               }}
             />
             <TextWidget
@@ -232,8 +238,15 @@ export function Small({ tasks }: { tasks: WidgetTask[] }) {
     );
   }
 
-  const displayed = urgent.slice(0, 2);
-  const extra = urgentCount - displayed.length;
+  let displayed: WidgetTask[];
+  let extra: number;
+  if (urgentCount > 2) {
+    displayed = urgent.slice(0, 2);
+    extra = urgentCount - 2;
+  } else {
+    displayed = [...urgent, ...upcoming].slice(0, 3);
+    extra = 0;
+  }
 
   return (
     <FlexWidget
