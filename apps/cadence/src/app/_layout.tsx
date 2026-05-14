@@ -1,11 +1,11 @@
+import * as Sentry from '@sentry/react-native';
+import ExpoObserve, { ObserveRoot, useObserve } from 'expo-observe';
+import { Stack } from 'expo-router';
 import {
   DarkTheme,
   DefaultTheme,
   ThemeProvider as ReactNativeThemeProvider,
 } from 'expo-router/react-navigation';
-import * as Sentry from '@sentry/react-native';
-import { AppMetrics, AppMetricsRoot } from 'expo-observe';
-import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
@@ -24,8 +24,13 @@ Sentry.init({
   sendDefaultPii: false,
 });
 
+ExpoObserve.configure({
+  environment: __DEV__ ? 'development' : 'production',
+});
+
 function RootLayoutNav() {
   const { rt } = useUnistyles();
+  const { markInteractive } = useObserve();
   const isDark = rt.themeName === 'dark';
 
   const tasksLoaded = useTasksStore(s => s.loaded);
@@ -47,9 +52,9 @@ function RootLayoutNav() {
   useEffect(() => {
     if (tasksLoaded && settingsLoaded) {
       SplashScreen.hideAsync().catch(() => {});
-      AppMetrics.markInteractive();
+      markInteractive();
     }
-  }, [tasksLoaded, settingsLoaded]);
+  }, [tasksLoaded, settingsLoaded, markInteractive]);
 
   if (!tasksLoaded || !settingsLoaded) return null;
 
@@ -84,4 +89,4 @@ function RootLayout(_props: Record<string, unknown>) {
   );
 }
 
-export default Sentry.wrap(AppMetricsRoot.wrap(RootLayout));
+export default Sentry.wrap(ObserveRoot.wrap(RootLayout));
