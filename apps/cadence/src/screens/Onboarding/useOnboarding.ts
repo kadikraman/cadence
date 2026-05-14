@@ -4,14 +4,6 @@ import { logs } from '../../lib/logs';
 import { routes } from '../../lib/routes';
 import { useSettingsStore } from '../../stores/settings';
 
-export type Visual = 'hero' | 'jiggle' | 'plus' | 'sizes';
-
-export interface Step {
-  title: string;
-  body: string;
-  visual: Visual;
-}
-
 export function useOnboarding(stepCount: number) {
   const router = useRouter();
   const setOnboardingSeen = useSettingsStore(s => s.setOnboardingSeen);
@@ -38,7 +30,5 @@ export function useOnboarding(stepCount: number) {
     }
   };
 
-  const back = () => setStep(s => Math.max(0, s - 1));
-
-  return { router, step, next, back, close, isReplay };
+  return { router, step, next, close, isReplay };
 }

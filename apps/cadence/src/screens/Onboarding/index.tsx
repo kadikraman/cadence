@@ -1,53 +1,35 @@
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { Step } from './types';
 import { Dot, OnboardingVisual } from './visuals';
-import { Step, useOnboarding } from './useOnboarding';
+import { useOnboarding } from './useOnboarding';
 
 const STEPS: Step[] = [
   {
-    title: 'Cadence lives on your Home Screen',
-    body: "No notifications, no nagging. Just a glance at what's due.",
-    visual: 'hero',
+    title: 'Find Cadence on your Home Screen',
+    body: "The widget lives next to the app — a glance at what's due, no opening required.",
+    visual: 'icon',
   },
   {
-    title: 'Long-press your Home Screen',
-    body: 'Keep pressing until the app icons start to jiggle.',
-    visual: 'jiggle',
-  },
-  {
-    title: 'Tap the + in the corner',
-    body: 'Then search for "Cadence" in the widget gallery.',
-    visual: 'plus',
-  },
-  {
-    title: 'Pick your size',
-    body: 'Small shows your next task. Medium shows three.',
-    visual: 'sizes',
+    title: 'Touch and hold the icon',
+    body: 'Keep pressing until a menu appears, then tap one of the widget shapes at the top.',
+    visual: 'menu',
   },
 ];
 
 export default function OnboardingScreen() {
   const { rt } = useUnistyles();
-  const { step, next, back, close, isReplay } = useOnboarding(STEPS.length);
+  const { step, next, close, isReplay } = useOnboarding(STEPS.length);
   const current = STEPS[step];
 
   return (
     <View style={[styles.root, !isReplay && { paddingTop: rt.insets.top }]}>
       <View style={styles.topBar}>
-        <View style={styles.topBarSide}>
-          {step > 0 && (
-            <Pressable onPress={back}>
-              <Text style={styles.navText}>Back</Text>
-            </Pressable>
-          )}
-        </View>
-        <View style={[styles.topBarSide, styles.topBarRight]}>
-          {!isReplay && (
-            <Pressable onPress={close}>
-              <Text style={styles.navText}>Skip</Text>
-            </Pressable>
-          )}
-        </View>
+        {!isReplay && (
+          <Pressable onPress={close} hitSlop={8}>
+            <Text style={styles.navText}>Skip</Text>
+          </Pressable>
+        )}
       </View>
 
       <View style={styles.visualWrap}>
@@ -80,14 +62,10 @@ const styles = StyleSheet.create(theme => ({
   topBar: {
     paddingHorizontal: 16,
     paddingTop: 12,
+    minHeight: 40,
     flexDirection: 'row',
+    justifyContent: 'flex-end',
     alignItems: 'center',
-  },
-  topBarSide: {
-    flex: 1,
-  },
-  topBarRight: {
-    alignItems: 'flex-end',
   },
   navText: {
     color: theme.colors.blue,
@@ -99,7 +77,6 @@ const styles = StyleSheet.create(theme => ({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 24,
-    gap: 10,
   },
   stepTitle: {
     fontSize: 26,
@@ -115,6 +92,7 @@ const styles = StyleSheet.create(theme => ({
     color: theme.colors.label2,
     textAlign: 'center',
     lineHeight: 22,
+    marginTop: 10,
     maxWidth: 300,
   },
   footer: {
