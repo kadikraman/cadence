@@ -264,6 +264,7 @@ export function Large({ tasks }: { tasks: WidgetTask[] }) {
                 text={t.title}
                 style={{ fontSize: 13, color: M3.label }}
                 maxLines={1}
+                truncate="END"
               />
             </FlexWidget>
             <TextWidget

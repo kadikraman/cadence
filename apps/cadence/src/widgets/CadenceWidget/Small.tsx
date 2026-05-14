@@ -25,7 +25,7 @@ export function Small({ tasks }: { tasks: WidgetTask[] }) {
           width: 'match_parent',
           height: 'match_parent',
           flexDirection: 'column',
-          backgroundColor: M3.primaryContainer,
+          backgroundColor: M3.surface3,
           padding: 16,
           borderRadius: 28,
         }}
@@ -35,7 +35,7 @@ export function Small({ tasks }: { tasks: WidgetTask[] }) {
           style={{
             fontSize: 13,
             fontWeight: '500',
-            color: M3.onPrimaryContainer,
+            color: M3.label,
           }}
         />
         <FlexWidget
@@ -65,7 +65,7 @@ export function Small({ tasks }: { tasks: WidgetTask[] }) {
             text="No tasks"
             style={{
               fontSize: 12,
-              color: M3.onPrimaryContainer,
+              color: M3.label2,
               marginTop: 8,
             }}
           />
@@ -82,7 +82,7 @@ export function Small({ tasks }: { tasks: WidgetTask[] }) {
           width: 'match_parent',
           height: 'match_parent',
           flexDirection: 'column',
-          backgroundColor: M3.greenContainer,
+          backgroundColor: M3.surface3,
           padding: 16,
           borderRadius: 28,
         }}
@@ -100,7 +100,7 @@ export function Small({ tasks }: { tasks: WidgetTask[] }) {
             style={{
               fontSize: 13,
               fontWeight: '500',
-              color: M3.onGreenContainer,
+              color: M3.label,
             }}
           />
           <TextWidget
@@ -129,7 +129,7 @@ export function Small({ tasks }: { tasks: WidgetTask[] }) {
           style={{
             fontSize: 14,
             fontWeight: '500',
-            color: M3.onGreenContainer,
+            color: M3.label,
             marginTop: 8,
           }}
         />
@@ -138,10 +138,11 @@ export function Small({ tasks }: { tasks: WidgetTask[] }) {
             text={`Next: ${next.title} · ${formatDue(next.nextDueDate)}`}
             style={{
               fontSize: 10,
-              color: M3.onGreenContainer,
+              color: M3.label2,
               marginTop: 4,
             }}
             maxLines={1}
+            truncate="END"
           />
         )}
       </FlexWidget>
@@ -151,9 +152,9 @@ export function Small({ tasks }: { tasks: WidgetTask[] }) {
   const hasOverdue = overdue.length > 0;
   const highCount = urgentCount >= 5;
   const redTone = hasOverdue || highCount;
-  const bg = redTone ? M3.errorContainer : M3.primaryContainer;
-  const fg = redTone ? M3.onErrorContainer : M3.onPrimaryContainer;
-  const countColor = redTone ? M3.error : M3.onPrimaryContainer;
+  const bg = M3.surface3;
+  const fg = M3.label;
+  const countColor = redTone ? M3.error : M3.label;
 
   if (urgentCount === 1 && upcoming.length === 0) {
     const t = urgent[0];
@@ -231,6 +232,7 @@ export function Small({ tasks }: { tasks: WidgetTask[] }) {
                 marginTop: 2,
               }}
               maxLines={1}
+              truncate="END"
             />
           </FlexWidget>
         </FlexWidget>
@@ -278,9 +280,7 @@ export function Small({ tasks }: { tasks: WidgetTask[] }) {
                 style={{
                   height: 1,
                   width: 'match_parent',
-                  backgroundColor: hasOverdue
-                    ? 'rgba(65, 0, 2, 0.12)'
-                    : 'rgba(0, 29, 54, 0.1)',
+                  backgroundColor: 'rgba(0, 29, 54, 0.1)',
                   marginVertical: 6,
                 }}
               />
@@ -298,6 +298,7 @@ export function Small({ tasks }: { tasks: WidgetTask[] }) {
                   text={t.title}
                   style={{ fontSize: 12, fontWeight: '500', color: fg }}
                   maxLines={1}
+                  truncate="END"
                 />
                 <TextWidget
                   text={formatDue(t.nextDueDate)}
@@ -307,6 +308,7 @@ export function Small({ tasks }: { tasks: WidgetTask[] }) {
                     marginTop: 1,
                   }}
                   maxLines={1}
+                  truncate="END"
                 />
               </FlexWidget>
             </FlexWidget>
@@ -318,7 +320,7 @@ export function Small({ tasks }: { tasks: WidgetTask[] }) {
             style={{
               fontSize: 11,
               fontWeight: '500',
-              color: hasOverdue ? M3.error : M3.primary,
+              color: M3.primary,
               marginTop: 8,
             }}
           />
