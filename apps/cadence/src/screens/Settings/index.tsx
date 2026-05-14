@@ -5,7 +5,9 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import FormGroup from '../../components/ui/FormGroup';
 import FormLabel from '../../components/ui/FormLabel';
 import { routes } from '../../lib/routes';
+import { generateSampleTasks } from '../../lib/sampleTasks';
 import { ThemeMode } from '../../stores/settings';
+import { useTasksStore } from '../../stores/tasks';
 import EventInspectorModal from './EventInspectorModal';
 import { useSettings } from './useSettings';
 
@@ -40,6 +42,10 @@ export default function SettingsScreen() {
   const [inspectorOpen, setInspectorOpen] = useState(false);
   const tapCountRef = useRef(0);
   const tapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const replaceAll = useTasksStore(s => s.replaceAll);
+  const handleLoadSampleData = () => {
+    replaceAll(generateSampleTasks());
+  };
 
   const onVersionTap = () => {
     tapCountRef.current += 1;
@@ -173,6 +179,21 @@ export default function SettingsScreen() {
               fallback={null}
             />
           </Pressable>
+          {__DEV__ && (
+            <>
+              <View style={styles.inset} />
+              <Pressable onPress={handleLoadSampleData} style={styles.row}>
+                <SymbolView
+                  name="wand.and.stars"
+                  size={20}
+                  tintColor={theme.colors.label2}
+                  resizeMode="scaleAspectFit"
+                  fallback={null}
+                />
+                <Text style={styles.rowLabel}>Load sample data</Text>
+              </Pressable>
+            </>
+          )}
           <View style={styles.footer}>
             <Text style={styles.footerText}>
               Data is stored on your device only.

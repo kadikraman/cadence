@@ -3,7 +3,9 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import TopAppBar from '../../components/ui/android/TopAppBar';
 import { routes } from '../../lib/routes';
+import { generateSampleTasks } from '../../lib/sampleTasks';
 import { ThemeMode } from '../../stores/settings';
+import { useTasksStore } from '../../stores/tasks';
 import AndroidGroup from './AndroidGroup';
 import AndroidSettingsRow from './AndroidSettingsRow';
 import { useSettings } from './useSettings';
@@ -32,6 +34,10 @@ export default function SettingsScreen() {
     handleImport,
     handleRate,
   } = useSettings();
+  const replaceAll = useTasksStore(s => s.replaceAll);
+  const handleLoadSampleData = () => {
+    replaceAll(generateSampleTasks());
+  };
 
   return (
     <View style={[styles.root, { paddingTop: rt.insets.top }]}>
@@ -103,8 +109,17 @@ export default function SettingsScreen() {
                 color={theme.colors.label3}
               />
             }
-            last
+            last={!__DEV__}
           />
+          {__DEV__ && (
+            <AndroidSettingsRow
+              icon="database-plus"
+              title="Load sample data (screenshots)"
+              subtitle="Replaces all tasks with sample data"
+              onPress={handleLoadSampleData}
+              last
+            />
+          )}
         </AndroidGroup>
 
         <AndroidGroup title="About">

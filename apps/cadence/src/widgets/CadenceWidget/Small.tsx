@@ -238,15 +238,9 @@ export function Small({ tasks }: { tasks: WidgetTask[] }) {
     );
   }
 
-  let displayed: WidgetTask[];
-  let extra: number;
-  if (urgentCount > 2) {
-    displayed = urgent.slice(0, 2);
-    extra = urgentCount - 2;
-  } else {
-    displayed = [...urgent, ...upcoming].slice(0, 3);
-    extra = 0;
-  }
+  const combined = [...urgent, ...upcoming];
+  const displayed = combined.slice(0, 3);
+  const extra = Math.max(0, urgentCount - displayed.length);
 
   return (
     <FlexWidget
