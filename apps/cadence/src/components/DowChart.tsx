@@ -1,21 +1,28 @@
 import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { useSettingsStore } from '../stores/settings';
 
 interface DowChartProps {
   counts: number[];
 }
 
-const DOW_LABELS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+const DOW_LABELS_SUN = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+const DOW_LABELS_MON = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
 export default function DowChart({ counts }: DowChartProps) {
   const { theme } = useUnistyles();
-  const max = Math.max(1, ...counts);
-  const peak = counts.indexOf(Math.max(...counts));
+  const weekStartsOnMonday = useSettingsStore(s => s.weekStartsOnMonday);
+  const labels = weekStartsOnMonday ? DOW_LABELS_MON : DOW_LABELS_SUN;
+  const ordered = weekStartsOnMonday
+    ? [...counts.slice(1), counts[0]]
+    : counts;
+  const max = Math.max(1, ...ordered);
+  const peak = ordered.indexOf(Math.max(...ordered));
 
   return (
     <View>
       <View style={styles.chart}>
-        {counts.map((c, i) => {
+        {ordered.map((c, i) => {
           const h = (c / max) * 100;
           const isPeak = c > 0 && i === peak;
           return (
@@ -42,7 +49,7 @@ export default function DowChart({ counts }: DowChartProps) {
         })}
       </View>
       <View style={styles.axis}>
-        {DOW_LABELS.map((d, i) => (
+        {labels.map((d, i) => (
           <Text key={i} style={[styles.dow, { color: theme.colors.label3 }]}>
             {d}
           </Text>

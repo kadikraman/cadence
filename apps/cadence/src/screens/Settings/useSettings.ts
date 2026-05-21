@@ -12,6 +12,8 @@ export function useSettings() {
   const router = useRouter();
   const themeMode = useSettingsStore(s => s.themeMode);
   const setThemeModeStore = useSettingsStore(s => s.setThemeMode);
+  const weekStartsOnMonday = useSettingsStore(s => s.weekStartsOnMonday);
+  const setWeekStartsOnMonday = useSettingsStore(s => s.setWeekStartsOnMonday);
   const taskCount = useTasksStore(s => s.tasks.length);
   const version = Constants.expoConfig?.version ?? '1.0';
 
@@ -64,6 +66,8 @@ export function useSettings() {
     router,
     themeMode,
     setThemeMode,
+    weekStartsOnMonday,
+    setWeekStartsOnMonday,
     taskCount,
     version,
     handleExport,

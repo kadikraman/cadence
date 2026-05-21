@@ -1,7 +1,7 @@
 import { useObserve } from 'expo-observe';
 import { SymbolView } from 'expo-symbols';
 import { useEffect, useRef, useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, Switch, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import FormGroup from '../../components/ui/FormGroup';
 import FormLabel from '../../components/ui/FormLabel';
@@ -33,6 +33,8 @@ export default function SettingsScreen() {
     router,
     themeMode,
     setThemeMode,
+    weekStartsOnMonday,
+    setWeekStartsOnMonday,
     taskCount,
     version,
     handleExport,
@@ -120,6 +122,27 @@ export default function SettingsScreen() {
               </Pressable>
             );
           })}
+        </FormGroup>
+
+        <FormLabel>Calendar</FormLabel>
+        <FormGroup>
+          <Pressable
+            onPress={() => setWeekStartsOnMonday(!weekStartsOnMonday)}
+            style={styles.row}
+          >
+            <SymbolView
+              name="calendar"
+              size={20}
+              tintColor={theme.colors.label2}
+              resizeMode="scaleAspectFit"
+              fallback={null}
+            />
+            <Text style={styles.rowLabel}>Start week on Monday</Text>
+            <Switch
+              value={weekStartsOnMonday}
+              onValueChange={setWeekStartsOnMonday}
+            />
+          </Pressable>
         </FormGroup>
 
         <FormLabel>Home Screen Widget</FormLabel>

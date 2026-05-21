@@ -2,6 +2,7 @@ import { SymbolView } from 'expo-symbols';
 import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { useSettingsStore } from '../stores/settings';
 import { normalizeToMidnight } from '../utils/taskUtils';
 
 interface MiniCalendarProps {
@@ -10,7 +11,8 @@ interface MiniCalendarProps {
   maxDate?: number;
 }
 
-const DAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+const DAYS_SUN = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+const DAYS_MON = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
 export default function MiniCalendar({
   selected,
@@ -19,6 +21,8 @@ export default function MiniCalendar({
 }: MiniCalendarProps) {
   const { theme } = useUnistyles();
   const c = theme.colors;
+  const weekStartsOnMonday = useSettingsStore(s => s.weekStartsOnMonday);
+  const days = weekStartsOnMonday ? DAYS_MON : DAYS_SUN;
   const [cursor, setCursor] = useState(() => {
     const d = new Date(selected);
     d.setDate(1);
@@ -30,7 +34,8 @@ export default function MiniCalendar({
   const year = cd.getFullYear();
   const month = cd.getMonth();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const firstDow = new Date(year, month, 1).getDay();
+  const rawDow = new Date(year, month, 1).getDay();
+  const firstDow = weekStartsOnMonday ? (rawDow + 6) % 7 : rawDow;
   const monthLabel = cd.toLocaleString('en-US', {
     month: 'long',
     year: 'numeric',
@@ -81,7 +86,7 @@ export default function MiniCalendar({
         </View>
       </View>
       <View style={styles.dowRow}>
-        {DAYS.map((d, i) => (
+        {days.map((d, i) => (
           <Text key={i} style={[styles.dow, { color: c.label3 }]}>
             {d}
           </Text>

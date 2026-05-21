@@ -1,6 +1,6 @@
 import { useObserve } from 'expo-observe';
 import { useEffect } from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { ScrollView, Switch, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import TopAppBar from '../../components/ui/android/TopAppBar';
@@ -30,6 +30,8 @@ export default function SettingsScreen() {
     router,
     themeMode,
     setThemeMode,
+    weekStartsOnMonday,
+    setWeekStartsOnMonday,
     taskCount,
     version,
     handleExport,
@@ -74,6 +76,21 @@ export default function SettingsScreen() {
               />
             );
           })}
+        </AndroidGroup>
+
+        <AndroidGroup title="Calendar">
+          <AndroidSettingsRow
+            icon="calendar"
+            title="Start week on Monday"
+            onPress={() => setWeekStartsOnMonday(!weekStartsOnMonday)}
+            trailing={
+              <Switch
+                value={weekStartsOnMonday}
+                onValueChange={setWeekStartsOnMonday}
+              />
+            }
+            last
+          />
         </AndroidGroup>
 
         <AndroidGroup title="Home screen widget">
