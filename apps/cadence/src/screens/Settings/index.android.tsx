@@ -1,3 +1,5 @@
+import { useObserve } from 'expo-observe';
+import { useEffect } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -34,6 +36,13 @@ export default function SettingsScreen() {
     handleImport,
     handleRate,
   } = useSettings();
+
+  const { markInteractive } = useObserve();
+
+  useEffect(() => {
+    markInteractive();
+  }, [markInteractive]);
+
   const replaceAll = useTasksStore(s => s.replaceAll);
   const handleLoadSampleData = () => {
     replaceAll(generateSampleTasks());

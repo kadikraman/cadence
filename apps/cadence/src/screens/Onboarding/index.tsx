@@ -1,3 +1,5 @@
+import { useObserve } from 'expo-observe';
+import { useEffect } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { Step } from './types';
@@ -21,6 +23,12 @@ export default function OnboardingScreen() {
   const { rt } = useUnistyles();
   const { step, next, close, isReplay } = useOnboarding(STEPS.length);
   const current = STEPS[step];
+
+  const { markInteractive } = useObserve();
+
+  useEffect(() => {
+    markInteractive();
+  }, [markInteractive]);
 
   return (
     <View style={[styles.root, !isReplay && { paddingTop: rt.insets.top }]}>

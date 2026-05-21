@@ -1,4 +1,6 @@
+import { useObserve } from 'expo-observe';
 import { Stack } from 'expo-router';
+import { useEffect } from 'react';
 import { Platform, Text, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -25,6 +27,12 @@ export default function FeedbackScreen() {
     version,
     submit,
   } = useFeedback();
+
+  const { markInteractive } = useObserve();
+
+  useEffect(() => {
+    markInteractive();
+  }, [markInteractive]);
 
   if (sent) {
     return (

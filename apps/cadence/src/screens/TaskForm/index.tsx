@@ -1,5 +1,7 @@
+import { useObserve } from 'expo-observe';
 import { Stack } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
+import { useEffect } from 'react';
 import { Pressable, Text, TextInput, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -49,6 +51,12 @@ export default function TaskFormScreen() {
     save,
     confirmDelete,
   } = useTaskForm();
+
+  const { markInteractive } = useObserve();
+
+  useEffect(() => {
+    markInteractive();
+  }, [markInteractive]);
 
   const tint = getTint(color);
   const tintBg = dark ? tint.tintDark : tint.tint;

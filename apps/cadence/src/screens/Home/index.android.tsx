@@ -1,7 +1,8 @@
+import { useObserve } from 'expo-observe';
 import { Dimensions, ScrollView, Text, View } from 'react-native';
 import ConfettiCannon from 'react-native-confetti-cannon';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import AllCaughtUp from '../../components/AllCaughtUp';
 import EmptyStateStarters from '../../components/EmptyStateStarters';
 import Chip from '../../components/ui/android/Chip';
@@ -21,6 +22,12 @@ export default function Home({ tasks }: { tasks: Task[] }) {
   const [filter, setFilter] = useState<HomeFilter>('all');
   const { router, confettiRef, buckets, dueTodayCount, expandedId, callbacks } =
     useHomeContent(tasks);
+
+  const { markInteractive } = useObserve();
+
+  useEffect(() => {
+    markInteractive();
+  }, [markInteractive]);
 
   const screenWidth = Dimensions.get('window').width;
   const emptyState = tasks.length === 0;

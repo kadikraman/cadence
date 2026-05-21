@@ -1,5 +1,7 @@
+import { useObserve } from 'expo-observe';
 import { Stack } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
+import { useEffect } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import DatePickerSheet from '../../components/DatePickerSheet';
@@ -35,6 +37,12 @@ export default function TaskDetailScreen() {
     markDoneNow,
     deleteCompletion,
   } = useTaskDetail();
+
+  const { markInteractive } = useObserve();
+
+  useEffect(() => {
+    markInteractive();
+  }, [markInteractive]);
 
   if (!task) return <View style={styles.root} />;
 

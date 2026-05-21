@@ -1,5 +1,6 @@
+import { useObserve } from 'expo-observe';
 import { SymbolView } from 'expo-symbols';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import FormGroup from '../../components/ui/FormGroup';
@@ -38,6 +39,12 @@ export default function SettingsScreen() {
     handleImport,
     handleRate,
   } = useSettings();
+
+  const { markInteractive } = useObserve();
+
+  useEffect(() => {
+    markInteractive();
+  }, [markInteractive]);
 
   const [inspectorOpen, setInspectorOpen] = useState(false);
   const tapCountRef = useRef(0);

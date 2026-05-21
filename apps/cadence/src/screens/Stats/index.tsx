@@ -1,5 +1,7 @@
+import { useObserve } from 'expo-observe';
 import { useRouter } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
+import { useEffect } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import BigStatTile from '../../components/BigStatTile';
@@ -36,6 +38,12 @@ export default function StatsScreen() {
     cadenceMix,
     hallOfShame,
   } = useStats();
+
+  const { markInteractive } = useObserve();
+
+  useEffect(() => {
+    markInteractive();
+  }, [markInteractive]);
 
   return (
     <View style={[styles.root, { paddingTop: rt.insets.top }]}>

@@ -1,4 +1,5 @@
-import { useMemo } from 'react';
+import { useObserve } from 'expo-observe';
+import { useEffect, useMemo } from 'react';
 import { Dimensions, ScrollView, Text, View } from 'react-native';
 import ConfettiCannon from 'react-native-confetti-cannon';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -16,6 +17,12 @@ export default function Home({ tasks }: { tasks: Task[] }) {
   const { theme } = useUnistyles();
   const { router, confettiRef, buckets, expandedId, callbacks } =
     useHomeContent(tasks);
+
+  const { markInteractive } = useObserve();
+
+  useEffect(() => {
+    markInteractive();
+  }, [markInteractive]);
 
   const heading = useMemo(formatTodayHeading, []);
   const screenWidth = Dimensions.get('window').width;
