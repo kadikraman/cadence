@@ -37,6 +37,7 @@ export default function SettingsScreen() {
     setWeekStartsOnMonday,
     taskCount,
     version,
+    buildNumber,
     handleExport,
     handleImport,
     handleRate,
@@ -290,7 +291,7 @@ export default function SettingsScreen() {
           <View style={styles.inset} />
           <Pressable onPress={onVersionTap} style={styles.row}>
             <Text style={[styles.rowLabel, { marginLeft: 0 }]}>Version</Text>
-            <Text style={styles.rowValue}>{version}</Text>
+            <Text style={styles.rowValue}>{version} ({buildNumber})</Text>
           </Pressable>
         </FormGroup>
       </ScrollView>

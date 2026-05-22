@@ -1,12 +1,13 @@
 import * as Sentry from '@sentry/react-native';
-import Constants from 'expo-constants';
+import * as Application from 'expo-application';
 import { useRouter } from 'expo-router';
 import * as StoreReview from 'expo-store-review';
 import { Alert, Linking } from 'react-native';
-import { logs } from '../../lib/logs';
 import { exportTasks, importTasks } from '../../lib/exportImport';
+import { logs } from '../../lib/logs';
 import { ThemeMode, useSettingsStore } from '../../stores/settings';
 import { useTasksStore } from '../../stores/tasks';
+
 
 export function useSettings() {
   const router = useRouter();
@@ -15,7 +16,8 @@ export function useSettings() {
   const weekStartsOnMonday = useSettingsStore(s => s.weekStartsOnMonday);
   const setWeekStartsOnMonday = useSettingsStore(s => s.setWeekStartsOnMonday);
   const taskCount = useTasksStore(s => s.tasks.length);
-  const version = Constants.expoConfig?.version ?? '1.0';
+  const version = Application.nativeApplicationVersion || "Unknown";
+  const buildNumber = Application.nativeBuildVersion || "Unknown";
 
   const setThemeMode = (mode: ThemeMode) => setThemeModeStore(mode);
 
@@ -70,6 +72,7 @@ export function useSettings() {
     setWeekStartsOnMonday,
     taskCount,
     version,
+    buildNumber,
     handleExport,
     handleImport,
     handleRate,

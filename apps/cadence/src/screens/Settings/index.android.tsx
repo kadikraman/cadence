@@ -34,6 +34,7 @@ export default function SettingsScreen() {
     setWeekStartsOnMonday,
     taskCount,
     version,
+    buildNumber,
     handleExport,
     handleImport,
     handleRate,
@@ -179,7 +180,7 @@ export default function SettingsScreen() {
             title="Version"
             trailing={
               <Text style={[styles.version, { color: theme.colors.label2 }]}>
-                {version}
+                {version} ({buildNumber})
               </Text>
             }
             last
