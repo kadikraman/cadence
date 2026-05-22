@@ -91,9 +91,7 @@ function CadenceAppIcon({ size, dark }: { size: number; dark: boolean }) {
         borderRadius: radius,
         backgroundColor: dark ? '#222A3A' : '#FFFFFF',
         borderWidth: StyleSheet.hairlineWidth,
-        borderColor: dark
-          ? 'rgba(255,255,255,0.06)'
-          : 'rgba(20,40,90,0.08)',
+        borderColor: dark ? 'rgba(255,255,255,0.06)' : 'rgba(20,40,90,0.08)',
         shadowColor: '#0A2245',
         shadowOpacity: dark ? 0.5 : 0.22,
         shadowRadius: dark ? 18 : 22,
@@ -136,10 +134,18 @@ function WidgetShape({
     >
       {kind === 'grid' && (
         <View style={visualStyles.shapeGrid}>
-          <View style={[visualStyles.shapeGridCell, { backgroundColor: stroke }]} />
-          <View style={[visualStyles.shapeGridCell, { backgroundColor: stroke }]} />
-          <View style={[visualStyles.shapeGridCell, { backgroundColor: stroke }]} />
-          <View style={[visualStyles.shapeGridCell, { backgroundColor: stroke }]} />
+          <View
+            style={[visualStyles.shapeGridCell, { backgroundColor: stroke }]}
+          />
+          <View
+            style={[visualStyles.shapeGridCell, { backgroundColor: stroke }]}
+          />
+          <View
+            style={[visualStyles.shapeGridCell, { backgroundColor: stroke }]}
+          />
+          <View
+            style={[visualStyles.shapeGridCell, { backgroundColor: stroke }]}
+          />
         </View>
       )}
       {kind === 'small' && (
@@ -231,32 +237,27 @@ function MenuStep({ dark }: { dark: boolean }) {
       </View>
       <View style={[visualStyles.menu, { backgroundColor: menuBg }]}>
         <View
-          style={[
-            visualStyles.menuShapes,
-            { borderBottomColor: rowDivider },
-          ]}
+          style={[visualStyles.menuShapes, { borderBottomColor: rowDivider }]}
         >
           <WidgetShape kind="grid" selected dark={dark} />
           <WidgetShape kind="small" dark={dark} />
           <WidgetShape kind="medium" dark={dark} />
           <WidgetShape kind="large" dark={dark} />
         </View>
-        <View
-          style={[visualStyles.menuRow, { borderBottomColor: rowDivider }]}
-        >
+        <View style={[visualStyles.menuRow, { borderBottomColor: rowDivider }]}>
           <Text style={[visualStyles.menuRowText, { color: labelColor }]}>
             Edit Home Screen
           </Text>
         </View>
-        <View
-          style={[visualStyles.menuRow, { borderBottomColor: rowDivider }]}
-        >
+        <View style={[visualStyles.menuRow, { borderBottomColor: rowDivider }]}>
           <Text style={[visualStyles.menuRowText, { color: labelColor }]}>
             Require Face ID
           </Text>
         </View>
         <View style={[visualStyles.menuRow, { borderBottomWidth: 0 }]}>
-          <Text style={[visualStyles.menuRowText, { color: theme.colors.error }]}>
+          <Text
+            style={[visualStyles.menuRowText, { color: theme.colors.error }]}
+          >
             Remove App
           </Text>
         </View>

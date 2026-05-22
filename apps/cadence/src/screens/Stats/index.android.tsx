@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { useEffect } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons/static';
 import CadenceMixBar from '../../components/CadenceMixBar';
 import DowChart from '../../components/DowChart';
 import Chip from '../../components/ui/android/Chip';

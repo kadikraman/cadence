@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { Platform, Text, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons/static';
 import Chip from '../../components/ui/android/Chip';
 import MaterialButton from '../../components/ui/android/MaterialButton';
 import MaterialTextField from '../../components/ui/android/MaterialTextField';

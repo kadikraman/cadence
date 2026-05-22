@@ -1,7 +1,7 @@
 import { SymbolView } from 'expo-symbols';
 import { View } from 'react-native';
 import { useUnistyles } from 'react-native-unistyles';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons/static';
 import { Task } from '../../lib/types';
 import { getMaterialIcon, getSymbol, GlyphKey } from '../../utils/glyphs';
 import { ColorKey, getTint } from '../../utils/taskTints';

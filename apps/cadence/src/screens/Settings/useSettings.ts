@@ -8,7 +8,6 @@ import { logs } from '../../lib/logs';
 import { ThemeMode, useSettingsStore } from '../../stores/settings';
 import { useTasksStore } from '../../stores/tasks';
 
-
 export function useSettings() {
   const router = useRouter();
   const themeMode = useSettingsStore(s => s.themeMode);
@@ -16,8 +15,8 @@ export function useSettings() {
   const weekStartsOnMonday = useSettingsStore(s => s.weekStartsOnMonday);
   const setWeekStartsOnMonday = useSettingsStore(s => s.setWeekStartsOnMonday);
   const taskCount = useTasksStore(s => s.tasks.length);
-  const version = Application.nativeApplicationVersion || "Unknown";
-  const buildNumber = Application.nativeBuildVersion || "Unknown";
+  const version = Application.nativeApplicationVersion || 'Unknown';
+  const buildNumber = Application.nativeBuildVersion || 'Unknown';
 
   const setThemeMode = (mode: ThemeMode) => setThemeModeStore(mode);
 

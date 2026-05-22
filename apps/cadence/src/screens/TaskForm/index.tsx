@@ -91,7 +91,6 @@ export default function TaskFormScreen() {
           ),
         }}
       />
-
       <KeyboardAwareScrollView
         contentContainerStyle={styles.scroll}
         keyboardShouldPersistTaps="handled"
@@ -194,7 +193,6 @@ export default function TaskFormScreen() {
           </View>
         )}
       </KeyboardAwareScrollView>
-
       <DatePickerSheet
         visible={dueDatePickerOpen}
         initialDate={nextDueDate}

@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import { Pressable, Text, TextInput, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons/static';
 import ColorPicker from '../../components/ColorPicker';
 import DatePickerSheet from '../../components/DatePickerSheet';
 import GlyphPicker from '../../components/GlyphPicker';
@@ -86,7 +86,6 @@ export default function TaskFormScreen() {
           </MaterialButton>
         }
       />
-
       <KeyboardAwareScrollView
         contentContainerStyle={styles.scroll}
         keyboardShouldPersistTaps="handled"
@@ -224,7 +223,6 @@ export default function TaskFormScreen() {
           </View>
         )}
       </KeyboardAwareScrollView>
-
       <DatePickerSheet
         visible={dueDatePickerOpen}
         initialDate={nextDueDate}

@@ -13,9 +13,7 @@ export default function DowChart({ counts }: DowChartProps) {
   const { theme } = useUnistyles();
   const weekStartsOnMonday = useSettingsStore(s => s.weekStartsOnMonday);
   const labels = weekStartsOnMonday ? DOW_LABELS_MON : DOW_LABELS_SUN;
-  const ordered = weekStartsOnMonday
-    ? [...counts.slice(1), counts[0]]
-    : counts;
+  const ordered = weekStartsOnMonday ? [...counts.slice(1), counts[0]] : counts;
   const max = Math.max(1, ...ordered);
   const peak = ordered.indexOf(Math.max(...ordered));
 

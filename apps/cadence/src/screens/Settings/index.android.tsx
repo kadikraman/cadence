@@ -2,7 +2,7 @@ import { useObserve } from 'expo-observe';
 import { useEffect } from 'react';
 import { ScrollView, Switch, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons/static';
 import TopAppBar from '../../components/ui/android/TopAppBar';
 import { routes } from '../../lib/routes';
 import { generateSampleTasks } from '../../lib/sampleTasks';

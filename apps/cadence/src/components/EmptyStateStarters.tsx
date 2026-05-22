@@ -2,7 +2,7 @@ import { SymbolView } from 'expo-symbols';
 import { useRouter } from 'expo-router';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons/static';
 import { routes } from '../lib/routes';
 import { Cadence } from '../lib/types';
 import { GlyphKey } from '../utils/glyphs';

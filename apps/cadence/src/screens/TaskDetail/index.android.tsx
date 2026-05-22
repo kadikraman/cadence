@@ -4,7 +4,7 @@ import { SymbolView } from 'expo-symbols';
 import { useEffect } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons/static';
 import DatePickerSheet from '../../components/DatePickerSheet';
 import IconButton from '../../components/ui/IconButton';
 import { routes } from '../../lib/routes';

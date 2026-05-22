@@ -161,7 +161,9 @@ export function Small({ tasks }: { tasks: WidgetTask[] }) {
     const tint = hasOverdue
       ? { tint: M3.errorContainer, fg: M3.error }
       : tintFor(t.color);
-    const eyebrow = hasOverdue ? formatDue(t.nextDueDate).toUpperCase() : 'TODAY';
+    const eyebrow = hasOverdue
+      ? formatDue(t.nextDueDate).toUpperCase()
+      : 'TODAY';
     const eyebrowColor = hasOverdue ? M3.error : M3.primary;
     return (
       <FlexWidget

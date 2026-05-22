@@ -1,7 +1,7 @@
 import { SFSymbol, SymbolView } from 'expo-symbols';
 import { Platform, Pressable } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons/static';
 import { UI_SYMBOL_TO_MATERIAL } from '../../utils/glyphs';
 
 interface IconButtonProps {

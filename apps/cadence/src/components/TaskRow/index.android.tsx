@@ -2,7 +2,7 @@ import { memo } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons/static';
 import { formatCadence } from '../../utils/taskUtils';
 import TaskTile from '../ui/TaskTile';
 import ExpandedBar from './ExpandedBar';

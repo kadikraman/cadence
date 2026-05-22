@@ -5,7 +5,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons/static';
 import { Visual } from './types';
 
 export type { Visual } from './types';
@@ -55,13 +55,7 @@ const BLUES_DARK = [
   '#1A3F6A',
 ];
 
-function AndroidCadenceIcon({
-  size,
-  dark,
-}: {
-  size: number;
-  dark: boolean;
-}) {
+function AndroidCadenceIcon({ size, dark }: { size: number; dark: boolean }) {
   const pad = size * 0.2;
   const cell = (size - pad * 2) / ICON_GRID;
   const blues = dark ? BLUES_DARK : BLUES_LIGHT;
@@ -160,9 +154,7 @@ function HomeMenuStep({ dark }: { dark: boolean }) {
                   name={it.icon}
                   size={14}
                   color={
-                    it.highlight
-                      ? theme.colors.onPrimaryContainer
-                      : pillText
+                    it.highlight ? theme.colors.onPrimaryContainer : pillText
                   }
                 />
               </View>
@@ -190,12 +182,7 @@ function WidgetPickerStep({ dark }: { dark: boolean }) {
   const sheetBg = dark ? '#1F1B22' : '#F7F2FA';
   const fieldBg = dark ? '#2C2F38' : '#FFFFFF';
   return (
-    <View
-      style={[
-        visualStyles.sheet,
-        { backgroundColor: sheetBg },
-      ]}
-    >
+    <View style={[visualStyles.sheet, { backgroundColor: sheetBg }]}>
       <View style={visualStyles.handleRow}>
         <View
           style={[
@@ -228,7 +215,9 @@ function WidgetPickerStep({ dark }: { dark: boolean }) {
       <View style={[visualStyles.resultRow, { backgroundColor: fieldBg }]}>
         <AndroidCadenceIcon size={38} dark={dark} />
         <View style={visualStyles.resultBody}>
-          <Text style={[visualStyles.resultTitle, { color: theme.colors.text }]}>
+          <Text
+            style={[visualStyles.resultTitle, { color: theme.colors.text }]}
+          >
             Cadence
           </Text>
           <Text

@@ -291,7 +291,9 @@ export default function SettingsScreen() {
           <View style={styles.inset} />
           <Pressable onPress={onVersionTap} style={styles.row}>
             <Text style={[styles.rowLabel, { marginLeft: 0 }]}>Version</Text>
-            <Text style={styles.rowValue}>{version} ({buildNumber})</Text>
+            <Text style={styles.rowValue}>
+              {version} ({buildNumber})
+            </Text>
           </Pressable>
         </FormGroup>
       </ScrollView>

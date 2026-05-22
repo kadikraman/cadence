@@ -28,7 +28,7 @@ ExpoObserve.configure({
   environment: __DEV__ ? 'development' : 'production',
   integrations: {
     'expo-router': true,
-  }
+  },
 });
 
 function RootLayoutNav() {
