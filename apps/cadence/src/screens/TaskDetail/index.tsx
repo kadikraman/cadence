@@ -15,6 +15,7 @@ import {
   formatDueIn,
   getNextDueDate,
   getTaskStatus,
+  getTodayTimestamp,
 } from '../../utils/taskUtils';
 import CyclesView from './CyclesView';
 import TimelineView from './TimelineView';
@@ -205,7 +206,7 @@ export default function TaskDetailScreen() {
 
       <DatePickerSheet
         visible={datePickerOpen}
-        initialDate={editingEntry ?? Date.now()}
+        initialDate={editingEntry ?? getTodayTimestamp()}
         mode={editingEntry !== null ? 'edit' : 'new'}
         onClose={closeDatePicker}
         onSave={savePicker}

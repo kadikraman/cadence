@@ -24,7 +24,7 @@ export default function Home({ tasks }: { tasks: Task[] }) {
     markInteractive();
   }, [markInteractive]);
 
-  const heading = useMemo(formatTodayHeading, []);
+  const heading = useMemo(() => formatTodayHeading(), []);
   const screenWidth = Dimensions.get('window').width;
   const emptyState = tasks.length === 0;
 

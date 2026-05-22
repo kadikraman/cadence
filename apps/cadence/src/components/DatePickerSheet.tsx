@@ -54,14 +54,21 @@ export default function DatePickerSheet({
   const [selected, setSelected] = useState(() =>
     normalizeToMidnight(initialDate)
   );
+  const [prevVisible, setPrevVisible] = useState(visible);
 
   const backdropOpacity = useSharedValue(0);
   const sheetTranslateY = useSharedValue(SCREEN_HEIGHT);
 
-  useEffect(() => {
+  if (visible !== prevVisible) {
+    setPrevVisible(visible);
     if (visible) {
       setSelected(normalizeToMidnight(initialDate));
       setMounted(true);
+    }
+  }
+
+  useEffect(() => {
+    if (visible) {
       backdropOpacity.value = withTiming(1, { duration: SHOW_DURATION });
       sheetTranslateY.value = withTiming(0, {
         duration: SHOW_DURATION,
@@ -77,7 +84,7 @@ export default function DatePickerSheet({
         }
       );
     }
-  }, [visible, initialDate, mounted, backdropOpacity, sheetTranslateY]);
+  }, [visible, mounted, backdropOpacity, sheetTranslateY]);
 
   const backdropStyle = useAnimatedStyle(() => ({
     opacity: backdropOpacity.value,

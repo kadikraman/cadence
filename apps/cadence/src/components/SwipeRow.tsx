@@ -107,6 +107,7 @@ export default function SwipeRow({
       const maxL = -(rightWidth + 30);
       offset.value = Math.max(maxL, Math.min(maxR, base));
     })
+    // eslint-disable-next-line react-hooks/refs -- reanimated SharedValue, not a React ref
     .onEnd(() => {
       const total = offset.value;
       let final = 0;
@@ -132,6 +133,7 @@ export default function SwipeRow({
 
   const tap = Gesture.Tap()
     .maxDistance(10)
+    // eslint-disable-next-line react-hooks/refs -- reanimated SharedValue, not a React ref
     .onEnd((e, success) => {
       if (!success) return;
       if (onCheckTap && e.x > rowWidth.value - checkAreaWidth) {

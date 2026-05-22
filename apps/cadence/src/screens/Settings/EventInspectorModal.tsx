@@ -1,6 +1,6 @@
 import { SymbolView } from 'expo-symbols';
 import Observe, { AppMetrics } from 'expo-observe';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
   Modal,
@@ -25,6 +25,7 @@ export default function EventInspectorModal({ visible, onClose }: Props) {
   const [loading, setLoading] = useState(false);
   const [busy, setBusy] = useState<null | 'flush' | 'clear'>(null);
   const [lastAction, setLastAction] = useState<string | null>(null);
+  const [prevVisible, setPrevVisible] = useState(visible);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -38,12 +39,13 @@ export default function EventInspectorModal({ visible, onClose }: Props) {
     }
   }, []);
 
-  useEffect(() => {
+  if (visible !== prevVisible) {
+    setPrevVisible(visible);
     if (visible) {
       setLastAction(null);
       refresh();
     }
-  }, [visible, refresh]);
+  }
 
   const flush = async () => {
     setBusy('flush');
