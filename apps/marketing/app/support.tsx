@@ -43,10 +43,19 @@ export default function Support() {
           <details>
             <summary>How do I add the widget to my Home Screen?</summary>
             <div className="faq-body">
-              Long-press an empty area of your Home Screen until the icons start to jiggle, tap the{' '}
-              <strong>＋</strong> in the top-left, search for &ldquo;Cadence,&rdquo; and pick the
-              size you want: small, medium, or large. The widget updates automatically as you
-              complete tasks.
+              <p>
+                <strong>iOS:</strong> Press and hold the <strong>Cadence</strong> app icon, then
+                pick the widget size you want: small, medium, or large.
+              </p>
+              <p>
+                <strong>Android:</strong> Long-press an empty area of your Home Screen, tap{' '}
+                <strong>Widgets</strong>, find <strong>Cadence</strong> in the list, then
+                long-press the size you want (small, medium, or large) and drag it onto the Home
+                Screen.
+              </p>
+              <p>
+                The widget updates automatically as you complete tasks on either platform.
+              </p>
             </div>
           </details>
 
@@ -88,12 +97,20 @@ export default function Support() {
           </details>
 
           <details>
-            <summary>When is the Android version coming?</summary>
+            <summary>How do I get Cadence on Android?</summary>
             <div className="faq-body">
-              We&apos;re working on it. The iOS app came first because we wanted to nail the widget
-              story on one platform before spreading thin. If you&apos;d like to be notified when
-              the Android beta opens, send us feedback from the app and we&apos;ll add you to the
-              list.
+              We&apos;d love your help testing it! The Android build is still being polished, so
+              it&apos;s in{' '}
+              <a
+                href="https://support.google.com/googleplay/android-developer/answer/9845334"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Google Play closed (private) testing
+              </a>{' '}
+              rather than on the Play Store just yet. If you&apos;d like to give it a go, send a
+              quick note to <strong>cadence@kadi.dev</strong> with the Google account you use on
+              the Play Store and we&apos;ll add you to the testers list.
             </div>
           </details>
 
