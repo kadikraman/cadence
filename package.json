@@ -27,6 +27,7 @@
     "unrs-resolver"
   ],
   "patchedDependencies": {
-    "@bacons/apple-targets@3.0.7": "patches/@bacons%2Fapple-targets@3.0.7.patch"
+    "@bacons/apple-targets@3.0.7": "patches/@bacons%2Fapple-targets@3.0.7.patch",
+    "expo-observe@56.0.16": "patches/expo-observe@56.0.16.patch"
   }
 }
