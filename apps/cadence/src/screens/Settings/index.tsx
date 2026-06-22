@@ -36,6 +36,7 @@ export default function SettingsScreen() {
     weekStartsOnMonday,
     setWeekStartsOnMonday,
     taskCount,
+    archivedCount,
     version,
     buildNumber,
     handleExport,
@@ -142,6 +143,33 @@ export default function SettingsScreen() {
             <Switch
               value={weekStartsOnMonday}
               onValueChange={setWeekStartsOnMonday}
+            />
+          </Pressable>
+        </FormGroup>
+
+        <FormLabel>Tasks</FormLabel>
+        <FormGroup>
+          <Pressable
+            onPress={() => router.push(routes.archived)}
+            style={styles.row}
+          >
+            <SymbolView
+              name="archivebox"
+              size={20}
+              tintColor={theme.colors.label2}
+              resizeMode="scaleAspectFit"
+              fallback={null}
+            />
+            <Text style={styles.rowLabel}>Archived tasks</Text>
+            {archivedCount > 0 && (
+              <Text style={styles.rowValue}>{archivedCount}</Text>
+            )}
+            <SymbolView
+              name="chevron.right"
+              size={14}
+              tintColor={theme.colors.label4}
+              resizeMode="scaleAspectFit"
+              fallback={null}
             />
           </Pressable>
         </FormGroup>

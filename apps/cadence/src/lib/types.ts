@@ -12,6 +12,7 @@ export interface Task {
   details?: string;
   color?: ColorKey;
   glyph?: GlyphKey;
+  archived?: boolean;
 }
 
 export type Cadence = {

@@ -70,6 +70,7 @@ function RootLayoutNav() {
           <Stack.Screen name="task/[taskId]" />
           <Stack.Screen name="stats" options={{ headerShown: false }} />
           <Stack.Screen name="settings" options={{ headerShown: false }} />
+          <Stack.Screen name="archived" options={{ headerShown: false }} />
           <Stack.Screen name="feedback" />
         </Stack.Protected>
         <Stack.Screen

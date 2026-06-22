@@ -33,6 +33,7 @@ export default function SettingsScreen() {
     weekStartsOnMonday,
     setWeekStartsOnMonday,
     taskCount,
+    archivedCount,
     version,
     buildNumber,
     handleExport,
@@ -88,6 +89,27 @@ export default function SettingsScreen() {
               <Switch
                 value={weekStartsOnMonday}
                 onValueChange={setWeekStartsOnMonday}
+              />
+            }
+            last
+          />
+        </AndroidGroup>
+
+        <AndroidGroup title="Tasks">
+          <AndroidSettingsRow
+            icon="archive-outline"
+            title="Archived tasks"
+            subtitle={
+              archivedCount > 0
+                ? `${archivedCount} archived`
+                : 'Hidden tasks you can restore'
+            }
+            onPress={() => router.push(routes.archived)}
+            trailing={
+              <MaterialCommunityIcons
+                name="chevron-right"
+                size={22}
+                color={theme.colors.label3}
               />
             }
             last

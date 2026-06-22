@@ -2,11 +2,13 @@ import { describe, expect, test } from 'bun:test';
 import { Task } from '../lib/types';
 import { MS_DAY } from '../utils/taskUtils';
 import {
+  archiveTask,
   editCompletionDate,
   markCompleted,
   mergeTasks,
   removeTask,
   replaceAll,
+  unarchiveTask,
   unmarkCompleted,
   upsertTask,
 } from './taskReducers';
@@ -204,6 +206,45 @@ describe('replaceAll', () => {
     const [result] = replaceAll([raw]);
     expect(result.color).toBe('slate');
     expect(result.glyph).toBe('entry');
+  });
+});
+
+describe('archiveTask', () => {
+  test('marks the matching task as archived', () => {
+    const tasks = [makeTask({ id: 'a' }), makeTask({ id: 'b' })];
+    const result = archiveTask(tasks, 'a');
+    expect(result.find(t => t.id === 'a')?.archived).toBe(true);
+    expect(result.find(t => t.id === 'b')?.archived).toBeUndefined();
+  });
+
+  test('leaves the list unchanged for an unknown id', () => {
+    const tasks = [makeTask({ id: 'a' })];
+    const result = archiveTask(tasks, 'missing');
+    expect(result[0].archived).toBeUndefined();
+  });
+
+  test('preserves completion history', () => {
+    const tasks = [makeTask({ id: 'a', completedDates: [midnight(-7)] })];
+    const result = archiveTask(tasks, 'a');
+    expect(result[0].completedDates).toEqual([midnight(-7)]);
+  });
+});
+
+describe('unarchiveTask', () => {
+  test('clears archived and sets a normalized next due date', () => {
+    const tasks = [makeTask({ id: 'a', archived: true })];
+    const result = unarchiveTask(tasks, 'a', midnight(3) + 5000);
+    expect(result[0].archived).toBe(false);
+    expect(result[0].nextDueDate).toBe(midnight(3));
+  });
+
+  test('only touches the matching task', () => {
+    const tasks = [
+      makeTask({ id: 'a', archived: true }),
+      makeTask({ id: 'b', archived: true }),
+    ];
+    const result = unarchiveTask(tasks, 'a', midnight(1));
+    expect(result.find(t => t.id === 'b')?.archived).toBe(true);
   });
 });
 

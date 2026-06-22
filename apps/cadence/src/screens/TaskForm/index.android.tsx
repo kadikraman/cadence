@@ -52,6 +52,8 @@ export default function TaskFormScreen() {
     handlePickerClose,
     save,
     confirmDelete,
+    confirmArchive,
+    existing,
   } = useTaskForm();
 
   const { markInteractive } = useObserve();
@@ -213,6 +215,16 @@ export default function TaskFormScreen() {
 
         {isEdit && (
           <View style={styles.deleteWrap}>
+            {!existing?.archived && (
+              <MaterialButton
+                onPress={confirmArchive}
+                variant="tonal"
+                icon="archive-outline"
+                accessibilityLabel="Archive task"
+              >
+                Archive task
+              </MaterialButton>
+            )}
             <MaterialButton
               onPress={confirmDelete}
               variant="outlined"
@@ -317,5 +329,6 @@ const styles = StyleSheet.create(theme => ({
   deleteWrap: {
     marginTop: 32,
     alignItems: 'center',
+    gap: 10,
   },
 }));

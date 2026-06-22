@@ -50,6 +50,8 @@ export default function TaskFormScreen() {
     handlePickerClose,
     save,
     confirmDelete,
+    confirmArchive,
+    existing,
   } = useTaskForm();
 
   const { markInteractive } = useObserve();
@@ -187,6 +189,14 @@ export default function TaskFormScreen() {
 
         {isEdit && (
           <View style={styles.deleteWrap}>
+            {!existing?.archived && (
+              <Pressable
+                onPress={confirmArchive}
+                style={[styles.deleteBtn, styles.archiveBtn]}
+              >
+                <Text style={styles.archiveText}>Archive Task</Text>
+              </Pressable>
+            )}
             <Pressable onPress={confirmDelete} style={styles.deleteBtn}>
               <Text style={styles.deleteText}>Delete Task</Text>
             </Pressable>
@@ -305,6 +315,13 @@ const styles = StyleSheet.create(theme => ({
     borderRadius: 14,
     paddingVertical: 14,
     alignItems: 'center',
+  },
+  archiveBtn: {
+    marginBottom: 10,
+  },
+  archiveText: {
+    color: theme.colors.blue,
+    fontSize: 17,
   },
   deleteText: {
     color: theme.colors.error,

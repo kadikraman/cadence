@@ -42,7 +42,12 @@ function AppStoreButton({ ariaLabel }: { ariaLabel: string }) {
       target="_blank"
       rel="noreferrer"
     >
-      <svg className="store-logo" viewBox="0 0 24 24" fill="#fff" aria-hidden="true">
+      <svg
+        className="store-logo"
+        viewBox="0 0 24 24"
+        fill="#fff"
+        aria-hidden="true"
+      >
         <path d={APPLE_SVG_PATH} />
       </svg>
       <span className="dl-text">
@@ -97,7 +102,13 @@ function GooglePlayButton({
   );
 }
 
-function AndroidTestingModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+function AndroidTestingModal({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -137,18 +148,28 @@ function AndroidTestingModal({ open, onClose }: { open: boolean; onClose: () => 
       aria-modal="true"
       aria-labelledby="android-modal-title"
     >
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
+      <div className="modal" onClick={e => e.stopPropagation()}>
         <button
           type="button"
           className="modal-close"
           onClick={onClose}
           aria-label="Close"
         >
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
+          <svg
+            viewBox="0 0 24 24"
+            width="20"
+            height="20"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            strokeLinecap="round"
+          >
             <path d="M6 6l12 12M18 6L6 18" />
           </svg>
         </button>
-        <h3 id="android-modal-title">Would love your help testing Cadence on Android</h3>
+        <h3 id="android-modal-title">
+          Would love your help testing Cadence on Android
+        </h3>
         <p>
           The Android build is still being polished, so it&apos;s in{' '}
           <a
@@ -161,8 +182,9 @@ function AndroidTestingModal({ open, onClose }: { open: boolean; onClose: () => 
           rather than on the Play Store just yet.
         </p>
         <p>
-          If you&apos;d like to help out, send me a quick note with the Google account you use on
-          the Play Store and I&apos;ll add you to the testers list. Thank you!
+          If you&apos;d like to help out, send me a quick note with the Google
+          account you use on the Play Store and I&apos;ll add you to the testers
+          list. Thank you!
         </p>
         <div className="modal-email" aria-label="Email address">
           <span className="modal-email-value">{ANDROID_TESTING_EMAIL}</span>
@@ -210,13 +232,16 @@ export default function Home() {
               no pings.
             </h1>
             <p className="lede">
-              Cadence is the quiet app for the recurring stuff. Water the plants, change the
-              filter, check on the car. It sits on your Home Screen and waits. Glance when you
-              want.
+              Cadence is the quiet app for the recurring stuff. Water the
+              plants, change the filter, check on the car. It sits on your Home
+              Screen and waits. Glance when you want.
             </p>
             <div className="dl-row">
               <AppStoreButton ariaLabel="Download on the App Store" />
-              <GooglePlayButton ariaLabel="Get it on Google Play" onClick={openAndroidModal} />
+              <GooglePlayButton
+                ariaLabel="Get it on Google Play"
+                onClick={openAndroidModal}
+              />
             </div>
             <div className="hero-meta">
               <span className="chk">
@@ -251,7 +276,10 @@ export default function Home() {
                 </svg>
                 Android
               </div>
-              <img src={SCREEN_TASKS_ANDROID} alt="Cadence task list on Pixel" />
+              <img
+                src={SCREEN_TASKS_ANDROID}
+                alt="Cadence task list on Pixel"
+              />
             </div>
           </div>
         </div>
@@ -264,31 +292,46 @@ export default function Home() {
               <div className="eyebrow">Native on both</div>
               <h2>Two phones. One quiet app.</h2>
               <p>
-                Not a wrapper. Not a port. Cadence is written for each platform's own conventions
-                — so it feels like it was always there.
+                Not a wrapper. Not a port. Cadence is written for each
+                platform's own conventions — so it feels like it was always
+                there.
               </p>
               <div className="platforms-points">
                 <div className="point">
                   <span className="pi">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
                       <path d={APPLE_SVG_PATH} />
                     </svg>
                   </span>
                   <span>
                     <strong>iOS</strong>
-                    SF&nbsp;Pro, Human Interface Guidelines, three WidgetKit sizes, Lock Screen
-                    complications.
+                    SF&nbsp;Pro, Human Interface Guidelines, three WidgetKit
+                    sizes, Lock Screen complications.
                   </span>
                 </div>
                 <div className="point">
-                  <span className="pi" style={{ background: '#DCF1E2', color: '#0E7A40' }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <span
+                    className="pi"
+                    style={{ background: '#DCF1E2', color: '#0E7A40' }}
+                  >
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
                       <path d={ANDROID_SVG_PATH} />
                     </svg>
                   </span>
                   <span>
                     <strong>Android</strong>
-                    Material 3, dynamic color, three Glance widget sizes, M3 dialogs and tabs.
+                    Material 3, dynamic color, three Glance widget sizes, M3
+                    dialogs and tabs.
                   </span>
                 </div>
                 <div className="point">
@@ -309,8 +352,8 @@ export default function Home() {
                   </span>
                   <span>
                     <strong>Same data model</strong>
-                    Cadences, streaks, glyph + tint set — identical on either side. Swap phones
-                    and it feels the same.
+                    Cadences, streaks, glyph + tint set — identical on either
+                    side. Swap phones and it feels the same.
                   </span>
                 </div>
                 <div className="point">
@@ -331,7 +374,8 @@ export default function Home() {
                   </span>
                   <span>
                     <strong>On device, both ways</strong>
-                    No account on either platform. Your data doesn't go anywhere.
+                    No account on either platform. Your data doesn't go
+                    anywhere.
                   </span>
                 </div>
               </div>
@@ -360,13 +404,17 @@ export default function Home() {
             <div className="eyebrow">Home Screen widgets</div>
             <h2>One glance and you're done.</h2>
             <p>
-              Three sizes on iOS, three on Android. What's due, what's overdue, and what's coming
-              up — without opening the app.
+              Three sizes on iOS, three on Android. What's due, what's overdue,
+              and what's coming up — without opening the app.
             </p>
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <div className="platform-toggle" role="tablist" aria-label="Choose platform">
+            <div
+              className="platform-toggle"
+              role="tablist"
+              aria-label="Choose platform"
+            >
               <button
                 className={platform === 'ios' ? 'active' : undefined}
                 role="tab"
@@ -396,7 +444,9 @@ export default function Home() {
             <div className="widget-card small">
               <div className="widget-image">
                 <img
-                  src={platform === 'ios' ? WIDGET_SMALL_IOS : WIDGET_SMALL_ANDROID}
+                  src={
+                    platform === 'ios' ? WIDGET_SMALL_IOS : WIDGET_SMALL_ANDROID
+                  }
                   alt={`Cadence small widget on ${platform === 'ios' ? 'iOS' : 'Android'}`}
                 />
               </div>
@@ -412,7 +462,11 @@ export default function Home() {
             <div className="widget-card medium">
               <div className="widget-image">
                 <img
-                  src={platform === 'ios' ? WIDGET_MEDIUM_IOS : WIDGET_MEDIUM_ANDROID}
+                  src={
+                    platform === 'ios'
+                      ? WIDGET_MEDIUM_IOS
+                      : WIDGET_MEDIUM_ANDROID
+                  }
                   alt={`Cadence medium widget on ${platform === 'ios' ? 'iOS' : 'Android'}`}
                 />
               </div>
@@ -421,14 +475,17 @@ export default function Home() {
                 <h3 style={{ marginTop: 8 }}>Three up top</h3>
               </div>
               <p className="widget-desc">
-                The next three items on your list. Red for overdue, blue for today.
+                The next three items on your list. Red for overdue, blue for
+                today.
               </p>
             </div>
 
             <div className="widget-card large">
               <div className="widget-image">
                 <img
-                  src={platform === 'ios' ? WIDGET_LARGE_IOS : WIDGET_LARGE_ANDROID}
+                  src={
+                    platform === 'ios' ? WIDGET_LARGE_IOS : WIDGET_LARGE_ANDROID
+                  }
                   alt={`Cadence large widget on ${platform === 'ios' ? 'iOS' : 'Android'}`}
                 />
               </div>
@@ -437,7 +494,8 @@ export default function Home() {
                 <h3 style={{ marginTop: 8 }}>Everything at once</h3>
               </div>
               <p className="widget-desc">
-                Overdue, today, total. Plus the full list. Your streak, quietly, at the top.
+                Overdue, today, total. Plus the full list. Your streak, quietly,
+                at the top.
               </p>
             </div>
           </div>
@@ -454,8 +512,8 @@ export default function Home() {
               Done well.
             </h2>
             <p>
-              Cadence doesn't replace your todo list. It handles the specific things that come
-              back around.
+              Cadence doesn't replace your todo list. It handles the specific
+              things that come back around.
             </p>
           </div>
 
@@ -478,8 +536,8 @@ export default function Home() {
               </div>
               <h3>Flexible cadences</h3>
               <p>
-                Every 3 days. Every 2 weeks. First Monday of the month. Set it once. Cadence keeps
-                the schedule.
+                Every 3 days. Every 2 weeks. First Monday of the month. Set it
+                once. Cadence keeps the schedule.
               </p>
             </div>
 
@@ -503,8 +561,8 @@ export default function Home() {
               </div>
               <h3>On your Home Screen</h3>
               <p>
-                Small, medium, and large widgets, so the list is always one glance away. No need
-                to launch anything.
+                Small, medium, and large widgets, so the list is always one
+                glance away. No need to launch anything.
               </p>
             </div>
 
@@ -527,8 +585,8 @@ export default function Home() {
               </div>
               <h3>No push notifications</h3>
               <p>
-                Zero pings. Ever. Your phone doesn't buzz at you. You look when you're ready.
-                That's the whole pitch.
+                Zero pings. Ever. Your phone doesn't buzz at you. You look when
+                you're ready. That's the whole pitch.
               </p>
             </div>
 
@@ -550,8 +608,8 @@ export default function Home() {
               </div>
               <h3>Streaks &amp; stats</h3>
               <p>
-                See your on-time rate, your longest streak, and which tasks you're most consistent
-                with. Gentle nudges, not shame.
+                See your on-time rate, your longest streak, and which tasks
+                you're most consistent with. Gentle nudges, not shame.
               </p>
             </div>
 
@@ -573,8 +631,8 @@ export default function Home() {
               </div>
               <h3>Your data stays put</h3>
               <p>
-                Tasks live on your device. No account, no cloud by default. Anonymous crash
-                reports only. Nothing identifying.
+                Tasks live on your device. No account, no cloud by default.
+                Anonymous crash reports only. Nothing identifying.
               </p>
             </div>
 
@@ -596,8 +654,9 @@ export default function Home() {
               </div>
               <h3>Pick a color, pick an icon</h3>
               <p>
-                Twenty calm tints. Forty-two glyphs. Plus Material You dynamic color on Android.
-                Your list looks like a shelf, not a spreadsheet.
+                Twenty calm tints. Forty-two glyphs. Plus Material You dynamic
+                color on Android. Your list looks like a shelf, not a
+                spreadsheet.
               </p>
             </div>
           </div>
@@ -608,19 +667,26 @@ export default function Home() {
         <div className="wrap">
           <h2>Let your phone be quiet again.</h2>
           <p>
-            Cadence is free on the App Store, and in private testing on Android. Try it for a
-            week. If it's not for you, delete it. Your data never left your device anyway.
+            Cadence is free on the App Store, and in private testing on Android.
+            Try it for a week. If it's not for you, delete it. Your data never
+            left your device anyway.
           </p>
           <div className="dl-row" style={{ justifyContent: 'center' }}>
             <AppStoreButton ariaLabel="Download on the App Store" />
-            <GooglePlayButton ariaLabel="Get it on Google Play" onClick={openAndroidModal} />
+            <GooglePlayButton
+              ariaLabel="Get it on Google Play"
+              onClick={openAndroidModal}
+            />
           </div>
         </div>
       </section>
 
       <Footer />
 
-      <AndroidTestingModal open={androidModalOpen} onClose={closeAndroidModal} />
+      <AndroidTestingModal
+        open={androidModalOpen}
+        onClose={closeAndroidModal}
+      />
     </>
   );
 }

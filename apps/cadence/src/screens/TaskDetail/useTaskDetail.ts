@@ -2,8 +2,20 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { logs } from '../../lib/logs';
 import { useTasksStore } from '../../stores/tasks';
+import { getTodayTimestamp, MS_DAY } from '../../utils/taskUtils';
+import type { QuickOption } from '../../components/DatePickerSheet';
 
 export type Tab = 'timeline' | 'cycles';
+
+function nextDueQuickOptions(): QuickOption[] {
+  const today = getTodayTimestamp();
+  return [
+    { label: 'Today', ts: today },
+    { label: 'Tomorrow', ts: today + MS_DAY },
+    { label: 'In a week', ts: today + 7 * MS_DAY },
+    { label: 'In a month', ts: today + 30 * MS_DAY },
+  ];
+}
 
 export function useTaskDetail() {
   const { taskId } = useLocalSearchParams<{ taskId: string }>();
@@ -13,10 +25,12 @@ export function useTaskDetail() {
   const markCompleted = useTasksStore(s => s.markCompleted);
   const editCompletionDate = useTasksStore(s => s.editCompletionDate);
   const unmarkCompleted = useTasksStore(s => s.unmarkCompleted);
+  const unarchiveTask = useTasksStore(s => s.unarchive);
 
   const [tab, setTab] = useState<Tab>('timeline');
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<number | null>(null);
+  const [unarchiveOpen, setUnarchiveOpen] = useState(false);
 
   const openNewDatePicker = () => {
     setEditingEntry(null);
@@ -56,6 +70,16 @@ export function useTaskDetail() {
     await unmarkCompleted(task.id, ts);
   };
 
+  const openUnarchivePicker = () => setUnarchiveOpen(true);
+  const closeUnarchivePicker = () => setUnarchiveOpen(false);
+
+  const confirmUnarchive = async (ts: number) => {
+    if (!task) return;
+    logs.taskUnarchived();
+    await unarchiveTask(task.id, ts);
+    setUnarchiveOpen(false);
+  };
+
   return {
     router,
     task,
@@ -69,5 +93,10 @@ export function useTaskDetail() {
     savePicker,
     markDoneNow,
     deleteCompletion,
+    unarchiveOpen,
+    openUnarchivePicker,
+    closeUnarchivePicker,
+    confirmUnarchive,
+    unarchiveQuickOptions: nextDueQuickOptions(),
   };
 }

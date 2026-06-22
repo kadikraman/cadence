@@ -20,6 +20,7 @@ import {
   getNextDueDate,
   getTaskStatus,
   getTodayTimestamp,
+  relativeLabel,
 } from '../../utils/taskUtils';
 import CyclesView from './CyclesView';
 import TimelineView from './TimelineView';
@@ -41,6 +42,11 @@ export default function TaskDetailScreen() {
     savePicker,
     markDoneNow,
     deleteCompletion,
+    unarchiveOpen,
+    openUnarchivePicker,
+    closeUnarchivePicker,
+    confirmUnarchive,
+    unarchiveQuickOptions,
   } = useTaskDetail();
 
   const { markInteractive } = useObserve();
@@ -51,6 +57,7 @@ export default function TaskDetailScreen() {
 
   if (!task) return <View style={styles.root} />;
 
+  const archived = !!task.archived;
   const tint = getTint(task.color);
   const tintAccent = dark ? tint.accentDark : tint.accent;
   const status = getTaskStatus(task);
@@ -122,17 +129,25 @@ export default function TaskDetailScreen() {
           ) : null}
           <View style={[styles.nextDuePanel, { backgroundColor: heroPanelBg }]}>
             <Text style={styles.nextDueLabel}>
-              {overdue ? 'OVERDUE' : 'NEXT DUE'}
+              {archived ? 'ARCHIVED' : overdue ? 'OVERDUE' : 'NEXT DUE'}
             </Text>
             <Text
               style={[
                 styles.nextDueValue,
                 {
-                  color: overdue ? theme.colors.error : theme.colors.text,
+                  color: archived
+                    ? theme.colors.label2
+                    : overdue
+                      ? theme.colors.error
+                      : theme.colors.text,
                 },
               ]}
             >
-              {formatDueIn(nextDue)}
+              {archived
+                ? task.lastCompletedAt
+                  ? `Last done ${relativeLabel(task.lastCompletedAt).toLowerCase()}`
+                  : 'Never completed'
+                : formatDueIn(nextDue)}
             </Text>
           </View>
         </View>
@@ -148,18 +163,30 @@ export default function TaskDetailScreen() {
           <StatChip label="Completed" value={String(stats.total)} />
         </View>
 
-        <View style={styles.actionsRow}>
-          <MaterialButton onPress={markDoneNow} icon="check" full>
-            Mark done
-          </MaterialButton>
-          <MaterialButton
-            onPress={openNewDatePicker}
-            variant="tonal"
-            icon="calendar"
-          >
-            Pick date
-          </MaterialButton>
-        </View>
+        {archived ? (
+          <View style={styles.actionsRow}>
+            <MaterialButton
+              onPress={openUnarchivePicker}
+              icon="tray-arrow-up"
+              full
+            >
+              Unarchive
+            </MaterialButton>
+          </View>
+        ) : (
+          <View style={styles.actionsRow}>
+            <MaterialButton onPress={markDoneNow} icon="check" full>
+              Mark done
+            </MaterialButton>
+            <MaterialButton
+              onPress={openNewDatePicker}
+              variant="tonal"
+              icon="calendar"
+            >
+              Pick date
+            </MaterialButton>
+          </View>
+        )}
 
         <MaterialTabs<Tab>
           value={tab}
@@ -189,6 +216,17 @@ export default function TaskDetailScreen() {
         mode={editingEntry !== null ? 'edit' : 'new'}
         onClose={closeDatePicker}
         onSave={savePicker}
+      />
+
+      <DatePickerSheet
+        visible={unarchiveOpen}
+        initialDate={getTodayTimestamp()}
+        title="Set next due date"
+        selectedLabel="Next due"
+        quickOptions={unarchiveQuickOptions}
+        allowFuture
+        onClose={closeUnarchivePicker}
+        onSave={confirmUnarchive}
       />
     </View>
   );

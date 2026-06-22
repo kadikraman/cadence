@@ -16,6 +16,7 @@ import {
   getNextDueDate,
   getTaskStatus,
   getTodayTimestamp,
+  relativeLabel,
 } from '../../utils/taskUtils';
 import CyclesView from './CyclesView';
 import TimelineView from './TimelineView';
@@ -37,6 +38,11 @@ export default function TaskDetailScreen() {
     savePicker,
     markDoneNow,
     deleteCompletion,
+    unarchiveOpen,
+    openUnarchivePicker,
+    closeUnarchivePicker,
+    confirmUnarchive,
+    unarchiveQuickOptions,
   } = useTaskDetail();
 
   const { markInteractive } = useObserve();
@@ -47,6 +53,7 @@ export default function TaskDetailScreen() {
 
   if (!task) return <View style={styles.root} />;
 
+  const archived = !!task.archived;
   const tint = getTint(task.color);
   const tintAccent = dark ? tint.accentDark : tint.accent;
   const status = getTaskStatus(task);
@@ -128,15 +135,25 @@ export default function TaskDetailScreen() {
           <View style={[styles.nextDuePanel, { backgroundColor: heroPanelBg }]}>
             <View style={styles.nextDueRow}>
               <Text style={styles.nextDueLabel}>
-                {overdue ? 'OVERDUE' : 'NEXT DUE'}
+                {archived ? 'ARCHIVED' : overdue ? 'OVERDUE' : 'NEXT DUE'}
               </Text>
               <Text
                 style={[
                   styles.nextDueValue,
-                  { color: overdue ? theme.colors.error : theme.colors.text },
+                  {
+                    color: archived
+                      ? theme.colors.label2
+                      : overdue
+                        ? theme.colors.error
+                        : theme.colors.text,
+                  },
                 ]}
               >
-                {formatDueIn(nextDue)}
+                {archived
+                  ? task.lastCompletedAt
+                    ? `Last done ${relativeLabel(task.lastCompletedAt).toLowerCase()}`
+                    : 'Never completed'
+                  : formatDueIn(nextDue)}
               </Text>
             </View>
           </View>
@@ -157,28 +174,46 @@ export default function TaskDetailScreen() {
           <StatTile label="Completed" value={String(stats.total)} />
         </View>
 
-        <View style={styles.actionsRow}>
-          <Pressable style={styles.primaryBtn} onPress={markDoneNow}>
-            <SymbolView
-              name="checkmark"
-              size={18}
-              tintColor="#fff"
-              resizeMode="scaleAspectFit"
-              fallback={null}
-            />
-            <Text style={styles.primaryBtnText}>Mark done now</Text>
-          </Pressable>
-          <Pressable style={styles.secondaryBtn} onPress={openNewDatePicker}>
-            <SymbolView
-              name="calendar"
-              size={16}
-              tintColor={theme.colors.text}
-              resizeMode="scaleAspectFit"
-              fallback={null}
-            />
-            <Text style={styles.secondaryBtnText}>Date…</Text>
-          </Pressable>
-        </View>
+        {archived ? (
+          <View style={styles.actionsRow}>
+            <Pressable
+              style={styles.unarchiveBtn}
+              onPress={openUnarchivePicker}
+            >
+              <SymbolView
+                name="tray.and.arrow.up.fill"
+                size={18}
+                tintColor="#fff"
+                resizeMode="scaleAspectFit"
+                fallback={null}
+              />
+              <Text style={styles.primaryBtnText}>Unarchive</Text>
+            </Pressable>
+          </View>
+        ) : (
+          <View style={styles.actionsRow}>
+            <Pressable style={styles.primaryBtn} onPress={markDoneNow}>
+              <SymbolView
+                name="checkmark"
+                size={18}
+                tintColor="#fff"
+                resizeMode="scaleAspectFit"
+                fallback={null}
+              />
+              <Text style={styles.primaryBtnText}>Mark done now</Text>
+            </Pressable>
+            <Pressable style={styles.secondaryBtn} onPress={openNewDatePicker}>
+              <SymbolView
+                name="calendar"
+                size={16}
+                tintColor={theme.colors.text}
+                resizeMode="scaleAspectFit"
+                fallback={null}
+              />
+              <Text style={styles.secondaryBtnText}>Date…</Text>
+            </Pressable>
+          </View>
+        )}
 
         <View style={styles.tabWrap}>
           <SegmentedControl
@@ -210,6 +245,17 @@ export default function TaskDetailScreen() {
         mode={editingEntry !== null ? 'edit' : 'new'}
         onClose={closeDatePicker}
         onSave={savePicker}
+      />
+
+      <DatePickerSheet
+        visible={unarchiveOpen}
+        initialDate={getTodayTimestamp()}
+        title="Set next due date"
+        selectedLabel="Next due"
+        quickOptions={unarchiveQuickOptions}
+        allowFuture
+        onClose={closeUnarchivePicker}
+        onSave={confirmUnarchive}
       />
     </View>
   );
@@ -368,6 +414,16 @@ const styles = StyleSheet.create(theme => ({
     height: 48,
     borderRadius: 14,
     backgroundColor: theme.colors.success,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    gap: 8,
+  },
+  unarchiveBtn: {
+    flex: 1,
+    height: 48,
+    borderRadius: 14,
+    backgroundColor: theme.colors.blue,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',

@@ -43,6 +43,10 @@ export const logs = {
 
   taskDeleted: () => AppMetrics.logEvent('task.deleted'),
 
+  taskArchived: () => AppMetrics.logEvent('task.archived'),
+
+  taskUnarchived: () => AppMetrics.logEvent('task.unarchived'),
+
   widgetNudgeDismissed: (via: WidgetDismissReason) =>
     AppMetrics.logEvent('widget.nudge_dismissed', {
       attributes: { via },

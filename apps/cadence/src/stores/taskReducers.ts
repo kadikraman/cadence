@@ -80,6 +80,22 @@ export function editCompletionDate(
   });
 }
 
+export function archiveTask(tasks: Task[], id: string): Task[] {
+  return tasks.map(t => (t.id === id ? { ...t, archived: true } : t));
+}
+
+export function unarchiveTask(
+  tasks: Task[],
+  id: string,
+  nextDueDate: number
+): Task[] {
+  return tasks.map(t =>
+    t.id === id
+      ? { ...t, archived: false, nextDueDate: normalizeToMidnight(nextDueDate) }
+      : t
+  );
+}
+
 export function replaceAll(tasks: Task[]): Task[] {
   return tasks.map(normalizeTask);
 }

@@ -31,6 +31,7 @@ export function useTaskForm() {
 
   const saveTask = useTasksStore(s => s.save);
   const removeTask = useTasksStore(s => s.remove);
+  const archiveTask = useTasksStore(s => s.archive);
   const existing = useTasksStore(s =>
     params.taskId ? (s.tasks.find(t => t.id === params.taskId) ?? null) : null
   );
@@ -93,6 +94,7 @@ export function useTaskForm() {
       completedDates: existing?.completedDates ?? [],
       lastCompletedAt: existing?.lastCompletedAt,
       nextDueDate: nextDue,
+      archived: existing?.archived,
     };
     await saveTask(saved);
     if (!existing) logs.taskCreated(!!params.title);
@@ -172,6 +174,25 @@ export function useTaskForm() {
     );
   };
 
+  const confirmArchive = () => {
+    if (!existing) return;
+    Alert.alert(
+      'Archive task',
+      `"${existing.title}" will be hidden from your list and the widget. Its history is kept, and you can unarchive it any time from Settings → Archived tasks.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Archive',
+          onPress: async () => {
+            logs.taskArchived();
+            await archiveTask(existing.id);
+            router.back();
+          },
+        },
+      ]
+    );
+  };
+
   return {
     router,
     isEdit,
@@ -199,6 +220,7 @@ export function useTaskForm() {
     handlePickerClose,
     save,
     confirmDelete,
+    confirmArchive,
     existing,
   };
 }

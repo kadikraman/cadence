@@ -15,6 +15,9 @@ export function useSettings() {
   const weekStartsOnMonday = useSettingsStore(s => s.weekStartsOnMonday);
   const setWeekStartsOnMonday = useSettingsStore(s => s.setWeekStartsOnMonday);
   const taskCount = useTasksStore(s => s.tasks.length);
+  const archivedCount = useTasksStore(
+    s => s.tasks.filter(t => t.archived).length
+  );
   const version = Application.nativeApplicationVersion || 'Unknown';
   const buildNumber = Application.nativeBuildVersion || 'Unknown';
 
@@ -70,6 +73,7 @@ export function useSettings() {
     weekStartsOnMonday,
     setWeekStartsOnMonday,
     taskCount,
+    archivedCount,
     version,
     buildNumber,
     handleExport,

@@ -2,11 +2,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { Task } from '../lib/types';
 import {
+  archiveTask as archiveTaskReducer,
   editCompletionDate as editCompletionDateReducer,
   markCompleted as markCompletedReducer,
   mergeTasks as mergeTasksReducer,
   removeTask as removeTaskReducer,
   replaceAll as replaceAllReducer,
+  unarchiveTask as unarchiveTaskReducer,
   unmarkCompleted as unmarkCompletedReducer,
   upsertTask as upsertTaskReducer,
 } from './taskReducers';
@@ -26,6 +28,8 @@ interface TasksStore {
     oldDate: number,
     newDate: number
   ) => Promise<void>;
+  archive: (id: string) => Promise<void>;
+  unarchive: (id: string, nextDueDate: number) => Promise<void>;
   replaceAll: (tasks: Task[]) => Promise<void>;
   merge: (tasks: Task[]) => Promise<{ imported: number; skipped: number }>;
 }
@@ -64,6 +68,8 @@ export const useTasksStore = create<TasksStore>((set, get) => {
     markCompleted: apply(markCompletedReducer),
     unmarkCompleted: apply(unmarkCompletedReducer),
     editCompletionDate: apply(editCompletionDateReducer),
+    archive: apply(archiveTaskReducer),
+    unarchive: apply(unarchiveTaskReducer),
 
     replaceAll: async incoming => {
       const tasks = replaceAllReducer(incoming);

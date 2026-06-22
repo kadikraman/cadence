@@ -58,7 +58,8 @@ export function useHomeContent(tasks: Task[]) {
       await markCompleted(task.id);
       const updated = useTasksStore.getState().tasks;
       const remaining = updated.filter(
-        t => (isOverdue(t) || isDueToday(t)) && !isCompletedToday(t)
+        t =>
+          !t.archived && (isOverdue(t) || isDueToday(t)) && !isCompletedToday(t)
       );
       if (remaining.length === 0) celebrateCompletion();
     },

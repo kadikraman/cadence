@@ -19,6 +19,8 @@ export function useStats() {
   const [range, setRange] = useState<Range>('30');
   const rangeDays = parseInt(range);
 
+  const activeTasks = useMemo(() => tasks.filter(t => !t.archived), [tasks]);
+
   const overall = useMemo(() => {
     const { onTime, late, pct } = computeOnTimePct(tasks, rangeDays);
     const cutoff = getTodayTimestamp() - rangeDays * MS_DAY;
@@ -32,28 +34,34 @@ export function useStats() {
   }, [tasks, rangeDays]);
 
   const weekly = useMemo(() => computeWeeklyCompletions(tasks, 12), [tasks]);
-  const longestStreak = useMemo(() => computeLongestStreak(tasks), [tasks]);
+  const longestStreak = useMemo(
+    () => computeLongestStreak(activeTasks),
+    [activeTasks]
+  );
   const avgLateDrift = useMemo(
     () => computeAvgLateDrift(tasks, rangeDays),
     [tasks, rangeDays]
   );
   const mostReliable = useMemo(
-    () => computeMostReliable(tasks, rangeDays),
-    [tasks, rangeDays]
+    () => computeMostReliable(activeTasks, rangeDays),
+    [activeTasks, rangeDays]
   );
   const dowCounts = useMemo(
     () => computeDowCounts(tasks, rangeDays),
     [tasks, rangeDays]
   );
-  const cadenceMix = useMemo(() => computeCadenceMix(tasks), [tasks]);
+  const cadenceMix = useMemo(
+    () => computeCadenceMix(activeTasks),
+    [activeTasks]
+  );
 
   const hallOfShame = useMemo(() => {
-    return [...tasks]
+    return [...activeTasks]
       .map(t => ({ t, h: taskHealth(t) }))
       .filter(x => x.h > 1)
       .sort((a, b) => b.h - a.h)
       .slice(0, 4);
-  }, [tasks]);
+  }, [activeTasks]);
 
   return {
     range,
