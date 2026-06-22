@@ -18,6 +18,7 @@ import {
   MS_DAY,
   normalizeToMidnight,
 } from '../../utils/taskUtils';
+import { useToday } from './useToday';
 
 export function formatTodayHeading(date = new Date()): string {
   return date.toLocaleString('en-US', {
@@ -32,7 +33,10 @@ export function useHomeContent(tasks: Task[]) {
   const confettiRef = useRef<ConfettiCannon>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  const buckets = useMemo(() => bucketizeTasks(tasks), [tasks]);
+  const today = useToday();
+  const heading = useMemo(() => formatTodayHeading(new Date(today)), [today]);
+
+  const buckets = useMemo(() => bucketizeTasks(tasks, today), [tasks, today]);
   const dueTodayCount =
     buckets.overdue.length +
     buckets.today.filter(t => !isCompletedToday(t)).length;
@@ -158,5 +162,6 @@ export function useHomeContent(tasks: Task[]) {
     dueTodayCount,
     expandedId,
     callbacks,
+    heading,
   };
 }

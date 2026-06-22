@@ -167,8 +167,10 @@ export interface Buckets {
   later: Task[];
 }
 
-export function bucketizeTasks(tasks: Task[]): Buckets {
-  const todayTs = getTodayTimestamp();
+export function bucketizeTasks(
+  tasks: Task[],
+  todayTs: number = getTodayTimestamp()
+): Buckets {
   const inWeek = todayTs + 7 * MS_DAY;
   const buckets: Buckets = {
     overdue: [],

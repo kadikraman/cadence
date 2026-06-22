@@ -1,5 +1,5 @@
 import { useObserve } from 'expo-observe';
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { Dimensions, ScrollView, Text, View } from 'react-native';
 import ConfettiCannon from 'react-native-confetti-cannon';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -11,11 +11,11 @@ import { routes } from '../../lib/routes';
 import { Task } from '../../lib/types';
 import { isCompletedToday } from '../../utils/taskUtils';
 import Section from './Section';
-import { formatTodayHeading, useHomeContent } from './useHomeContent';
+import { useHomeContent } from './useHomeContent';
 
 export default function Home({ tasks }: { tasks: Task[] }) {
   const { theme } = useUnistyles();
-  const { router, confettiRef, buckets, expandedId, callbacks } =
+  const { router, confettiRef, buckets, expandedId, callbacks, heading } =
     useHomeContent(tasks);
 
   const { markInteractive } = useObserve();
@@ -24,7 +24,6 @@ export default function Home({ tasks }: { tasks: Task[] }) {
     markInteractive();
   }, [markInteractive]);
 
-  const heading = useMemo(() => formatTodayHeading(), []);
   const screenWidth = Dimensions.get('window').width;
   const emptyState = tasks.length === 0;
 
