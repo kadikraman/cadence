@@ -11,7 +11,9 @@ import {
 } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
-type Session = Awaited<ReturnType<typeof AppMetrics.getAllSessions>>[number];
+type Session = Awaited<
+  ReturnType<typeof AppMetrics.getInactiveSessions>
+>[number];
 type LogRecord = Session['logs'][number];
 
 interface Props {
@@ -30,7 +32,7 @@ export default function EventInspectorModal({ visible, onClose }: Props) {
   const refresh = useCallback(async () => {
     setLoading(true);
     try {
-      const all = await AppMetrics.getAllSessions();
+      const all = await AppMetrics.getInactiveSessions();
       setSessions(all);
     } catch (err) {
       setLastAction(`Refresh failed: ${(err as Error).message}`);
