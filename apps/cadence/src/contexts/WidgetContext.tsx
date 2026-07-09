@@ -1,4 +1,3 @@
-import { ExtensionStorage } from '@bacons/apple-targets';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as React from 'react';
 import { createContext, useCallback, useContext } from 'react';
@@ -13,7 +12,6 @@ import {
 import { computeOnTimePct, computeStreak } from '../utils/statsUtils';
 import {
   getNextDueDate,
-  getPriorityTask,
   getTodayTimestamp,
   isCompletedToday,
   isDueToday,
@@ -21,12 +19,11 @@ import {
   MS_DAY,
 } from '../utils/taskUtils';
 import { CadenceWidget } from '../widgets/CadenceWidget';
+import { reloadIosWidget, updateIosWidget } from '../widgets/iosWidget';
 import {
   ANDROID_WIDGET_TASKS_KEY,
   loadWidgetTasks,
 } from '../widgets/widgetTaskHandler';
-
-const storage = new ExtensionStorage('group.dev.kadi.cadence');
 
 const ANDROID_WIDGET_NAMES = [
   'CadenceWidgetSmall',
@@ -105,25 +102,10 @@ export function WidgetProvider({
   tasks: Task[];
 }) {
   React.useEffect(() => {
-    const priorityTask = getPriorityTask(tasks);
-    const { tasks: payloadTasks, stats } = buildPayload(tasks);
+    const { tasks: payloadTasks } = buildPayload(tasks);
 
     if (Platform.OS === 'ios') {
-      if (!priorityTask) {
-        storage.set('widget_priority_task', JSON.stringify(null));
-        storage.set('widget_tasks', JSON.stringify([]));
-      } else {
-        const priorityPayload = payloadTasks.find(
-          t => t.id === priorityTask.id
-        );
-        storage.set(
-          'widget_priority_task',
-          JSON.stringify(priorityPayload ?? null)
-        );
-        storage.set('widget_tasks', JSON.stringify(payloadTasks));
-      }
-      storage.set('widget_stats', JSON.stringify(stats));
-      ExtensionStorage.reloadWidget();
+      updateIosWidget(payloadTasks);
     } else if (Platform.OS === 'android') {
       const androidTasks: WidgetTask[] = payloadTasks
         .filter(t => !t.isCompletedToday)
@@ -161,7 +143,7 @@ export function WidgetProvider({
 
   const refreshWidget = useCallback(() => {
     if (Platform.OS === 'ios') {
-      ExtensionStorage.reloadWidget();
+      reloadIosWidget();
     } else if (Platform.OS === 'android') {
       ANDROID_WIDGET_NAMES.forEach(widgetName => {
         requestWidgetUpdate({

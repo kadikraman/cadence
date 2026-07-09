@@ -1,9 +1,11 @@
+import type { SFSymbol } from 'expo-symbols';
+
 /**
- * Shared shapes for data the home-screen widget consumes.
+ * Shared shapes for data the home-screen widgets consume.
  *
  * Both producer (the app) and consumer (the widget renderer) must agree on
- * these field names. The iOS Swift target has its own copy of these shapes;
- * if you change a field here, update `targets/widget/` to match.
+ * these field names. The iOS widget (`widgets/ios/CadenceWidget.tsx`) receives
+ * a `WidgetIosSnapshot` as props via expo-widgets.
  */
 
 export interface WidgetTaskPayload {
@@ -27,6 +29,33 @@ export interface WidgetStatsPayload {
   totalCount: number;
   streak: number;
   onTimePct: number;
+}
+
+export type WidgetTaskStatus = 'overdue' | 'today' | 'upcoming';
+
+/**
+ * Presentation-ready task for the iOS widget. expo-widgets evaluates the
+ * widget component in an isolated runtime where imports and module scope are
+ * unavailable, so the producer (`widgets/iosWidget.ts`) resolves glyph
+ * symbols, tint colors, and due labels before they cross the boundary.
+ */
+export interface WidgetDisplayTask {
+  id: string;
+  title: string;
+  symbol: SFSymbol;
+  tint: string;
+  tintDark: string;
+  accent: string;
+  accentDark: string;
+  dueLabel: string;
+  status: WidgetTaskStatus;
+}
+
+export interface WidgetIosSnapshot {
+  tasks: WidgetDisplayTask[];
+  overdueCount: number;
+  todayCount: number;
+  totalCount: number;
 }
 
 /**

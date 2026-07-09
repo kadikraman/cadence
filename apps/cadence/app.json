@@ -62,7 +62,20 @@
           }
         }
       ],
-      "@bacons/apple-targets",
+      [
+        "expo-widgets",
+        {
+          "bundleIdentifier": "dev.kadi.cadence.widget",
+          "widgets": [
+            {
+              "name": "CadenceWidget",
+              "displayName": "Cadence",
+              "description": "See what's due at a glance.",
+              "supportedFamilies": ["systemSmall", "systemMedium", "systemLarge"]
+            }
+          ]
+        }
+      ],
       "react-native-edge-to-edge",
       "@react-native-community/datetimepicker",
       "expo-image",

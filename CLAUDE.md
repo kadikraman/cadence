@@ -31,7 +31,7 @@ Install packages with `npx expo install <package>` from inside the relevant work
 - `expo-image` instead of `Image`
 - `zustand` for state; stores live in `apps/cadence/src/stores/`
 - Sentry for error reporting
-- `@bacons/apple-targets` for the iOS widget; `react-native-android-widget` for the Android widget
+- `expo-widgets` (with `@expo/ui/swift-ui`) for the iOS widget; `react-native-android-widget` for the Android widget
 
 ## Folder Structure
 
@@ -45,8 +45,7 @@ apps/cadence/
 │   ├── stores/      Zustand stores and reducers (with colocated tests)
 │   ├── lib/         App-wide helpers and shared types
 │   ├── utils/       Pure utilities (taskUtils, statsUtils, etc.)
-│   └── widgets/     Android widget components
-└── targets/widget/  iOS widget (Swift, via @bacons/apple-targets)
+│   └── widgets/     Widget components (ios/ for expo-widgets, rest is Android)
 
 apps/marketing/
 ├── app/         Expo Router web pages
@@ -58,7 +57,7 @@ There is no `src/hooks/` directory; custom hooks (when needed) are colocated wit
 ## Code Style
 
 - Functional components with hooks only
-- No code comments, with one exception: comments that pin a TypeScript declaration to its counterpart in another language (e.g. `utils/taskTints.ts` and `utils/glyphs.ts` flag the matching `targets/widget/*.swift` files). Without these notes, adding a new color or glyph will silently rot the iOS widget.
+- No code comments, with one exception: comments that pin a TypeScript declaration to its counterpart in another language or system. Both widgets consume `utils/glyphs.ts` and `utils/taskTints.ts` directly, so no cross-language sync comments are currently needed.
 - Use `useCallback` and `useMemo` when appropriate
 - PascalCase for component files, camelCase for utilities, hooks, and stores
 - Keep components in separate files when >50 lines
@@ -88,15 +87,16 @@ There is no `src/hooks/` directory; custom hooks (when needed) are colocated wit
 
 ### Widget payloads
 
-Both home-screen widgets (iOS and Android) read JSON the app writes to platform storage. The producer and consumers must agree on field names, so all widget payload types live in `lib/widgetPayloads.ts`:
+All widget payload types live in `lib/widgetPayloads.ts` so the producer-consumer contract lives in one place:
 
-- `WidgetTaskPayload` and `WidgetStatsPayload` for the iOS widget (full shape).
-- `WidgetTask` for the Android widget (subset; completed-today tasks are filtered out by the producer).
+- `WidgetTaskPayload` is the app-side shape `WidgetContext` produces. For iOS, `widgets/iosWidget.ts` resolves it into a presentation-ready `WidgetIosSnapshot` (SF Symbol names, tint hexes, due labels, status) and pushes it via `CadenceWidget.updateSnapshot()` (expo-widgets); the widget component is `widgets/ios/CadenceWidget.tsx`, written with `@expo/ui/swift-ui`.
+- `WidgetTask` for the Android widget (subset; completed-today tasks are filtered out by the producer). The Android widget reads JSON from AsyncStorage.
 
 Rules:
 
-- Don't redeclare these shapes inline in `WidgetContext.tsx` or `widgets/CadenceWidget.tsx`. Import from `lib/widgetPayloads.ts` so the producer-consumer contract lives in one place.
-- The iOS Swift target (`targets/widget/`) has its own copy of these shapes. When you add or rename a field in `lib/widgetPayloads.ts`, update the Swift side too, otherwise the iOS widget reads stale data silently.
+- Don't redeclare these shapes inline in `WidgetContext.tsx` or the widget components. Import from `lib/widgetPayloads.ts`.
+- `widgets/iosWidget.ts` has an `.android.ts` no-op twin. Never import `widgets/ios/CadenceWidget.tsx` (or anything from `@expo/ui/swift-ui`) from code that runs on Android; go through the `iosWidget` wrapper.
+- **The iOS widget component must be fully self-contained.** expo-widgets serializes the `'widget'`-directive function to a source string and evaluates it in an isolated runtime where imports and module scope do not exist. Inside the function body you may only reference `props`, `environment`, body-local declarations, and the runtime globals (`@expo/ui/swift-ui` components and modifiers). Helper functions, constants, and lookups (glyphs, tints, date math) must either live inside the function body or be resolved by the producer and passed through props. Type-only imports are fine (erased at compile time). A module-scope helper compiles and lints cleanly but crashes the widget at runtime with `Can't find variable`.
 
 ### List rows and memoization
 
@@ -194,4 +194,4 @@ Reference implementations: `screens/Settings/`, `screens/TaskForm/`, `screens/Ho
 - The day-in-milliseconds constant (`MS_DAY = 86400000`) is exported from `utils/taskUtils.ts`. Never redeclare it locally or write a bare `86400000` literal; always import `MS_DAY`.
 - For task bucketing into `overdue` / `today` / `thisWeek` / `later`, use `bucketizeTasks(tasks)` from `utils/taskUtils.ts`. It computes "today" once per call and walks the list a single time. Don't recreate the loop locally; the predicate functions (`isOverdue`, `isDueToday`, `isCompletedToday`) re-derive `getTodayTimestamp()` per call, so calling them in a tight loop is wasteful.
 - `Task.completedDates` entries are always midnight timestamps. The `markCompleted` reducer normalizes inputs and dedupes same-day marks; `editCompletionDate` normalizes the new timestamp. Don't push raw `Date.now()` into `completedDates` from anywhere else.
-- Each color in `utils/taskTints.ts` exposes `tint` / `tintDark` (background) and `accent` / `accentDark` (foreground). Pick the dark variants when `useUnistyles().rt.themeName === 'dark'`. For colors with vivid accents `accentDark === accent`; for dim ones (slate, charcoal, ink, navy, forest, etc.) the dark variant is hand-tuned to read against `tintDark`. The iOS widget's `TaskTileView` (in `targets/widget/widgets.swift`) does the same switch via `@Environment(\.colorScheme)`. Keep both sides in sync when adding a color.
+- Each color in `utils/taskTints.ts` exposes `tint` / `tintDark` (background) and `accent` / `accentDark` (foreground). Pick the dark variants when `useUnistyles().rt.themeName === 'dark'`. For colors with vivid accents `accentDark === accent`; for dim ones (slate, charcoal, ink, navy, forest, etc.) the dark variant is hand-tuned to read against `tintDark`. The iOS widget (`widgets/ios/CadenceWidget.tsx`) does the same switch via `environment.colorScheme === 'dark'`.

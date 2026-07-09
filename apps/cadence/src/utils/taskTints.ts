@@ -1,5 +1,3 @@
-// When adding/removing a ColorKey, also update targets/widget/tints.swift so
-// the iOS widget renders the new color. Missing cases fall back to slate.
 // `accentDark` should be the foreground used in dark mode; for vivid accents
 // it's the same as `accent`, for dim ones (slate, charcoal, navy, forest, ...)
 // it's a lighter sibling so the icon reads against the dark tint.

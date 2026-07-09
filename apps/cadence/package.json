@@ -8,11 +8,9 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "test": "bun test",
-    "prewidget": "npx expo prebuild --template ./node_modules/@bacons/apple-targets/prebuild-blank.tgz --clean"
+    "test": "bun test"
   },
   "dependencies": {
-    "@bacons/apple-targets": "^3.0.5",
     "@expo/ui": "~57.0.3",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-community/datetimepicker": "9.1.0",
@@ -43,6 +41,7 @@
     "expo-symbols": "~57.0.0",
     "expo-system-ui": "~57.0.0",
     "expo-web-browser": "~57.0.0",
+    "expo-widgets": "~57.0.2",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-native": "0.86.0",
@@ -52,11 +51,11 @@
     "react-native-gesture-handler": "~2.32.0",
     "react-native-get-random-values": "~1.11.0",
     "react-native-keyboard-controller": "1.21.9",
-    "react-native-nitro-modules": "^0.31.10",
-    "react-native-reanimated": "4.5.0",
+    "react-native-nitro-modules": "0.35.7",
+    "react-native-reanimated": "4.5.1",
     "react-native-safe-area-context": "~5.7.0",
     "react-native-screens": "4.25.2",
-    "react-native-unistyles": "3.0.20",
+    "react-native-unistyles": "^3.2.5",
     "react-native-web": "~0.21.0",
     "react-native-worklets": "0.10.0",
     "zustand": "^5.0.12"
