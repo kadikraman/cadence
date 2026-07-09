@@ -43,7 +43,7 @@
         "expo-symbols": "~57.0.0",
         "expo-system-ui": "~57.0.0",
         "expo-web-browser": "~57.0.0",
-        "expo-widgets": "~57.0.2",
+        "expo-widgets": "57.0.3",
         "react": "19.2.3",
         "react-dom": "19.2.3",
         "react-native": "0.86.0",
@@ -940,7 +940,7 @@
 
     "expo-web-browser": ["expo-web-browser@57.0.0", "", { "peerDependencies": { "expo": "*", "react-native": "*" } }, "sha512-J+kQAqbH423Ge6YXrQTVKkmH+cS2SSjnc7ocoRDjhmfZ2+XSBXX3Ogds5/aEKjNKUe7ObtPMkVq9uWbXJv4BGw=="],
 
-    "expo-widgets": ["expo-widgets@57.0.2", "", { "dependencies": { "@expo/plist": "^0.8.0", "@expo/ui": "~57.0.3" }, "peerDependencies": { "expo": "*", "react": "*", "react-native": "*" } }, "sha512-5z6z61mXOPvHtI/lxN3OrqjfCpKVldffl89ppJI4JdWON1yUsA8iFduxT4N0Zqd+ue9QoQO6ElO9kGC7GMFIzA=="],
+    "expo-widgets": ["expo-widgets@57.0.3", "", { "dependencies": { "@expo/plist": "^0.8.0", "@expo/ui": "~57.0.4" }, "peerDependencies": { "expo": "*", "react": "*", "react-native": "*" } }, "sha512-+A4mDZvJgH4NiFVX8yNqZlavo1Jk1ITYghP138IQeex/Hybpcb2Yc+6k7l7WlfinKso0Wn0wFRwf9RDzIjqkPA=="],
 
     "exponential-backoff": ["exponential-backoff@3.1.3", "", {}, "sha512-ZgEeZXj30q+I0EN+CbSSpIyPaJ5HVQD18Z1m+u1FXbAeT94mr1zw50q4q6jiiC447Nl/YTcIYSAftiGqetwXCA=="],
 
@@ -1855,6 +1855,8 @@
     "expo-sharing/@expo/config-plugins": ["@expo/config-plugins@57.0.2", "", { "dependencies": { "@expo/config-types": "^57.0.1", "@expo/json-file": "~11.0.0", "@expo/plist": "^0.8.0", "@expo/require-utils": "^57.0.1", "@expo/sdk-runtime-versions": "^1.0.0", "chalk": "^4.1.2", "debug": "^4.3.5", "getenv": "^2.0.0", "glob": "^13.0.0", "semver": "^7.5.4", "slugify": "^1.6.6", "xcode": "^3.0.1", "xml2js": "0.6.0" } }, "sha512-85wEk9NKzdT25+UWEaSgF7gp9uR/GmtvrvQtGqZmyhFgVRNL2H3GdJOL4/50vyZh4JK69Hl7fWKGtARTN3B8Ag=="],
 
     "expo-splash-screen/@expo/config-plugins": ["@expo/config-plugins@57.0.2", "", { "dependencies": { "@expo/config-types": "^57.0.1", "@expo/json-file": "~11.0.0", "@expo/plist": "^0.8.0", "@expo/require-utils": "^57.0.1", "@expo/sdk-runtime-versions": "^1.0.0", "chalk": "^4.1.2", "debug": "^4.3.5", "getenv": "^2.0.0", "glob": "^13.0.0", "semver": "^7.5.4", "slugify": "^1.6.6", "xcode": "^3.0.1", "xml2js": "0.6.0" } }, "sha512-85wEk9NKzdT25+UWEaSgF7gp9uR/GmtvrvQtGqZmyhFgVRNL2H3GdJOL4/50vyZh4JK69Hl7fWKGtARTN3B8Ag=="],
+
+    "expo-widgets/@expo/ui": ["@expo/ui@57.0.4", "", { "dependencies": { "sf-symbols-typescript": "^2.1.0", "vaul": "^1.1.2" }, "peerDependencies": { "@babel/core": "*", "expo": "*", "react": "*", "react-dom": "*", "react-native": "*", "react-native-worklets": "*" }, "optionalPeers": ["@babel/core", "react-dom", "react-native-worklets"] }, "sha512-QUotmKfb7GmVf+FSHvAdHeooL7JNSYOW3v4axaih45AHGmQVUKzh58uzcD4i2n3feK9tlFVDITHKAzBFagmJOg=="],
 
     "fbjs/promise": ["promise@7.3.1", "", { "dependencies": { "asap": "~2.0.3" } }, "sha512-nolQXZ/4L+bP/UGlkfaIujX9BKxGwmQ9OT4mOt5yvy8iK1h3wqTEJCijzGANTCCl9nWjY41juyAn2K3Q1hLLTg=="],
 
