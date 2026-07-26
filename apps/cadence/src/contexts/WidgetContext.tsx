@@ -115,8 +115,6 @@ export function WidgetProvider({
           color: t.color,
           glyph: t.glyph,
           nextDueDate: t.nextDueDate,
-          isDueToday: t.isDueToday,
-          isOverdue: t.isOverdue,
         }));
       AsyncStorage.setItem(
         ANDROID_WIDGET_TASKS_KEY,

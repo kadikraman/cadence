@@ -61,7 +61,10 @@ export interface WidgetIosSnapshot {
 /**
  * Subset of WidgetTaskPayload that the Android widget reads from AsyncStorage.
  * Completed-today tasks are filtered out by the producer, which is why
- * `isCompletedToday` is absent here.
+ * `isCompletedToday` is absent here. Overdue/due-today status is intentionally
+ * absent too: the widget re-renders in the background long after the app last
+ * wrote this payload, so status must be derived from `nextDueDate` at render
+ * time, never precomputed by the producer.
  */
 export interface WidgetTask {
   id: string;
@@ -69,6 +72,4 @@ export interface WidgetTask {
   color: string;
   glyph: string;
   nextDueDate: number;
-  isDueToday?: boolean;
-  isOverdue?: boolean;
 }

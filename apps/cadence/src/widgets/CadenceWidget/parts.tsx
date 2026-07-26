@@ -99,8 +99,8 @@ export function formatDue(timestamp: number): string {
 }
 
 export function dueColor(task: WidgetTask): ColorProp {
-  if (task.isOverdue ?? isOverdueTs(task.nextDueDate)) return M3.error;
-  if (task.isDueToday ?? isTodayTs(task.nextDueDate)) return M3.primary;
+  if (isOverdueTs(task.nextDueDate)) return M3.error;
+  if (isTodayTs(task.nextDueDate)) return M3.primary;
   return M3.label2;
 }
 
@@ -109,8 +109,8 @@ export function bucketize(tasks: WidgetTask[]) {
   const overdue: WidgetTask[] = [];
   const upcoming: WidgetTask[] = [];
   for (const t of tasks) {
-    if (t.isOverdue ?? isOverdueTs(t.nextDueDate)) overdue.push(t);
-    else if (t.isDueToday ?? isTodayTs(t.nextDueDate)) today.push(t);
+    if (isOverdueTs(t.nextDueDate)) overdue.push(t);
+    else if (isTodayTs(t.nextDueDate)) today.push(t);
     else upcoming.push(t);
   }
   const sortByDue = (a: WidgetTask, b: WidgetTask) =>
@@ -129,7 +129,7 @@ export function TaskTile({
   task: WidgetTask;
   size?: number;
 }) {
-  const overdue = task.isOverdue ?? isOverdueTs(task.nextDueDate);
+  const overdue = isOverdueTs(task.nextDueDate);
   const { tint, fg } = overdue
     ? { tint: M3.errorContainer, fg: M3.error }
     : tintFor(task.color);

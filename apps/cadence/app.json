@@ -105,7 +105,8 @@
               "targetCellHeight": 2,
               "maxResizeWidth": "200dp",
               "maxResizeHeight": "200dp",
-              "resizeMode": "none"
+              "resizeMode": "none",
+              "updatePeriodMillis": 1800000
             },
             {
               "name": "CadenceWidgetMedium",
@@ -117,7 +118,8 @@
               "targetCellHeight": 2,
               "maxResizeWidth": "400dp",
               "maxResizeHeight": "200dp",
-              "resizeMode": "horizontal"
+              "resizeMode": "horizontal",
+              "updatePeriodMillis": 1800000
             },
             {
               "name": "CadenceWidgetLarge",
@@ -129,7 +131,8 @@
               "targetCellHeight": 4,
               "maxResizeWidth": "400dp",
               "maxResizeHeight": "400dp",
-              "resizeMode": "horizontal|vertical"
+              "resizeMode": "horizontal|vertical",
+              "updatePeriodMillis": 1800000
             }
           ]
         }

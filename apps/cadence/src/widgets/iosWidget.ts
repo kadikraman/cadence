@@ -26,8 +26,11 @@ const formatDue = (diff: number): string => {
 const completedToday = (task: WidgetTaskPayload): boolean =>
   task.lastCompletedAt != null && daysUntil(task.lastCompletedAt) === 0;
 
-const toDisplayTask = (task: WidgetTaskPayload): WidgetDisplayTask => {
-  const diff = daysUntil(task.nextDueDate);
+const toDisplayTask = (
+  task: WidgetTaskPayload,
+  dayOffset: number
+): WidgetDisplayTask => {
+  const diff = daysUntil(task.nextDueDate) - dayOffset;
   const tint = getTint(task.color);
   const glyph = GLYPHS[task.glyph as GlyphKey] ?? GLYPHS[DEFAULT_GLYPH];
   return {
@@ -43,15 +46,30 @@ const toDisplayTask = (task: WidgetTaskPayload): WidgetDisplayTask => {
   };
 };
 
-export function updateIosWidget(tasks: WidgetTaskPayload[]) {
-  const displayTasks = tasks.filter(t => !completedToday(t)).map(toDisplayTask);
-  const snapshot: WidgetIosSnapshot = {
+const TIMELINE_DAYS = 30;
+
+const buildSnapshot = (
+  tasks: WidgetTaskPayload[],
+  dayOffset: number
+): WidgetIosSnapshot => {
+  const visible =
+    dayOffset === 0 ? tasks.filter(t => !completedToday(t)) : tasks;
+  const displayTasks = visible.map(t => toDisplayTask(t, dayOffset));
+  return {
     tasks: displayTasks,
     overdueCount: displayTasks.filter(t => t.status === 'overdue').length,
     todayCount: displayTasks.filter(t => t.status === 'today').length,
     totalCount: tasks.length,
   };
-  CadenceWidget.updateSnapshot(snapshot);
+};
+
+export function updateIosWidget(tasks: WidgetTaskPayload[]) {
+  const todayMidnight = getTodayTimestamp();
+  const entries = Array.from({ length: TIMELINE_DAYS }, (_, day) => ({
+    date: new Date(day === 0 ? Date.now() : todayMidnight + day * MS_DAY),
+    props: buildSnapshot(tasks, day),
+  }));
+  CadenceWidget.updateTimeline(entries);
 }
 
 export function reloadIosWidget() {
