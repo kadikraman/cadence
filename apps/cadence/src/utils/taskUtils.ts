@@ -16,6 +16,45 @@ export const normalizeToMidnight = (date: Date | number): number => {
   return d.getTime();
 };
 
+const stepCadence = (
+  ts: number,
+  cadence: Cadence,
+  direction: 1 | -1
+): number => {
+  const date = new Date(ts);
+
+  switch (cadence.type) {
+    case 'daily':
+      date.setDate(date.getDate() + direction);
+      break;
+    case 'weekly':
+      date.setDate(date.getDate() + 7 * direction);
+      break;
+    case 'monthly':
+      date.setMonth(date.getMonth() + direction);
+      break;
+    case 'custom':
+      const value = cadence.value || 1;
+      if (cadence.unit === 'days') {
+        date.setDate(date.getDate() + value * direction);
+      } else if (cadence.unit === 'weeks') {
+        date.setDate(date.getDate() + value * 7 * direction);
+      } else if (cadence.unit === 'months') {
+        date.setMonth(date.getMonth() + value * direction);
+      }
+      break;
+  }
+
+  date.setHours(0, 0, 0, 0);
+  return date.getTime();
+};
+
+export const addOneCadence = (ts: number, cadence: Cadence): number =>
+  stepCadence(ts, cadence, 1);
+
+export const subtractOneCadence = (ts: number, cadence: Cadence): number =>
+  stepCadence(ts, cadence, -1);
+
 export const calculateNextDueDate = (
   cadence: Cadence,
   lastCompletedAt?: number,
@@ -25,34 +64,30 @@ export const calculateNextDueDate = (
     return currentNextDueDate;
   }
 
-  const now = Date.now();
-  const baseDate = lastCompletedAt || now;
-  const date = new Date(baseDate);
+  return addOneCadence(lastCompletedAt || Date.now(), cadence);
+};
 
-  switch (cadence.type) {
-    case 'daily':
-      date.setDate(date.getDate() + 1);
-      break;
-    case 'weekly':
-      date.setDate(date.getDate() + 7);
-      break;
-    case 'monthly':
-      date.setMonth(date.getMonth() + 1);
-      break;
-    case 'custom':
-      const value = cadence.value || 1;
-      if (cadence.unit === 'days') {
-        date.setDate(date.getDate() + value);
-      } else if (cadence.unit === 'weeks') {
-        date.setDate(date.getDate() + value * 7);
-      } else if (cadence.unit === 'months') {
-        date.setMonth(date.getMonth() + value);
-      }
-      break;
-  }
-
-  date.setHours(0, 0, 0, 0);
-  return date.getTime();
+/**
+ * Fixed-schedule next due date. Unlike the floating schedule (which anchors the
+ * next due to the completion date), this keeps the task on its original
+ * cadence: it advances the *current* due date by one cadence step, then keeps
+ * stepping until the result is strictly after the completion date. So a task
+ * due every Sunday that is marked done on Monday stays due the next Sunday, and
+ * one marked done weeks late skips the missed cycles to the next Sunday ahead.
+ */
+export const advanceFixedDueDate = (
+  cadence: Cadence,
+  currentDue: number,
+  completedAt: number
+): number => {
+  const threshold = normalizeToMidnight(completedAt);
+  let next = normalizeToMidnight(currentDue);
+  do {
+    const stepped = addOneCadence(next, cadence);
+    if (stepped <= next) break;
+    next = stepped;
+  } while (next <= threshold);
+  return next;
 };
 
 export const getNextDueDate = (task: Task): number => {

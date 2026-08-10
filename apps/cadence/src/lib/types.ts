@@ -13,7 +13,12 @@ export interface Task {
   color?: ColorKey;
   glyph?: GlyphKey;
   archived?: boolean;
+  schedule?: Schedule;
 }
+
+export type Schedule = 'floating' | 'fixed';
+
+export const DEFAULT_SCHEDULE: Schedule = 'floating';
 
 export type Cadence = {
   type: 'daily' | 'weekly' | 'monthly' | 'custom';

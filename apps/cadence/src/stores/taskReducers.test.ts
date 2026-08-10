@@ -200,6 +200,102 @@ describe('editCompletionDate', () => {
   });
 });
 
+describe('fixed schedule', () => {
+  test('late completion keeps the original schedule (due + cadence)', () => {
+    const task = makeTask({
+      cadence: { type: 'weekly' },
+      schedule: 'fixed',
+      nextDueDate: midnight(-2),
+    });
+    const [next] = markCompleted([task], task.id, midnight());
+    expect(next.nextDueDate).toBe(midnight(5));
+  });
+
+  test('completion many cycles late skips missed cycles, keeps alignment', () => {
+    const task = makeTask({
+      cadence: { type: 'weekly' },
+      schedule: 'fixed',
+      nextDueDate: midnight(-20),
+    });
+    const [next] = markCompleted([task], task.id, midnight());
+    expect(next.nextDueDate).toBe(midnight(1));
+  });
+
+  test('early completion advances to the following cycle', () => {
+    const task = makeTask({
+      cadence: { type: 'weekly' },
+      schedule: 'fixed',
+      nextDueDate: midnight(5),
+    });
+    const [next] = markCompleted([task], task.id, midnight());
+    expect(next.nextDueDate).toBe(midnight(12));
+  });
+
+  test('floating schedule still anchors to the completion date', () => {
+    const task = makeTask({
+      cadence: { type: 'weekly' },
+      schedule: 'floating',
+      nextDueDate: midnight(-2),
+    });
+    const [next] = markCompleted([task], task.id, midnight());
+    expect(next.nextDueDate).toBe(midnight(7));
+  });
+
+  test('an unset schedule defaults to floating behavior', () => {
+    const task = makeTask({
+      cadence: { type: 'weekly' },
+      nextDueDate: midnight(-2),
+    });
+    const [next] = markCompleted([task], task.id, midnight());
+    expect(next.nextDueDate).toBe(midnight(7));
+  });
+
+  test('fixed monthly keeps the day of the month', () => {
+    const due = new Date(2026, 0, 15);
+    due.setHours(0, 0, 0, 0);
+    const completed = new Date(2026, 0, 20);
+    completed.setHours(0, 0, 0, 0);
+    const expected = new Date(2026, 1, 15);
+    expected.setHours(0, 0, 0, 0);
+    const task = makeTask({
+      cadence: { type: 'monthly' },
+      schedule: 'fixed',
+      nextDueDate: due.getTime(),
+    });
+    const [next] = markCompleted([task], task.id, completed.getTime());
+    expect(next.nextDueDate).toBe(expected.getTime());
+  });
+
+  test('unmark steps a fixed due date back by one cadence', () => {
+    const task = makeTask({
+      cadence: { type: 'weekly' },
+      schedule: 'fixed',
+      completedDates: [midnight()],
+      lastCompletedAt: midnight(),
+      nextDueDate: midnight(5),
+    });
+    const [next] = unmarkCompleted([task], task.id, midnight());
+    expect(next.nextDueDate).toBe(midnight(-2));
+  });
+
+  test('editing a completion date leaves a fixed due date unchanged', () => {
+    const task = makeTask({
+      cadence: { type: 'weekly' },
+      schedule: 'fixed',
+      completedDates: [midnight(-1)],
+      lastCompletedAt: midnight(-1),
+      nextDueDate: midnight(5),
+    });
+    const [next] = editCompletionDate(
+      [task],
+      task.id,
+      midnight(-1),
+      midnight(-3)
+    );
+    expect(next.nextDueDate).toBe(midnight(5));
+  });
+});
+
 describe('replaceAll', () => {
   test('normalizes color and glyph defaults', () => {
     const raw = makeTask({ color: undefined, glyph: undefined });
