@@ -69,7 +69,7 @@
           "bundleIdentifier": "dev.kadi.cadence.widget",
           "widgets": [
             {
-              "name": "CadenceWidget",
+              "name": "widget",
               "displayName": "Cadence",
               "description": "See what's due at a glance.",
               "supportedFamilies": ["systemSmall", "systemMedium", "systemLarge"]

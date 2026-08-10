@@ -443,4 +443,4 @@ const CadenceWidget = (
   );
 };
 
-export default createWidget('CadenceWidget', CadenceWidget);
+export default createWidget('widget', CadenceWidget);
