@@ -2,7 +2,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Alert } from 'react-native';
 import { logs } from '../../lib/logs';
-import { Cadence, Task } from '../../lib/types';
+import { Cadence, DEFAULT_SCHEDULE, Schedule, Task } from '../../lib/types';
 import { useTasksStore } from '../../stores/tasks';
 import { GlyphKey } from '../../utils/glyphs';
 import { ColorKey } from '../../utils/taskTints';
@@ -68,6 +68,9 @@ export function useTaskForm() {
     [existing]
   );
   const [nextDueDate, setNextDueDate] = useState<number>(initialNextDue);
+  const [schedule, setSchedule] = useState<Schedule>(
+    () => existing?.schedule ?? DEFAULT_SCHEDULE
+  );
   const [dueDatePickerOpen, setDueDatePickerOpen] = useState(false);
   const [saveAfterPick, setSaveAfterPick] = useState(false);
   const loaded = !isEdit || !!existing;
@@ -95,6 +98,7 @@ export function useTaskForm() {
       lastCompletedAt: existing?.lastCompletedAt,
       nextDueDate: nextDue,
       archived: existing?.archived,
+      schedule,
     };
     await saveTask(saved);
     if (!existing) logs.taskCreated(!!params.title);
@@ -214,6 +218,8 @@ export function useTaskForm() {
     setCustomUnit,
     nextDueDate,
     setNextDueDate,
+    schedule,
+    setSchedule,
     dueDatePickerOpen,
     setDueDatePickerOpen,
     handlePickerSave,

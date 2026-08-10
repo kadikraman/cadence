@@ -2,7 +2,7 @@ import { useObserve } from 'expo-observe';
 import { Stack } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
 import { useEffect } from 'react';
-import { Pressable, Text, TextInput, View } from 'react-native';
+import { Pressable, Switch, Text, TextInput, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import ColorPicker from '../../components/ColorPicker';
@@ -44,6 +44,8 @@ export default function TaskFormScreen() {
     customUnit,
     setCustomUnit,
     nextDueDate,
+    schedule,
+    setSchedule,
     dueDatePickerOpen,
     setDueDatePickerOpen,
     handlePickerSave,
@@ -175,7 +177,25 @@ export default function TaskFormScreen() {
               />
             </View>
           </Pressable>
+          <View style={styles.sepInset} />
+          <Pressable
+            onPress={() =>
+              setSchedule(schedule === 'fixed' ? 'floating' : 'fixed')
+            }
+            style={styles.dueRow}
+          >
+            <Text style={styles.dueLabel}>Fixed schedule</Text>
+            <Switch
+              value={schedule === 'fixed'}
+              onValueChange={v => setSchedule(v ? 'fixed' : 'floating')}
+            />
+          </Pressable>
         </FormGroup>
+        <Text style={styles.caption}>
+          {schedule === 'fixed'
+            ? 'The next due date stays on the original schedule, even if you complete the task late.'
+            : 'The next due date is counted from the day you complete the task.'}
+        </Text>
 
         <FormLabel>Color</FormLabel>
         <FormGroup>
@@ -305,6 +325,13 @@ const styles = StyleSheet.create(theme => ({
     fontSize: 17,
     color: theme.colors.label2,
     letterSpacing: -0.4,
+  },
+  caption: {
+    paddingHorizontal: 32,
+    paddingTop: 6,
+    fontSize: 13,
+    color: theme.colors.label3,
+    letterSpacing: -0.08,
   },
   deleteWrap: {
     marginHorizontal: 16,

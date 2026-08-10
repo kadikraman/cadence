@@ -2,7 +2,7 @@ import { useObserve } from 'expo-observe';
 import { Stack } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
 import { useEffect } from 'react';
-import { Pressable, Text, TextInput, View } from 'react-native';
+import { Pressable, Switch, Text, TextInput, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons/static';
@@ -46,6 +46,8 @@ export default function TaskFormScreen() {
     customUnit,
     setCustomUnit,
     nextDueDate,
+    schedule,
+    setSchedule,
     dueDatePickerOpen,
     setDueDatePickerOpen,
     handlePickerSave,
@@ -202,6 +204,33 @@ export default function TaskFormScreen() {
             color={theme.colors.label3}
           />
         </Pressable>
+        <Pressable
+          onPress={() =>
+            setSchedule(schedule === 'fixed' ? 'floating' : 'fixed')
+          }
+          android_ripple={{ color: theme.colors.fill2, borderless: false }}
+          style={[
+            styles.dueRow,
+            styles.scheduleRow,
+            {
+              backgroundColor: theme.colors.surface,
+              borderColor: theme.colors.outlineVariant,
+            },
+          ]}
+        >
+          <Text style={[styles.dueLabel, { color: theme.colors.text }]}>
+            Fixed schedule
+          </Text>
+          <Switch
+            value={schedule === 'fixed'}
+            onValueChange={v => setSchedule(v ? 'fixed' : 'floating')}
+          />
+        </Pressable>
+        <Text style={[styles.caption, { color: theme.colors.label3 }]}>
+          {schedule === 'fixed'
+            ? 'The next due date stays on the original schedule, even if you complete the task late.'
+            : 'The next due date is counted from the day you complete the task.'}
+        </Text>
 
         <Text style={[styles.sectionLabel, { color: theme.colors.text }]}>
           Color
@@ -325,6 +354,14 @@ const styles = StyleSheet.create(theme => ({
   },
   dueValue: {
     fontSize: 15,
+  },
+  scheduleRow: {
+    marginTop: 10,
+  },
+  caption: {
+    fontSize: 13,
+    paddingTop: 8,
+    paddingHorizontal: 4,
   },
   deleteWrap: {
     marginTop: 32,
