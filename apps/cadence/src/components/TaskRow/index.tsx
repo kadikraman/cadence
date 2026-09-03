@@ -12,10 +12,10 @@ import { useTaskRowVisuals } from './useTaskRowVisuals';
 
 export type { TaskRowCallbacks, TaskRowProps } from './types';
 
-function TaskRow({ task, isExpanded, callbacks }: TaskRowProps) {
+function TaskRow({ task, today, isExpanded, callbacks }: TaskRowProps) {
   const { theme } = useUnistyles();
   const { overdue, completed, dueLabel, dueColor, borderColor } =
-    useTaskRowVisuals(task);
+    useTaskRowVisuals(task, today);
 
   const showMenu = () => {
     Alert.alert(

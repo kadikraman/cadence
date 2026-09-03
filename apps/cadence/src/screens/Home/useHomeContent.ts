@@ -39,7 +39,7 @@ export function useHomeContent(tasks: Task[]) {
   const buckets = useMemo(() => bucketizeTasks(tasks, today), [tasks, today]);
   const dueTodayCount =
     buckets.overdue.length +
-    buckets.today.filter(t => !isCompletedToday(t)).length;
+    buckets.today.filter(t => !isCompletedToday(t, today)).length;
 
   const markCompleted = useTasksStore(s => s.markCompleted);
   const unmarkCompleted = useTasksStore(s => s.unmarkCompleted);
@@ -159,6 +159,7 @@ export function useHomeContent(tasks: Task[]) {
   return {
     router,
     confettiRef,
+    today,
     buckets,
     dueTodayCount,
     expandedId,

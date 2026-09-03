@@ -6,14 +6,14 @@ import {
   getTaskStatus,
 } from '../../utils/taskUtils';
 
-export function useTaskRowVisuals(task: Task) {
+export function useTaskRowVisuals(task: Task, today: number) {
   const { theme } = useUnistyles();
-  const status = getTaskStatus(task);
+  const status = getTaskStatus(task, today);
   const overdue = status === 'overdue';
   const dueToday = status === 'dueToday';
   const completed = status === 'completed';
   const nextDue = getNextDueDate(task);
-  const dueLabel = formatDueIn(nextDue);
+  const dueLabel = formatDueIn(nextDue, today);
 
   const dueColor = overdue
     ? theme.colors.error

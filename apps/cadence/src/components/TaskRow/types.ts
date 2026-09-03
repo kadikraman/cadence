@@ -12,6 +12,7 @@ export interface TaskRowCallbacks {
 
 export interface TaskRowProps {
   task: Task;
+  today: number;
   isExpanded: boolean;
   callbacks: TaskRowCallbacks;
 }

@@ -20,8 +20,15 @@ type HomeFilter = 'all' | 'today' | 'overdue';
 export default function Home({ tasks }: { tasks: Task[] }) {
   const { theme } = useUnistyles();
   const [filter, setFilter] = useState<HomeFilter>('all');
-  const { router, confettiRef, buckets, dueTodayCount, expandedId, callbacks } =
-    useHomeContent(tasks);
+  const {
+    router,
+    confettiRef,
+    today,
+    buckets,
+    dueTodayCount,
+    expandedId,
+    callbacks,
+  } = useHomeContent(tasks);
 
   const { markInteractive } = useObserve();
 
@@ -87,14 +94,14 @@ export default function Home({ tasks }: { tasks: Task[] }) {
             <WidgetNudge onLearnMore={() => router.push(routes.onboarding)} />
           )}
           {buckets.overdue.length === 0 &&
-            buckets.today.filter(t => !isCompletedToday(t)).length === 0 && (
-              <AllCaughtUp />
-            )}
+            buckets.today.filter(t => !isCompletedToday(t, today)).length ===
+              0 && <AllCaughtUp />}
           {showOverdue && (
             <Section
               label="Overdue"
               dotColor={theme.colors.error}
               items={buckets.overdue}
+              today={today}
               expandedId={expandedId}
               callbacks={callbacks}
             />
@@ -104,6 +111,7 @@ export default function Home({ tasks }: { tasks: Task[] }) {
               label="Today"
               dotColor={theme.colors.blue}
               items={buckets.today}
+              today={today}
               expandedId={expandedId}
               callbacks={callbacks}
             />
@@ -113,6 +121,7 @@ export default function Home({ tasks }: { tasks: Task[] }) {
               label="This week"
               dotColor={theme.colors.warning}
               items={buckets.thisWeek}
+              today={today}
               expandedId={expandedId}
               callbacks={callbacks}
             />
@@ -122,6 +131,7 @@ export default function Home({ tasks }: { tasks: Task[] }) {
               label="Later"
               dotColor={theme.colors.label3}
               items={buckets.later}
+              today={today}
               expandedId={expandedId}
               callbacks={callbacks}
             />

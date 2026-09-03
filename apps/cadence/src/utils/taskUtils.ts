@@ -98,38 +98,51 @@ export const getNextDueDate = (task: Task): number => {
   );
 };
 
-export const isOverdue = (task: Task): boolean => {
+export const isOverdue = (
+  task: Task,
+  todayTs: number = getTodayTimestamp()
+): boolean => {
   const nextDue = getNextDueDate(task);
-  return nextDue < getTodayTimestamp();
+  return nextDue < todayTs;
 };
 
-export const isDueToday = (task: Task): boolean => {
+export const isDueToday = (
+  task: Task,
+  todayTs: number = getTodayTimestamp()
+): boolean => {
   const nextDue = getNextDueDate(task);
-  return nextDue === getTodayTimestamp();
+  return nextDue === todayTs;
 };
 
-export const isCompletedToday = (task: Task): boolean => {
+export const isCompletedToday = (
+  task: Task,
+  todayTs: number = getTodayTimestamp()
+): boolean => {
   if (!task.completedDates || task.completedDates.length === 0) {
     return false;
   }
-  const todayTimestamp = getTodayTimestamp();
   return task.completedDates.some(
-    date => normalizeToMidnight(date) === todayTimestamp
+    date => normalizeToMidnight(date) === todayTs
   );
 };
 
-export const getTaskStatus = (task: Task): TaskStatus => {
-  if (isCompletedToday(task)) return 'completed';
-  if (isOverdue(task)) return 'overdue';
-  if (isDueToday(task)) return 'dueToday';
+export const getTaskStatus = (
+  task: Task,
+  todayTs: number = getTodayTimestamp()
+): TaskStatus => {
+  if (isCompletedToday(task, todayTs)) return 'completed';
+  if (isOverdue(task, todayTs)) return 'overdue';
+  if (isDueToday(task, todayTs)) return 'dueToday';
   return 'default';
 };
 
-export const formatDueIn = (timestamp: number): string => {
-  const todayTimestamp = getTodayTimestamp();
+export const formatDueIn = (
+  timestamp: number,
+  todayTs: number = getTodayTimestamp()
+): string => {
   const dueTimestamp = normalizeToMidnight(timestamp);
 
-  const diffDays = Math.floor((dueTimestamp - todayTimestamp) / MS_DAY);
+  const diffDays = Math.floor((dueTimestamp - todayTs) / MS_DAY);
 
   if (diffDays < -1) return `${Math.abs(diffDays)}d overdue`;
   if (diffDays === -1) return '1d overdue';

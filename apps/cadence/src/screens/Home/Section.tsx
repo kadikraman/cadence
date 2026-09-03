@@ -7,6 +7,7 @@ interface SectionProps {
   label: string;
   dotColor: string;
   items: Task[];
+  today: number;
   expandedId: string | null;
   callbacks: TaskRowCallbacks;
 }
@@ -15,6 +16,7 @@ export default function Section({
   label,
   dotColor,
   items,
+  today,
   expandedId,
   callbacks,
 }: SectionProps) {
@@ -31,6 +33,7 @@ export default function Section({
           <View key={task.id}>
             <TaskRow
               task={task}
+              today={today}
               isExpanded={expandedId === task.id}
               callbacks={callbacks}
             />
