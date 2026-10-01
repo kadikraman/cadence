@@ -89,8 +89,8 @@ There is no `src/hooks/` directory; custom hooks (when needed) are colocated wit
 
 All widget payload types live in `lib/widgetPayloads.ts` so the producer-consumer contract lives in one place:
 
-- `WidgetTaskPayload` is the app-side shape `WidgetContext` produces. For iOS, `widgets/iosWidget.ts` resolves it into a presentation-ready `WidgetIosSnapshot` (SF Symbol names, tint hexes, due labels, status) and pushes it via `CadenceWidget.updateSnapshot()` (expo-widgets); the widget component is `widgets/ios/CadenceWidget.tsx`, written with `@expo/ui/swift-ui`.
-- `WidgetTask` for the Android widget (subset; completed-today tasks are filtered out by the producer). The Android widget reads JSON from AsyncStorage.
+- `WidgetTaskPayload` is the app-side shape that `buildWidgetPayload` (`widgets/widgetPayload.ts`) produces for `WidgetContext`: every non-archived task, sorted by `nextDueDate`. Tasks completed today stay in the payload; completing a task moves `nextDueDate` past today, so they sort with the other upcoming tasks. Don't filter them out, or they disappear from "next up". For iOS, `buildIosSnapshot` (`widgets/iosWidgetSnapshot.ts`) resolves the payload into a presentation-ready `WidgetIosSnapshot` (SF Symbol names, tint hexes, due labels, status), and `widgets/iosWidget.ts` pushes one snapshot per day via `CadenceWidget.updateTimeline()` (expo-widgets); the widget component is `widgets/ios/CadenceWidget.tsx`, written with `@expo/ui/swift-ui`.
+- `WidgetTask` for the Android widget (same shape as `WidgetTaskPayload`). The Android widget reads JSON from AsyncStorage.
 
 Rules:
 

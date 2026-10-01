@@ -8,27 +8,17 @@ import type { SFSymbol } from 'expo-symbols';
  * a `WidgetIosSnapshot` as props via expo-widgets.
  */
 
+/**
+ * Every non-archived task, sorted by `nextDueDate`. Tasks completed today are
+ * included: completing a task moves `nextDueDate` past today, so they sort
+ * with the other upcoming tasks.
+ */
 export interface WidgetTaskPayload {
   id: string;
   title: string;
   color: string;
   glyph: string;
   nextDueDate: number;
-  lastCompletedAt?: number;
-  isDueToday: boolean;
-  isOverdue: boolean;
-  isCompletedToday: boolean;
-  details?: string;
-}
-
-export interface WidgetStatsPayload {
-  overdueCount: number;
-  todayCount: number;
-  doneTodayCount: number;
-  moreDueThisWeekCount: number;
-  totalCount: number;
-  streak: number;
-  onTimePct: number;
 }
 
 export type WidgetTaskStatus = 'overdue' | 'today' | 'upcoming';
@@ -36,7 +26,7 @@ export type WidgetTaskStatus = 'overdue' | 'today' | 'upcoming';
 /**
  * Presentation-ready task for the iOS widget. expo-widgets evaluates the
  * widget component in an isolated runtime where imports and module scope are
- * unavailable, so the producer (`widgets/iosWidget.ts`) resolves glyph
+ * unavailable, so the producer (`widgets/iosWidgetSnapshot.ts`) resolves glyph
  * symbols, tint colors, and due labels before they cross the boundary.
  */
 export interface WidgetDisplayTask {
@@ -59,17 +49,10 @@ export interface WidgetIosSnapshot {
 }
 
 /**
- * Subset of WidgetTaskPayload that the Android widget reads from AsyncStorage.
- * Completed-today tasks are filtered out by the producer, which is why
- * `isCompletedToday` is absent here. Overdue/due-today status is intentionally
- * absent too: the widget re-renders in the background long after the app last
- * wrote this payload, so status must be derived from `nextDueDate` at render
- * time, never precomputed by the producer.
+ * What the Android widget reads from AsyncStorage. Same shape as
+ * WidgetTaskPayload. Overdue/due-today status is intentionally absent: the
+ * widget re-renders in the background long after the app last wrote this
+ * payload, so status must be derived from `nextDueDate` at render time, never
+ * precomputed by the producer.
  */
-export interface WidgetTask {
-  id: string;
-  title: string;
-  color: string;
-  glyph: string;
-  nextDueDate: number;
-}
+export type WidgetTask = WidgetTaskPayload;
