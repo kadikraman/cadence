@@ -364,7 +364,7 @@ const CadenceWidget = (
         containerBackground(isDark ? '#1C1C1E' : '#FFFFFF', 'widget'),
       ]}
     >
-      <HStack>
+      <HStack spacing={0}>
         <Text
           modifiers={[
             font({ size: isSmall ? 13 : 14, weight: 'bold' }),

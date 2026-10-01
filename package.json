@@ -25,5 +25,9 @@
     "@sentry/cli",
     "react-native-nitro-modules",
     "unrs-resolver"
-  ]
+  ],
+  "overrides": {
+    "react-native": "0.88.0-rc.3",
+    "react-native-worklets": "0.13.0"
+  }
 }

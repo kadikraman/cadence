@@ -8,10 +8,10 @@
 // Therefore: bare event firings here act as aggregate counters, but the
 // per-event `attributes` map MUST NOT include cadence type/value, color,
 // glyph, completion timing, task counts, or settings values. Helpers in this
-// file are the only path that should call AppMetrics.logEvent so the policy
+// file are the only path that should call Observe.logEvent so the policy
 // can be reviewed in one place.
 
-import { AppMetrics } from 'expo-observe';
+import { Observe } from 'expo-observe';
 
 type FeedbackKind = 'feedback' | 'feature' | 'bug';
 type WidgetDismissReason = 'dismiss' | 'learn_more';
@@ -23,61 +23,59 @@ function errorReason(err: unknown): string {
 
 export const logs = {
   onboardingCompleted: (replayed: boolean) =>
-    AppMetrics.logEvent('onboarding.completed', {
+    Observe.logEvent('onboarding.completed', {
       attributes: { replayed },
     }),
 
   onboardingSkipped: (step: number) =>
-    AppMetrics.logEvent('onboarding.skipped', {
+    Observe.logEvent('onboarding.skipped', {
       attributes: { step },
     }),
 
   taskCreated: (fromStarter: boolean) =>
-    AppMetrics.logEvent('task.created', {
+    Observe.logEvent('task.created', {
       attributes: { fromStarter },
     }),
 
-  taskCompleted: () => AppMetrics.logEvent('task.completed'),
+  taskCompleted: () => Observe.logEvent('task.completed'),
 
-  taskUncompleted: () => AppMetrics.logEvent('task.uncompleted'),
+  taskUncompleted: () => Observe.logEvent('task.uncompleted'),
 
-  taskDeleted: () => AppMetrics.logEvent('task.deleted'),
+  taskDeleted: () => Observe.logEvent('task.deleted'),
 
-  taskArchived: () => AppMetrics.logEvent('task.archived'),
+  taskArchived: () => Observe.logEvent('task.archived'),
 
-  taskUnarchived: () => AppMetrics.logEvent('task.unarchived'),
+  taskUnarchived: () => Observe.logEvent('task.unarchived'),
 
   widgetNudgeDismissed: (via: WidgetDismissReason) =>
-    AppMetrics.logEvent('widget.nudge_dismissed', {
+    Observe.logEvent('widget.nudge_dismissed', {
       attributes: { via },
     }),
 
-  settingsExportCompleted: () =>
-    AppMetrics.logEvent('settings.export_completed'),
+  settingsExportCompleted: () => Observe.logEvent('settings.export_completed'),
 
-  settingsImportCompleted: () =>
-    AppMetrics.logEvent('settings.import_completed'),
+  settingsImportCompleted: () => Observe.logEvent('settings.import_completed'),
 
   feedbackSendFailed: (kind: FeedbackKind, err: unknown) =>
-    AppMetrics.logEvent('feedback.send_failed', {
+    Observe.logEvent('feedback.send_failed', {
       severity: 'warn',
       attributes: { kind, reason: errorReason(err) },
     }),
 
   settingsRateFailed: (err: unknown) =>
-    AppMetrics.logEvent('settings.rate_failed', {
+    Observe.logEvent('settings.rate_failed', {
       severity: 'warn',
       attributes: { reason: errorReason(err) },
     }),
 
   settingsExportFailed: (err: unknown) =>
-    AppMetrics.logEvent('settings.export_failed', {
+    Observe.logEvent('settings.export_failed', {
       severity: 'warn',
       attributes: { reason: errorReason(err) },
     }),
 
   settingsImportFailed: (err: unknown) =>
-    AppMetrics.logEvent('settings.import_failed', {
+    Observe.logEvent('settings.import_failed', {
       severity: 'warn',
       attributes: { reason: errorReason(err) },
     }),

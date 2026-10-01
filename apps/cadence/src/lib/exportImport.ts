@@ -32,7 +32,7 @@ export async function exportTasks(): Promise<void> {
   const file = new File(Paths.cache, filename);
   if (file.exists) file.delete();
   file.create();
-  file.write(JSON.stringify(envelope, null, 2));
+  await file.write(JSON.stringify(envelope, null, 2));
 
   if (!(await Sharing.isAvailableAsync())) {
     Alert.alert('Sharing not available on this device.');

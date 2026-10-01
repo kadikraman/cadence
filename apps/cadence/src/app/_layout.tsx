@@ -1,5 +1,5 @@
 import * as Sentry from '@sentry/react-native';
-import ExpoObserve, { ObserveRoot, useObserve } from 'expo-observe';
+import { Observe, ObserveRoot, useObserve } from 'expo-observe';
 import { Stack } from 'expo-router';
 import {
   DarkTheme,
@@ -24,7 +24,7 @@ Sentry.init({
   sendDefaultPii: false,
 });
 
-ExpoObserve.configure({
+Observe.configure({
   environment: __DEV__ ? 'development' : 'production',
   integrations: {
     'expo-router': true,

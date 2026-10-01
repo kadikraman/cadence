@@ -8,21 +8,21 @@
     "build": "expo export --platform web"
   },
   "dependencies": {
-    "@expo/metro-runtime": "~57.0.3",
-    "expo": "^57.0.2",
-    "expo-constants": "~57.0.3",
-    "expo-linking": "~57.0.1",
-    "expo-router": "~57.0.3",
-    "expo-status-bar": "~57.0.0",
-    "react": "19.2.3",
-    "react-dom": "19.2.3",
-    "react-native": "0.86.0",
-    "react-native-safe-area-context": "~5.7.0",
-    "react-native-screens": "4.25.2",
+    "@expo/metro-runtime": "~58.0.9",
+    "expo": "~58.0.0",
+    "expo-constants": "~58.0.9",
+    "expo-linking": "~58.0.9",
+    "expo-router": "~58.0.10",
+    "expo-status-bar": "~58.0.2",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-native": "0.88.0-rc.3",
+    "react-native-safe-area-context": "~5.9.1",
+    "react-native-screens": "~4.28.0",
     "react-native-web": "~0.21.0"
   },
   "devDependencies": {
-    "@types/react": "~19.2.10"
+    "@types/react": "~19.3.0"
   },
   "private": true
 }

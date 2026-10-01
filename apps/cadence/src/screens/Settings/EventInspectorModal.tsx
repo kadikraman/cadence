@@ -1,5 +1,5 @@
 import { SymbolView } from 'expo-symbols';
-import Observe, { AppMetrics } from 'expo-observe';
+import { AppMetrics, Observe } from 'expo-observe';
 import { useCallback, useState } from 'react';
 import {
   ActivityIndicator,

@@ -1,10 +1,10 @@
 import { ReactNode } from 'react';
-import { View, ViewStyle } from 'react-native';
+import { View, ViewProps } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 interface FormGroupProps {
   children: ReactNode;
-  style?: ViewStyle;
+  style?: ViewProps['style'];
 }
 
 export default function FormGroup({ children, style }: FormGroupProps) {

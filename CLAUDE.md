@@ -77,7 +77,7 @@ There is no `src/hooks/` directory; custom hooks (when needed) are colocated wit
 
 ### Logs
 
-- All structured log events go through helpers in `lib/logs.ts`. Don't call `AppMetrics.logEvent` directly from screens; add a typed helper. The catalog lives in one file so events are reviewable in PRs and attribute shapes are type-checked.
+- All structured log events go through helpers in `lib/logs.ts`. Don't call `Observe.logEvent` directly from screens; add a typed helper. The catalog lives in one file so events are reviewable in PRs and attribute shapes are type-checked.
 - Naming: `<surface>.<verb_in_past_tense>` (e.g. `task.completed`, `settings.export_completed`). Don't bake attribute values into the name; use the `attributes` map.
 - Reserved: the `expo.` prefix is rejected by the SDK. Don't use it.
 - **Privacy contract is enforced by the marketing-site policy** (`apps/marketing/app/privacy.tsx`). The policy promises that task names, contents, schedules, completion history, and settings stay on device. Per-event `attributes` therefore MUST NOT include: cadence type or value, color, glyph, days-since-last-completion, on-time/early flags, completion counts, task counts, theme mode, or any other settings value. Bare event firings (no attributes) are fine as aggregate counters.
