@@ -24,7 +24,7 @@ function TaskRow({ task, today, isExpanded, callbacks }: TaskRowProps) {
       [
         { text: 'Edit', onPress: () => callbacks.onEdit(task) },
         { text: 'View history', onPress: () => callbacks.onOpenHistory(task) },
-        { text: 'Pick date', onPress: () => callbacks.onPickDate(task) },
+        { text: 'Done earlier…', onPress: () => callbacks.onDoneEarlier(task) },
         {
           text: 'Delete',
           style: 'destructive',

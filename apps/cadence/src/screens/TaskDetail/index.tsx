@@ -4,6 +4,7 @@ import { SymbolView } from 'expo-symbols';
 import { useEffect } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import CompletionSheet from '../../components/CompletionSheet';
 import DatePickerSheet from '../../components/DatePickerSheet';
 import SegmentedControl from '../../components/ui/SegmentedControl';
 import { routes } from '../../lib/routes';
@@ -32,12 +33,15 @@ export default function TaskDetailScreen() {
     setTab,
     datePickerOpen,
     editingEntry,
-    openNewDatePicker,
     openEditDatePicker,
     closeDatePicker,
     savePicker,
     markDoneNow,
     deleteCompletion,
+    completionSheetOpen,
+    openCompletionSheet,
+    closeCompletionSheet,
+    confirmCompletion,
     unarchiveOpen,
     openUnarchivePicker,
     closeUnarchivePicker,
@@ -202,7 +206,10 @@ export default function TaskDetailScreen() {
               />
               <Text style={styles.primaryBtnText}>Mark done now</Text>
             </Pressable>
-            <Pressable style={styles.secondaryBtn} onPress={openNewDatePicker}>
+            <Pressable
+              style={styles.secondaryBtn}
+              onPress={openCompletionSheet}
+            >
               <SymbolView
                 name="calendar"
                 size={16}
@@ -242,9 +249,16 @@ export default function TaskDetailScreen() {
       <DatePickerSheet
         visible={datePickerOpen}
         initialDate={editingEntry ?? getTodayTimestamp()}
-        mode={editingEntry !== null ? 'edit' : 'new'}
+        mode="edit"
         onClose={closeDatePicker}
         onSave={savePicker}
+      />
+
+      <CompletionSheet
+        visible={completionSheetOpen}
+        task={task}
+        onClose={closeCompletionSheet}
+        onConfirm={confirmCompletion}
       />
 
       <DatePickerSheet

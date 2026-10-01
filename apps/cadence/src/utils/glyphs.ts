@@ -568,6 +568,8 @@ export const UI_SYMBOL_TO_MATERIAL: Record<string, string> = {
   xmark: 'close',
   'chevron.left': 'chevron-left',
   'chevron.right': 'chevron-right',
+  'chevron.down': 'chevron-down',
+  'calendar.badge.clock': 'calendar-arrow-left',
   ellipsis: 'dots-horizontal',
   checkmark: 'check',
   'checkmark.circle.fill': 'check-circle',

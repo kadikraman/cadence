@@ -18,6 +18,7 @@ import {
   MS_DAY,
   normalizeToMidnight,
 } from '../../utils/taskUtils';
+import { useCompletionFlow } from './useCompletionFlow';
 import { useToday } from './useToday';
 
 export function formatTodayHeading(date = new Date()): string {
@@ -41,30 +42,30 @@ export function useHomeContent(tasks: Task[]) {
     buckets.overdue.length +
     buckets.today.filter(t => !isCompletedToday(t, today)).length;
 
-  const markCompleted = useTasksStore(s => s.markCompleted);
   const unmarkCompleted = useTasksStore(s => s.unmarkCompleted);
   const removeTaskFromStore = useTasksStore(s => s.remove);
 
-  const celebrateCompletion = useCallback(() => {
+  const celebrateIfClear = useCallback(() => {
+    const remaining = useTasksStore
+      .getState()
+      .tasks.filter(
+        t =>
+          !t.archived && (isOverdue(t) || isDueToday(t)) && !isCompletedToday(t)
+      );
+    if (remaining.length > 0) return;
     setTimeout(() => {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       confettiRef.current?.start();
     }, 200);
   }, []);
 
-  const markDone = useCallback(
-    async (task: Task) => {
-      logs.taskCompleted();
-      await markCompleted(task.id);
-      const updated = useTasksStore.getState().tasks;
-      const remaining = updated.filter(
-        t =>
-          !t.archived && (isOverdue(t) || isDueToday(t)) && !isCompletedToday(t)
-      );
-      if (remaining.length === 0) celebrateCompletion();
-    },
-    [markCompleted, celebrateCompletion]
-  );
+  const {
+    markDoneToday,
+    openSheet,
+    dismissToastFor,
+    completionSheet,
+    completionToast,
+  } = useCompletionFlow(celebrateIfClear);
 
   const onQuickDone = useCallback(
     async (task: Task) => {
@@ -75,6 +76,7 @@ export function useHomeContent(tasks: Task[]) {
         );
         if (entry) {
           logs.taskUncompleted();
+          dismissToastFor(task.id);
           await unmarkCompleted(task.id, entry);
         }
         return;
@@ -87,14 +89,14 @@ export function useHomeContent(tasks: Task[]) {
           `This task isn't due for another ${diffDays} day${diffDays === 1 ? '' : 's'}. Mark it done anyway?`,
           [
             { text: 'Cancel', style: 'cancel' },
-            { text: 'Mark as done', onPress: () => markDone(task) },
+            { text: 'Mark as done', onPress: () => markDoneToday(task) },
           ]
         );
       } else {
-        await markDone(task);
+        await markDoneToday(task);
       }
     },
-    [unmarkCompleted, markDone]
+    [unmarkCompleted, dismissToastFor, markDoneToday]
   );
 
   const onDelete = useCallback(
@@ -125,11 +127,12 @@ export function useHomeContent(tasks: Task[]) {
     [router]
   );
 
-  const onPickDate = useCallback(
+  const onDoneEarlier = useCallback(
     (task: Task) => {
-      router.push(routes.taskDetail(task.id));
+      setExpandedId(null);
+      openSheet(task);
     },
-    [router]
+    [openSheet]
   );
 
   const onOpenHistory = useCallback(
@@ -151,9 +154,9 @@ export function useHomeContent(tasks: Task[]) {
       onEdit,
       onDelete,
       onOpenHistory,
-      onPickDate,
+      onDoneEarlier,
     }),
-    [onTap, onQuickDone, onEdit, onDelete, onOpenHistory, onPickDate]
+    [onTap, onQuickDone, onEdit, onDelete, onOpenHistory, onDoneEarlier]
   );
 
   return {
@@ -165,5 +168,7 @@ export function useHomeContent(tasks: Task[]) {
     expandedId,
     callbacks,
     heading,
+    completionSheet,
+    completionToast,
   };
 }

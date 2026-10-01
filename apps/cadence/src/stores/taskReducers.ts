@@ -47,6 +47,10 @@ export function markCompleted(
   });
 }
 
+export function completeTaskAt(task: Task, date: number): Task {
+  return markCompleted([task], task.id, date)[0];
+}
+
 export function unmarkCompleted(
   tasks: Task[],
   id: string,

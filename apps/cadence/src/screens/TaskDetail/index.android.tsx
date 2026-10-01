@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons/static';
+import CompletionSheet from '../../components/CompletionSheet';
 import DatePickerSheet from '../../components/DatePickerSheet';
 import IconButton from '../../components/ui/IconButton';
 import { routes } from '../../lib/routes';
@@ -36,12 +37,15 @@ export default function TaskDetailScreen() {
     setTab,
     datePickerOpen,
     editingEntry,
-    openNewDatePicker,
     openEditDatePicker,
     closeDatePicker,
     savePicker,
     markDoneNow,
     deleteCompletion,
+    completionSheetOpen,
+    openCompletionSheet,
+    closeCompletionSheet,
+    confirmCompletion,
     unarchiveOpen,
     openUnarchivePicker,
     closeUnarchivePicker,
@@ -179,7 +183,7 @@ export default function TaskDetailScreen() {
               Mark done
             </MaterialButton>
             <MaterialButton
-              onPress={openNewDatePicker}
+              onPress={openCompletionSheet}
               variant="tonal"
               icon="calendar"
             >
@@ -213,9 +217,16 @@ export default function TaskDetailScreen() {
       <DatePickerSheet
         visible={datePickerOpen}
         initialDate={editingEntry ?? getTodayTimestamp()}
-        mode={editingEntry !== null ? 'edit' : 'new'}
+        mode="edit"
         onClose={closeDatePicker}
         onSave={savePicker}
+      />
+
+      <CompletionSheet
+        visible={completionSheetOpen}
+        task={task}
+        onClose={closeCompletionSheet}
+        onConfirm={confirmCompletion}
       />
 
       <DatePickerSheet

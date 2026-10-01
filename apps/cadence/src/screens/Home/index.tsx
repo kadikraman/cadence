@@ -4,6 +4,8 @@ import { Dimensions, ScrollView, Text, View } from 'react-native';
 import ConfettiCannon from 'react-native-confetti-cannon';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import AllCaughtUp from '../../components/AllCaughtUp';
+import CompletionSheet from '../../components/CompletionSheet';
+import CompletionToast from '../../components/CompletionToast';
 import EmptyStateStarters from '../../components/EmptyStateStarters';
 import IconButton from '../../components/ui/IconButton';
 import WidgetNudge from '../../components/WidgetNudge';
@@ -23,6 +25,8 @@ export default function Home({ tasks }: { tasks: Task[] }) {
     expandedId,
     callbacks,
     heading,
+    completionSheet,
+    completionToast,
   } = useHomeContent(tasks);
 
   const { markInteractive } = useObserve();
@@ -103,6 +107,9 @@ export default function Home({ tasks }: { tasks: Task[] }) {
           />
         </ScrollView>
       )}
+
+      <CompletionToast {...completionToast} />
+      <CompletionSheet {...completionSheet} />
 
       <ConfettiCannon
         ref={confettiRef}

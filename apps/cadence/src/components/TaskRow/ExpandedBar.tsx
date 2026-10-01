@@ -24,9 +24,9 @@ export default function ExpandedBar({ task, callbacks }: ExpandedBarProps) {
         onPress={() => callbacks.onQuickDone(task)}
       />
       <InlineActionBtn
-        label="Pick date"
-        symbol="calendar"
-        onPress={() => callbacks.onPickDate(task)}
+        label="Earlier…"
+        symbol="calendar.badge.clock"
+        onPress={() => callbacks.onDoneEarlier(task)}
       />
       <InlineActionBtn
         label="Edit"

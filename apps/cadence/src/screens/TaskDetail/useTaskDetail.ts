@@ -30,11 +30,17 @@ export function useTaskDetail() {
   const [tab, setTab] = useState<Tab>('timeline');
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<number | null>(null);
+  const [completionSheetOpen, setCompletionSheetOpen] = useState(false);
   const [unarchiveOpen, setUnarchiveOpen] = useState(false);
 
-  const openNewDatePicker = () => {
-    setEditingEntry(null);
-    setDatePickerOpen(true);
+  const openCompletionSheet = () => setCompletionSheetOpen(true);
+  const closeCompletionSheet = () => setCompletionSheetOpen(false);
+
+  const confirmCompletion = async (ts: number) => {
+    if (!task) return;
+    setCompletionSheetOpen(false);
+    logs.taskCompleted();
+    await markCompleted(task.id, ts);
   };
 
   const openEditDatePicker = (ts: number) => {
@@ -48,13 +54,8 @@ export function useTaskDetail() {
   };
 
   const savePicker = async (ts: number) => {
-    if (!task) return;
-    if (editingEntry !== null) {
-      await editCompletionDate(task.id, editingEntry, ts);
-    } else {
-      logs.taskCompleted();
-      await markCompleted(task.id, ts);
-    }
+    if (!task || editingEntry === null) return;
+    await editCompletionDate(task.id, editingEntry, ts);
     closeDatePicker();
   };
 
@@ -87,12 +88,15 @@ export function useTaskDetail() {
     setTab,
     datePickerOpen,
     editingEntry,
-    openNewDatePicker,
     openEditDatePicker,
     closeDatePicker,
     savePicker,
     markDoneNow,
     deleteCompletion,
+    completionSheetOpen,
+    openCompletionSheet,
+    closeCompletionSheet,
+    confirmCompletion,
     unarchiveOpen,
     openUnarchivePicker,
     closeUnarchivePicker,

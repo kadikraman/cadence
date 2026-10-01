@@ -4,6 +4,8 @@ import ConfettiCannon from 'react-native-confetti-cannon';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { useEffect, useState } from 'react';
 import AllCaughtUp from '../../components/AllCaughtUp';
+import CompletionSheet from '../../components/CompletionSheet';
+import CompletionToast from '../../components/CompletionToast';
 import EmptyStateStarters from '../../components/EmptyStateStarters';
 import Chip from '../../components/ui/android/Chip';
 import FAB from '../../components/ui/android/FAB';
@@ -28,6 +30,8 @@ export default function Home({ tasks }: { tasks: Task[] }) {
     dueTodayCount,
     expandedId,
     callbacks,
+    completionSheet,
+    completionToast,
   } = useHomeContent(tasks);
 
   const { markInteractive } = useObserve();
@@ -146,6 +150,9 @@ export default function Home({ tasks }: { tasks: Task[] }) {
         onPress={() => router.push(routes.newTask)}
         accessibilityLabel="New task"
       />
+
+      <CompletionToast {...completionToast} bottomOffset={92} />
+      <CompletionSheet {...completionSheet} />
 
       <ConfettiCannon
         ref={confettiRef}

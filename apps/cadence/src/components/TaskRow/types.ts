@@ -7,7 +7,7 @@ export interface TaskRowCallbacks {
   onEdit: (task: Task) => void;
   onDelete: (task: Task) => void;
   onOpenHistory: (task: Task) => void;
-  onPickDate: (task: Task) => void;
+  onDoneEarlier: (task: Task) => void;
 }
 
 export interface TaskRowProps {

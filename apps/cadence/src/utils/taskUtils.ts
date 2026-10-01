@@ -169,6 +169,25 @@ export const relativeLabel = (timestamp: number): string => {
   return `${Math.round(diff / 365)} years ago`;
 };
 
+export const formatShortDay = (timestamp: number): string =>
+  new Date(timestamp).toLocaleString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+  });
+
+export const formatDayPhrase = (
+  timestamp: number,
+  todayTs: number = getTodayTimestamp(),
+  absolutePrefix = ''
+): string => {
+  const diff = Math.round((todayTs - normalizeToMidnight(timestamp)) / MS_DAY);
+  if (diff === 0) return 'today';
+  if (diff === 1) return 'yesterday';
+  if (diff > 1 && diff < 7) return `${diff} days ago`;
+  return `${absolutePrefix}${formatShortDay(timestamp)}`;
+};
+
 export const formatCompletionDate = (timestamp: number): string => {
   const date = new Date(timestamp);
   return date.toLocaleString('en-US', {

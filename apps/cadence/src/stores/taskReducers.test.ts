@@ -3,6 +3,7 @@ import { Task } from '../lib/types';
 import { MS_DAY } from '../utils/taskUtils';
 import {
   archiveTask,
+  completeTaskAt,
   editCompletionDate,
   markCompleted,
   mergeTasks,
@@ -121,6 +122,23 @@ describe('markCompleted', () => {
     const task = makeTask({ completedDates: [today] });
     const [next] = markCompleted([task], task.id, today);
     expect(next.completedDates).toEqual([today]);
+  });
+});
+
+describe('completeTaskAt', () => {
+  test('returns the task as markCompleted would leave it', () => {
+    const task = makeTask({ completedDates: [midnight(-14)] });
+    const ts = midnight(-1);
+    expect(completeTaskAt(task, ts)).toEqual(
+      markCompleted([task], task.id, ts)[0]
+    );
+  });
+
+  test('previews the next due date for a past completion', () => {
+    const task = makeTask({ cadence: { type: 'weekly' } });
+    const next = completeTaskAt(task, midnight(-1));
+    expect(next.nextDueDate).toBe(midnight(6));
+    expect(task.completedDates).toEqual([]);
   });
 });
 
