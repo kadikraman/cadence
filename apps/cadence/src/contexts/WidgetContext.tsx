@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as React from 'react';
-import { createContext, useCallback, useContext } from 'react';
-import { Platform } from 'react-native';
+import { createContext, useCallback, useContext, useRef } from 'react';
+import { AppState, Platform } from 'react-native';
 import { requestWidgetUpdate } from 'react-native-android-widget';
 import { Task } from '../lib/types';
 import { CadenceWidget } from '../widgets/CadenceWidget';
@@ -31,12 +31,13 @@ export function WidgetProvider({
   children: React.ReactNode;
   tasks: Task[];
 }) {
-  React.useEffect(() => {
-    const payloadTasks = buildWidgetPayload(tasks);
+  const tasksRef = useRef(tasks);
 
-    if (Platform.OS === 'ios') {
-      updateIosWidget(payloadTasks);
-    } else if (Platform.OS === 'android') {
+  React.useEffect(() => {
+    tasksRef.current = tasks;
+
+    if (Platform.OS === 'android') {
+      const payloadTasks = buildWidgetPayload(tasks);
       AsyncStorage.setItem(
         ANDROID_WIDGET_TASKS_KEY,
         JSON.stringify(payloadTasks)
@@ -59,6 +60,18 @@ export function WidgetProvider({
       });
     }
   }, [tasks]);
+
+  React.useEffect(() => {
+    if (Platform.OS !== 'ios') {
+      return;
+    }
+    const subscription = AppState.addEventListener('change', state => {
+      if (state !== 'active') {
+        updateIosWidget(buildWidgetPayload(tasksRef.current));
+      }
+    });
+    return () => subscription.remove();
+  }, []);
 
   const refreshWidget = useCallback(() => {
     if (Platform.OS === 'ios') {

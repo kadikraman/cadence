@@ -50,10 +50,10 @@ const CadenceWidget = (
   const isDark = environment.colorScheme === 'dark';
   const isSmall = environment.widgetFamily === 'systemSmall';
   const isLarge = environment.widgetFamily === 'systemLarge';
-  const tasks = props.tasks ?? [];
-  const overdueCount = props.overdueCount ?? 0;
-  const todayCount = props.todayCount ?? 0;
-  const totalCount = props.totalCount ?? 0;
+  const tasks = props?.tasks ?? [];
+  const overdueCount = props?.overdueCount ?? 0;
+  const todayCount = props?.todayCount ?? 0;
+  const totalCount = props?.totalCount ?? 0;
   const urgentCount = overdueCount + todayCount;
   const isAllClear = totalCount > 0 && urgentCount === 0;
   const maxRows = environment.widgetFamily === 'systemLarge' ? 6 : 3;

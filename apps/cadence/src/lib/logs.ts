@@ -52,6 +52,17 @@ export const logs = {
       attributes: { via },
     }),
 
+  widgetTimelineUpdated: () => Observe.logEvent('widget.timeline_updated'),
+
+  widgetTimelineFailed: (err: unknown) =>
+    Observe.logEvent('widget.timeline_failed', {
+      severity: 'warn',
+      attributes: { reason: errorReason(err) },
+    }),
+
+  widgetTimelineMissing: () =>
+    Observe.logEvent('widget.timeline_missing', { severity: 'warn' }),
+
   settingsExportCompleted: () => Observe.logEvent('settings.export_completed'),
 
   settingsImportCompleted: () => Observe.logEvent('settings.import_completed'),

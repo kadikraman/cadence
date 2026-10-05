@@ -72,7 +72,10 @@
               "name": "widget",
               "displayName": "Cadence",
               "description": "See what's due at a glance.",
-              "supportedFamilies": ["systemSmall", "systemMedium", "systemLarge"]
+              "supportedFamilies": ["systemSmall", "systemMedium", "systemLarge"],
+              "ios": {
+                "initialLayout": "./src/widgets/ios/CadenceWidget.tsx"
+              }
             }
           ]
         }
