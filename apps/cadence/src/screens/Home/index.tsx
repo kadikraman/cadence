@@ -1,3 +1,4 @@
+import { SegmentedControl } from '@expo/ui/community/segmented-control';
 import { useObserve } from 'expo-observe';
 import { useEffect } from 'react';
 import { Dimensions, ScrollView, Text, View } from 'react-native';
@@ -11,9 +12,15 @@ import IconButton from '../../components/ui/IconButton';
 import WidgetNudge from '../../components/WidgetNudge';
 import { routes } from '../../lib/routes';
 import { Task } from '../../lib/types';
+import { HomeTab } from '../../stores/settings';
 import { isCompletedToday } from '../../utils/taskUtils';
 import Section from './Section';
+import TodoList from './TodoList';
 import { useHomeContent } from './useHomeContent';
+import { useHomeTab } from './useHomeTab';
+
+const TABS: HomeTab[] = ['tasks', 'todo'];
+const TAB_LABELS = ['Tasks', 'To do'];
 
 export default function Home({ tasks }: { tasks: Task[] }) {
   const { theme } = useUnistyles();
@@ -28,6 +35,7 @@ export default function Home({ tasks }: { tasks: Task[] }) {
     completionSheet,
     completionToast,
   } = useHomeContent(tasks);
+  const { todosEnabled, tab, setTab, todoInputRef } = useHomeTab();
 
   const { markInteractive } = useObserve();
 
@@ -42,7 +50,7 @@ export default function Home({ tasks }: { tasks: Task[] }) {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerTop}>
-          <Text style={styles.title}>Tasks</Text>
+          <Text style={styles.title}>{tab === 'todo' ? 'To do' : 'Tasks'}</Text>
           <View style={styles.headerButtons}>
             <IconButton
               symbol="chart.bar.fill"
@@ -57,15 +65,30 @@ export default function Home({ tasks }: { tasks: Task[] }) {
             <IconButton
               symbol="plus"
               filled
-              onPress={() => router.push(routes.newTask)}
-              accessibilityLabel="New task"
+              onPress={() =>
+                tab === 'todo'
+                  ? todoInputRef.current?.focus()
+                  : router.push(routes.newTask)
+              }
+              accessibilityLabel={tab === 'todo' ? 'New to-do' : 'New task'}
             />
           </View>
         </View>
         <Text style={styles.subtitle}>{heading}</Text>
+        {todosEnabled && (
+          <View style={styles.tabs}>
+            <SegmentedControl
+              values={TAB_LABELS}
+              selectedIndex={TABS.indexOf(tab)}
+              onChange={e => setTab(TABS[e.nativeEvent.selectedSegmentIndex])}
+            />
+          </View>
+        )}
       </View>
 
-      {emptyState ? (
+      {tab === 'todo' ? (
+        <TodoList inputRef={todoInputRef} />
+      ) : emptyState ? (
         <EmptyStateStarters />
       ) : (
         <ScrollView contentContainerStyle={styles.scroll}>
@@ -153,6 +176,9 @@ const styles = StyleSheet.create((theme, rt) => ({
     fontSize: 15,
     color: theme.colors.label3,
     marginTop: 4,
+  },
+  tabs: {
+    marginTop: 14,
   },
   scroll: {
     paddingBottom: 40,

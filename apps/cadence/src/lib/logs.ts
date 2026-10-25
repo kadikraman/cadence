@@ -47,6 +47,16 @@ export const logs = {
 
   taskUnarchived: () => Observe.logEvent('task.unarchived'),
 
+  todoCreated: () => Observe.logEvent('todo.created'),
+
+  todoCompleted: () => Observe.logEvent('todo.completed'),
+
+  todoDeleted: () => Observe.logEvent('todo.deleted'),
+
+  todosCleared: () => Observe.logEvent('todo.cleared'),
+
+  settingsTodosToggled: () => Observe.logEvent('settings.todos_toggled'),
+
   widgetNudgeDismissed: (via: WidgetDismissReason) =>
     Observe.logEvent('widget.nudge_dismissed', {
       attributes: { via },

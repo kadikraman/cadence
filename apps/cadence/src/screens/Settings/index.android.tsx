@@ -4,6 +4,7 @@ import { ScrollView, Switch, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons/static';
 import TopAppBar from '../../components/ui/android/TopAppBar';
+import NativeSwitch from '../../components/ui/NativeSwitch';
 import { routes } from '../../lib/routes';
 import { generateSampleTasks } from '../../lib/sampleTasks';
 import { ThemeMode } from '../../stores/settings';
@@ -32,6 +33,8 @@ export default function SettingsScreen() {
     setThemeMode,
     weekStartsOnMonday,
     setWeekStartsOnMonday,
+    todosEnabled,
+    setTodosEnabled,
     taskCount,
     archivedCount,
     version,
@@ -78,6 +81,21 @@ export default function SettingsScreen() {
               />
             );
           })}
+        </AndroidGroup>
+
+        <AndroidGroup title="Features">
+          <AndroidSettingsRow
+            icon="format-list-checks"
+            title="To-do list"
+            subtitle="Adds a To do tab for one-off items"
+            trailing={
+              <NativeSwitch
+                value={todosEnabled}
+                onValueChange={setTodosEnabled}
+              />
+            }
+            last
+          />
         </AndroidGroup>
 
         <AndroidGroup title="Calendar">

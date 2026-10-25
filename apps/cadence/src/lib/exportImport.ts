@@ -3,7 +3,8 @@ import { File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import { Alert, Platform } from 'react-native';
 import { useTasksStore } from '../stores/tasks';
-import { Task } from './types';
+import { useTodosStore } from '../stores/todos';
+import { Task, Todo } from './types';
 
 const SCHEMA = 'cadence-v1';
 
@@ -11,6 +12,7 @@ interface ExportEnvelope {
   schema: typeof SCHEMA;
   exportedAt: number;
   tasks: Task[];
+  todos?: Todo[];
 }
 
 function todayStamp(): string {
@@ -23,10 +25,12 @@ function todayStamp(): string {
 
 export async function exportTasks(): Promise<void> {
   const tasks = useTasksStore.getState().tasks;
+  const todos = useTodosStore.getState().todos;
   const envelope: ExportEnvelope = {
     schema: SCHEMA,
     exportedAt: Date.now(),
     tasks,
+    todos,
   };
   const filename = `cadence-backup-${todayStamp()}.json`;
   const file = new File(Paths.cache, filename);
@@ -50,6 +54,17 @@ function isValidEnvelope(parsed: unknown): parsed is ExportEnvelope {
   const env = parsed as Partial<ExportEnvelope>;
   if (env.schema !== SCHEMA) return false;
   if (!Array.isArray(env.tasks)) return false;
+  if (
+    env.todos !== undefined &&
+    !(
+      Array.isArray(env.todos) &&
+      env.todos.every(
+        t => t && typeof t.id === 'string' && typeof t.title === 'string'
+      )
+    )
+  ) {
+    return false;
+  }
   return env.tasks.every(
     t =>
       t &&
@@ -71,11 +86,14 @@ async function applyImport(
   mode: 'replace' | 'merge'
 ): Promise<ImportResult> {
   const store = useTasksStore.getState();
+  const todosStore = useTodosStore.getState();
   if (mode === 'replace') {
     await store.replaceAll(envelope.tasks);
+    await todosStore.replaceAll(envelope.todos ?? []);
     return { imported: envelope.tasks.length, skipped: 0, mode };
   }
   const { imported, skipped } = await store.merge(envelope.tasks);
+  await todosStore.merge(envelope.todos ?? []);
   return { imported, skipped, mode };
 }
 

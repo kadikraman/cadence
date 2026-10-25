@@ -3,21 +3,34 @@ import { Dimensions, ScrollView, Text, View } from 'react-native';
 import ConfettiCannon from 'react-native-confetti-cannon';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { useEffect, useState } from 'react';
+import { useKeyboardState } from 'react-native-keyboard-controller';
 import AllCaughtUp from '../../components/AllCaughtUp';
 import CompletionSheet from '../../components/CompletionSheet';
 import CompletionToast from '../../components/CompletionToast';
 import EmptyStateStarters from '../../components/EmptyStateStarters';
 import Chip from '../../components/ui/android/Chip';
 import FAB from '../../components/ui/android/FAB';
+import MaterialTabs, {
+  MaterialTabOption,
+} from '../../components/ui/android/MaterialTabs';
 import IconButton from '../../components/ui/IconButton';
 import WidgetNudge from '../../components/WidgetNudge';
 import { routes } from '../../lib/routes';
 import { Task } from '../../lib/types';
+import { HomeTab } from '../../stores/settings';
+import { useTodosStore } from '../../stores/todos';
 import { isCompletedToday } from '../../utils/taskUtils';
 import Section from './Section';
+import TodoList from './TodoList';
 import { useHomeContent } from './useHomeContent';
+import { useHomeTab } from './useHomeTab';
 
 type HomeFilter = 'all' | 'today' | 'overdue';
+
+const TABS: MaterialTabOption<HomeTab>[] = [
+  { value: 'tasks', label: 'Tasks' },
+  { value: 'todo', label: 'To do' },
+];
 
 export default function Home({ tasks }: { tasks: Task[] }) {
   const { theme } = useUnistyles();
@@ -33,6 +46,12 @@ export default function Home({ tasks }: { tasks: Task[] }) {
     completionSheet,
     completionToast,
   } = useHomeContent(tasks);
+  const { todosEnabled, tab, setTab, todoInputRef } = useHomeTab();
+  const openTodoCount = useTodosStore(
+    s => s.todos.filter(t => t.completedAt === undefined).length
+  );
+  const keyboardVisible = useKeyboardState(s => s.isVisible);
+  const isTodoTab = tab === 'todo';
 
   const { markInteractive } = useObserve();
 
@@ -66,31 +85,42 @@ export default function Home({ tasks }: { tasks: Task[] }) {
         </View>
         <Text style={styles.title}>Cadence</Text>
         <Text style={styles.subtitle}>
-          {dueTodayCount === 0
-            ? 'Nothing due today'
-            : `${dueTodayCount} due today`}
+          {isTodoTab
+            ? openTodoCount === 0
+              ? 'Nothing to do'
+              : `${openTodoCount} open`
+            : dueTodayCount === 0
+              ? 'Nothing due today'
+              : `${dueTodayCount} due today`}
         </Text>
-        <View style={styles.chipRow}>
-          <Chip
-            label={`All · ${tasks.length}`}
-            selected={filter === 'all'}
-            onPress={() => setFilter('all')}
-          />
-          <Chip
-            label={`Today · ${dueTodayCount}`}
-            selected={filter === 'today'}
-            onPress={() => setFilter('today')}
-          />
-          <Chip
-            label={`Overdue · ${buckets.overdue.length}`}
-            selected={filter === 'overdue'}
-            error={buckets.overdue.length > 0}
-            onPress={() => setFilter('overdue')}
-          />
-        </View>
+        {todosEnabled && (
+          <MaterialTabs options={TABS} value={tab} onChange={setTab} />
+        )}
+        {!isTodoTab && (
+          <View style={[styles.chipRow, todosEnabled && styles.chipRowTabbed]}>
+            <Chip
+              label={`All · ${tasks.length}`}
+              selected={filter === 'all'}
+              onPress={() => setFilter('all')}
+            />
+            <Chip
+              label={`Today · ${dueTodayCount}`}
+              selected={filter === 'today'}
+              onPress={() => setFilter('today')}
+            />
+            <Chip
+              label={`Overdue · ${buckets.overdue.length}`}
+              selected={filter === 'overdue'}
+              error={buckets.overdue.length > 0}
+              onPress={() => setFilter('overdue')}
+            />
+          </View>
+        )}
       </View>
 
-      {emptyState ? (
+      {isTodoTab ? (
+        <TodoList inputRef={todoInputRef} />
+      ) : emptyState ? (
         <EmptyStateStarters />
       ) : (
         <ScrollView contentContainerStyle={styles.scroll}>
@@ -143,13 +173,18 @@ export default function Home({ tasks }: { tasks: Task[] }) {
         </ScrollView>
       )}
 
-      <FAB
-        icon="plus"
-        label="New task"
-        extended
-        onPress={() => router.push(routes.newTask)}
-        accessibilityLabel="New task"
-      />
+      {!keyboardVisible && (
+        <FAB
+          icon="plus"
+          label={isTodoTab ? 'New to-do' : 'New task'}
+          extended
+          onPress={() =>
+            isTodoTab
+              ? todoInputRef.current?.focus()
+              : router.push(routes.newTask)
+          }
+        />
+      )}
 
       <CompletionToast {...completionToast} bottomOffset={92} />
       <CompletionSheet {...completionSheet} />
@@ -203,6 +238,9 @@ const styles = StyleSheet.create((theme, rt) => ({
     flexWrap: 'wrap',
     gap: 8,
     paddingHorizontal: 16,
+  },
+  chipRowTabbed: {
+    paddingTop: 12,
   },
   scroll: {
     paddingBottom: 40,

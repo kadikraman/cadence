@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 
 export type ThemeMode = 'light' | 'dark' | 'system';
+export type HomeTab = 'tasks' | 'todo';
 
 const STORAGE_KEY = 'settings';
 
@@ -10,6 +11,8 @@ interface Settings {
   onboardingSeen: boolean;
   widgetNudgeDismissed: boolean;
   weekStartsOnMonday: boolean;
+  todosEnabled: boolean;
+  homeTab: HomeTab;
 }
 
 interface SettingsStore extends Settings {
@@ -19,6 +22,8 @@ interface SettingsStore extends Settings {
   setOnboardingSeen: () => Promise<void>;
   dismissWidgetNudge: () => Promise<void>;
   setWeekStartsOnMonday: (value: boolean) => Promise<void>;
+  setTodosEnabled: (value: boolean) => Promise<void>;
+  setHomeTab: (tab: HomeTab) => Promise<void>;
 }
 
 const DEFAULTS: Settings = {
@@ -26,6 +31,8 @@ const DEFAULTS: Settings = {
   onboardingSeen: false,
   widgetNudgeDismissed: false,
   weekStartsOnMonday: true,
+  todosEnabled: false,
+  homeTab: 'tasks',
 };
 
 function pickSettings(store: SettingsStore): Settings {
@@ -34,6 +41,8 @@ function pickSettings(store: SettingsStore): Settings {
     onboardingSeen: store.onboardingSeen,
     widgetNudgeDismissed: store.widgetNudgeDismissed,
     weekStartsOnMonday: store.weekStartsOnMonday,
+    todosEnabled: store.todosEnabled,
+    homeTab: store.homeTab,
   };
 }
 
@@ -72,6 +81,8 @@ export const useSettingsStore = create<SettingsStore>((set, get) => {
             typeof parsed.weekStartsOnMonday === 'boolean'
               ? parsed.weekStartsOnMonday
               : DEFAULTS.weekStartsOnMonday,
+          todosEnabled: !!parsed.todosEnabled,
+          homeTab: parsed.homeTab === 'todo' ? 'todo' : DEFAULTS.homeTab,
           loaded: true,
         });
       } catch {
@@ -84,5 +95,7 @@ export const useSettingsStore = create<SettingsStore>((set, get) => {
     dismissWidgetNudge: () => updateAndPersist({ widgetNudgeDismissed: true }),
     setWeekStartsOnMonday: value =>
       updateAndPersist({ weekStartsOnMonday: value }),
+    setTodosEnabled: value => updateAndPersist({ todosEnabled: value }),
+    setHomeTab: tab => updateAndPersist({ homeTab: tab }),
   };
 });

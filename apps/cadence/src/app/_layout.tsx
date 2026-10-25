@@ -14,6 +14,7 @@ import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { useUnistyles } from 'react-native-unistyles';
 import { useSettingsStore } from '../stores/settings';
 import { useTasksStore } from '../stores/tasks';
+import { useTodosStore } from '../stores/todos';
 import { applyThemeMode } from '../unistyles';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -38,6 +39,8 @@ function RootLayoutNav() {
 
   const tasksLoaded = useTasksStore(s => s.loaded);
   const loadTasks = useTasksStore(s => s.load);
+  const todosLoaded = useTodosStore(s => s.loaded);
+  const loadTodos = useTodosStore(s => s.load);
   const settingsLoaded = useSettingsStore(s => s.loaded);
   const loadSettings = useSettingsStore(s => s.load);
   const onboardingSeen = useSettingsStore(s => s.onboardingSeen);
@@ -45,21 +48,22 @@ function RootLayoutNav() {
 
   useEffect(() => {
     loadTasks();
+    loadTodos();
     loadSettings();
-  }, [loadTasks, loadSettings]);
+  }, [loadTasks, loadTodos, loadSettings]);
 
   useEffect(() => {
     if (settingsLoaded) applyThemeMode(themeMode);
   }, [settingsLoaded, themeMode]);
 
   useEffect(() => {
-    if (tasksLoaded && settingsLoaded) {
+    if (tasksLoaded && todosLoaded && settingsLoaded) {
       SplashScreen.hideAsync().catch(() => {});
       markInteractive();
     }
-  }, [tasksLoaded, settingsLoaded, markInteractive]);
+  }, [tasksLoaded, todosLoaded, settingsLoaded, markInteractive]);
 
-  if (!tasksLoaded || !settingsLoaded) return null;
+  if (!tasksLoaded || !todosLoaded || !settingsLoaded) return null;
 
   return (
     <ReactNativeThemeProvider value={isDark ? DarkTheme : DefaultTheme}>

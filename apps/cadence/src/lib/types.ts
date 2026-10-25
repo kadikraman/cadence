@@ -31,3 +31,10 @@ export const normalizeTask = (task: Task): Task => ({
   color: task.color ?? DEFAULT_COLOR,
   glyph: task.glyph ?? DEFAULT_GLYPH,
 });
+
+export interface Todo {
+  id: string;
+  title: string;
+  createdAt: number;
+  completedAt?: number;
+}

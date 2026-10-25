@@ -579,4 +579,7 @@ export const UI_SYMBOL_TO_MATERIAL: Record<string, string> = {
   'trash.fill': 'trash-can',
   'exclamationmark.triangle.fill': 'alert',
   'arrow.triangle.2.circlepath': 'repeat',
+  checklist: 'format-list-checks',
+  'arrow.up': 'arrow-up',
+  circle: 'checkbox-blank-circle-outline',
 };

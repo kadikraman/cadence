@@ -5,6 +5,7 @@ import { Pressable, ScrollView, Switch, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import FormGroup from '../../components/ui/FormGroup';
 import FormLabel from '../../components/ui/FormLabel';
+import NativeSwitch from '../../components/ui/NativeSwitch';
 import { routes } from '../../lib/routes';
 import { generateSampleTasks } from '../../lib/sampleTasks';
 import { ThemeMode } from '../../stores/settings';
@@ -35,6 +36,8 @@ export default function SettingsScreen() {
     setThemeMode,
     weekStartsOnMonday,
     setWeekStartsOnMonday,
+    todosEnabled,
+    setTodosEnabled,
     taskCount,
     archivedCount,
     version,
@@ -124,6 +127,36 @@ export default function SettingsScreen() {
               </Pressable>
             );
           })}
+        </FormGroup>
+
+        <FormLabel>Features</FormLabel>
+        <FormGroup>
+          <View style={styles.row}>
+            <View
+              style={[
+                styles.rowIcon,
+                { backgroundColor: theme.colors.blue + '22' },
+              ]}
+            >
+              <SymbolView
+                name="checklist"
+                size={16}
+                tintColor={theme.colors.blue}
+                resizeMode="scaleAspectFit"
+                fallback={null}
+              />
+            </View>
+            <View style={styles.rowBody}>
+              <Text style={styles.rowLabel}>To-do list</Text>
+              <Text style={styles.rowSub}>
+                Adds a To do tab for one-off items
+              </Text>
+            </View>
+            <NativeSwitch
+              value={todosEnabled}
+              onValueChange={setTodosEnabled}
+            />
+          </View>
         </FormGroup>
 
         <FormLabel>Calendar</FormLabel>

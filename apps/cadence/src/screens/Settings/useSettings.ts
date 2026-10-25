@@ -14,6 +14,8 @@ export function useSettings() {
   const setThemeModeStore = useSettingsStore(s => s.setThemeMode);
   const weekStartsOnMonday = useSettingsStore(s => s.weekStartsOnMonday);
   const setWeekStartsOnMonday = useSettingsStore(s => s.setWeekStartsOnMonday);
+  const todosEnabled = useSettingsStore(s => s.todosEnabled);
+  const setTodosEnabledStore = useSettingsStore(s => s.setTodosEnabled);
   const taskCount = useTasksStore(s => s.tasks.length);
   const archivedCount = useTasksStore(
     s => s.tasks.filter(t => t.archived).length
@@ -22,6 +24,11 @@ export function useSettings() {
   const buildNumber = Application.nativeBuildVersion || 'Unknown';
 
   const setThemeMode = (mode: ThemeMode) => setThemeModeStore(mode);
+
+  const setTodosEnabled = (value: boolean) => {
+    logs.settingsTodosToggled();
+    setTodosEnabledStore(value);
+  };
 
   const handleExport = async () => {
     try {
@@ -72,6 +79,8 @@ export function useSettings() {
     setThemeMode,
     weekStartsOnMonday,
     setWeekStartsOnMonday,
+    todosEnabled,
+    setTodosEnabled,
     taskCount,
     archivedCount,
     version,
