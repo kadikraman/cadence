@@ -7,6 +7,7 @@ import FormGroup from '../../components/ui/FormGroup';
 import FormLabel from '../../components/ui/FormLabel';
 import NativeSwitch from '../../components/ui/NativeSwitch';
 import { routes } from '../../lib/routes';
+import { SYNC_PROVIDER_NAME } from '../../lib/sync/useSyncSetting';
 import { generateSampleTasks } from '../../lib/sampleTasks';
 import { ThemeMode } from '../../stores/settings';
 import { useTasksStore } from '../../stores/tasks';
@@ -38,6 +39,7 @@ export default function SettingsScreen() {
     setWeekStartsOnMonday,
     todosEnabled,
     setTodosEnabled,
+    sync,
     taskCount,
     archivedCount,
     version,
@@ -155,6 +157,36 @@ export default function SettingsScreen() {
             <NativeSwitch
               value={todosEnabled}
               onValueChange={setTodosEnabled}
+            />
+          </View>
+        </FormGroup>
+
+        <FormLabel>Sync</FormLabel>
+        <FormGroup>
+          <View style={styles.row}>
+            <View
+              style={[
+                styles.rowIcon,
+                { backgroundColor: theme.colors.blue + '22' },
+              ]}
+            >
+              <SymbolView
+                name="icloud.fill"
+                size={16}
+                tintColor={theme.colors.blue}
+                resizeMode="scaleAspectFit"
+                fallback={null}
+              />
+            </View>
+            <View style={styles.rowBody}>
+              <Text style={styles.rowLabel}>
+                Sync with {SYNC_PROVIDER_NAME}
+              </Text>
+              <Text style={styles.rowSub}>{sync.statusText}</Text>
+            </View>
+            <NativeSwitch
+              value={sync.enabled}
+              onValueChange={sync.setEnabled}
             />
           </View>
         </FormGroup>
@@ -286,11 +318,6 @@ export default function SettingsScreen() {
               </Pressable>
             </>
           )}
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>
-              Data is stored on your device only.
-            </Text>
-          </View>
         </FormGroup>
 
         <FormLabel>About</FormLabel>
@@ -436,15 +463,5 @@ const styles = StyleSheet.create((theme, rt) => ({
     height: 0.5,
     backgroundColor: theme.colors.sepSubtle,
     marginLeft: 48,
-  },
-  footer: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderTopWidth: 0.5,
-    borderTopColor: theme.colors.sepSubtle,
-  },
-  footerText: {
-    fontSize: 12,
-    color: theme.colors.label3,
   },
 }));

@@ -15,6 +15,7 @@
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-community/datetimepicker": "9.2.1",
     "@react-native-community/netinfo": "12.0.1",
+    "@react-native-google-signin/google-signin": "^16.1.5",
     "@react-native-vector-icons/material-design-icons": "^13.1.1",
     "@sentry/react-native": "~8.28.0",
     "eslint-plugin-react-native": "^5.0.0",
@@ -46,6 +47,7 @@
     "react-dom": "19.3.0",
     "react-native": "0.88.0-rc.3",
     "react-native-android-widget": "^0.18.0",
+    "react-native-cloud-storage": "^3.3.0",
     "react-native-confetti-cannon": "^1.5.2",
     "react-native-edge-to-edge": "^1.7.0",
     "react-native-gesture-handler": "~3.2.1",
@@ -73,6 +75,13 @@
       "exclude": [
         "@sentry/react-native"
       ]
+    },
+    "autolinking": {
+      "ios": {
+        "exclude": [
+          "@react-native-google-signin/google-signin"
+        ]
+      }
     }
   }
 }

@@ -1,3 +1,4 @@
+import { SymbolView } from 'expo-symbols';
 import { View, Text } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -266,15 +267,42 @@ function MenuStep({ dark }: { dark: boolean }) {
   );
 }
 
+function SyncStep({ dark }: { dark: boolean }) {
+  return (
+    <View
+      style={[
+        visualStyles.syncCircle,
+        { backgroundColor: dark ? '#0A84FF33' : '#007AFF1F' },
+      ]}
+    >
+      <SymbolView
+        name="icloud.fill"
+        size={72}
+        tintColor={dark ? '#0A84FF' : '#007AFF'}
+        resizeMode="scaleAspectFit"
+        fallback={null}
+      />
+    </View>
+  );
+}
+
 export function OnboardingVisual({ kind }: { kind: Visual }) {
   const { rt } = useUnistyles();
   const dark = rt.themeName === 'dark';
   if (kind === 'icon') return <IconStep dark={dark} />;
   if (kind === 'menu') return <MenuStep dark={dark} />;
+  if (kind === 'sync') return <SyncStep dark={dark} />;
   return null;
 }
 
 const visualStyles = StyleSheet.create(() => ({
+  syncCircle: {
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   iconWrap: {
     alignItems: 'center',
     gap: 12,

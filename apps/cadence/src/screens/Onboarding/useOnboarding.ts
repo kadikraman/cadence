@@ -1,14 +1,22 @@
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { logs } from '../../lib/logs';
 import { routes } from '../../lib/routes';
+import { useSyncSetting } from '../../lib/sync/useSyncSetting';
 import { useSettingsStore } from '../../stores/settings';
+import { Step } from './types';
 
-export function useOnboarding(stepCount: number) {
+export function useOnboarding(widgetSteps: Step[], syncStep: Step) {
   const router = useRouter();
   const setOnboardingSeen = useSettingsStore(s => s.setOnboardingSeen);
   const [step, setStep] = useState(0);
   const isReplay = router.canGoBack();
+  const sync = useSyncSetting();
+
+  const steps = useMemo(
+    () => (isReplay ? widgetSteps : [...widgetSteps, syncStep]),
+    [isReplay, widgetSteps, syncStep]
+  );
 
   const finish = async () => {
     await setOnboardingSeen();
@@ -16,13 +24,9 @@ export function useOnboarding(stepCount: number) {
     else router.replace(routes.home);
   };
 
-  const close = async () => {
-    logs.onboardingSkipped(step);
-    await finish();
-  };
-
   const next = () => {
-    if (step === stepCount - 1) {
+    if (sync.busy) return;
+    if (step === steps.length - 1) {
       logs.onboardingCompleted(isReplay);
       finish();
     } else {
@@ -30,5 +34,5 @@ export function useOnboarding(stepCount: number) {
     }
   };
 
-  return { router, step, next, close, isReplay };
+  return { steps, current: steps[step], step, next, isReplay, sync };
 }

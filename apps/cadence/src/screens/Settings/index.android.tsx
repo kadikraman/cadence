@@ -6,6 +6,7 @@ import MaterialCommunityIcons from '@react-native-vector-icons/material-design-i
 import TopAppBar from '../../components/ui/android/TopAppBar';
 import NativeSwitch from '../../components/ui/NativeSwitch';
 import { routes } from '../../lib/routes';
+import { SYNC_PROVIDER_NAME } from '../../lib/sync/useSyncSetting';
 import { generateSampleTasks } from '../../lib/sampleTasks';
 import { ThemeMode } from '../../stores/settings';
 import { useTasksStore } from '../../stores/tasks';
@@ -35,6 +36,7 @@ export default function SettingsScreen() {
     setWeekStartsOnMonday,
     todosEnabled,
     setTodosEnabled,
+    sync,
     taskCount,
     archivedCount,
     version,
@@ -92,6 +94,25 @@ export default function SettingsScreen() {
               <NativeSwitch
                 value={todosEnabled}
                 onValueChange={setTodosEnabled}
+              />
+            }
+            last
+          />
+        </AndroidGroup>
+
+        <AndroidGroup title="Sync">
+          <AndroidSettingsRow
+            icon="google-drive"
+            title={`Sync with ${SYNC_PROVIDER_NAME}`}
+            subtitle={
+              sync.enabled && sync.account
+                ? `${sync.account}\n${sync.statusText}`
+                : sync.statusText
+            }
+            trailing={
+              <NativeSwitch
+                value={sync.enabled}
+                onValueChange={sync.setEnabled}
               />
             }
             last

@@ -42,6 +42,7 @@
     "plugins": [
       "./plugins/withoutPushEntitlement.js",
       "expo-router",
+      "react-native-cloud-storage",
       [
         "expo-build-properties",
         {

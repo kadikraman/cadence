@@ -1,8 +1,9 @@
 import { useObserve } from 'expo-observe';
 import { useEffect } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import MaterialButton from '../../components/ui/android/MaterialButton';
+import NativeSwitch from '../../components/ui/NativeSwitch';
 import { Step } from './types';
 import { Dot, OnboardingVisual } from './visuals';
 import { useOnboarding } from './useOnboarding';
@@ -20,10 +21,18 @@ const STEPS: Step[] = [
   },
 ];
 
+const SYNC_STEP: Step = {
+  title: 'Sync with Google Drive',
+  body: 'Keep your tasks and to-dos up to date on every Android device with your Google account. They are saved in a hidden app folder in your own Google Drive. Cadence has no server and cannot see them.',
+  visual: 'sync',
+};
+
 export default function OnboardingScreen() {
   const { theme, rt } = useUnistyles();
-  const { step, next, close, isReplay } = useOnboarding(STEPS.length);
-  const current = STEPS[step];
+  const { steps, current, step, next, isReplay, sync } = useOnboarding(
+    STEPS,
+    SYNC_STEP
+  );
 
   const { markInteractive } = useObserve();
 
@@ -33,24 +42,7 @@ export default function OnboardingScreen() {
 
   return (
     <View style={[styles.root, !isReplay && { paddingTop: rt.insets.top }]}>
-      <View style={styles.topBar}>
-        {!isReplay && (
-          <Pressable
-            onPress={close}
-            android_ripple={{
-              color: theme.colors.fill2,
-              borderless: false,
-            }}
-            style={styles.skipBtn}
-            accessibilityRole="button"
-            accessibilityLabel="Skip onboarding"
-          >
-            <Text style={[styles.skipText, { color: theme.colors.primary }]}>
-              Skip
-            </Text>
-          </Pressable>
-        )}
-      </View>
+      <View style={styles.topBar} />
 
       <View style={styles.visualWrap}>
         <OnboardingVisual kind={current.visual} />
@@ -60,6 +52,24 @@ export default function OnboardingScreen() {
         <Text style={[styles.stepBody, { color: theme.colors.label2 }]}>
           {current.body}
         </Text>
+        {current.visual === 'sync' && (
+          <View
+            style={[styles.syncRow, { backgroundColor: theme.colors.surface }]}
+          >
+            <View style={styles.syncText}>
+              <Text style={[styles.syncLabel, { color: theme.colors.text }]}>
+                Sync with Google Drive
+              </Text>
+              <Text style={[styles.syncSub, { color: theme.colors.label2 }]}>
+                {sync.account ?? 'You will be asked to sign in with Google.'}
+              </Text>
+            </View>
+            <NativeSwitch
+              value={sync.enabled}
+              onValueChange={sync.setEnabled}
+            />
+          </View>
+        )}
       </View>
 
       <View
@@ -69,12 +79,12 @@ export default function OnboardingScreen() {
         ]}
       >
         <View style={styles.dotRow}>
-          {STEPS.map((_, i) => (
+          {steps.map((_, i) => (
             <Dot key={i} isActive={i === step} />
           ))}
         </View>
         <MaterialButton onPress={next}>
-          {step === STEPS.length - 1 ? 'Done' : 'Next'}
+          {step === steps.length - 1 ? 'Done' : 'Next'}
         </MaterialButton>
       </View>
     </View>
@@ -92,18 +102,6 @@ const styles = StyleSheet.create(theme => ({
     alignItems: 'center',
     justifyContent: 'flex-end',
     paddingHorizontal: 8,
-  },
-  skipBtn: {
-    height: 40,
-    paddingHorizontal: 16,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  skipText: {
-    fontSize: 14,
-    fontWeight: '500',
-    letterSpacing: 0.1,
   },
   visualWrap: {
     flex: 1,
@@ -125,6 +123,26 @@ const styles = StyleSheet.create(theme => ({
     lineHeight: 22,
     marginTop: 10,
     maxWidth: 300,
+  },
+  syncRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+    marginTop: 28,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderRadius: 16,
+    alignSelf: 'stretch',
+  },
+  syncText: {
+    flex: 1,
+  },
+  syncLabel: {
+    fontSize: 16,
+  },
+  syncSub: {
+    fontSize: 13,
+    marginTop: 2,
   },
   footer: {
     paddingHorizontal: 24,

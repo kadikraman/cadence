@@ -230,7 +230,7 @@ function WidgetPickerStep({ dark }: { dark: boolean }) {
         <View
           style={[
             visualStyles.resultChevron,
-            { backgroundColor: theme.colors.primaryContainer },
+            { backgroundColor: theme.colors.primary + '22' },
           ]}
         >
           <MaterialCommunityIcons
@@ -244,15 +244,41 @@ function WidgetPickerStep({ dark }: { dark: boolean }) {
   );
 }
 
+function SyncStep() {
+  const { theme } = useUnistyles();
+  return (
+    <View
+      style={[
+        visualStyles.syncCircle,
+        { backgroundColor: theme.colors.primary + '22' },
+      ]}
+    >
+      <MaterialCommunityIcons
+        name="google-drive"
+        size={72}
+        color={theme.colors.primary}
+      />
+    </View>
+  );
+}
+
 export function OnboardingVisual({ kind }: { kind: Visual }) {
   const { rt } = useUnistyles();
   const dark = rt.themeName === 'dark';
   if (kind === 'home-menu') return <HomeMenuStep dark={dark} />;
   if (kind === 'widget-picker') return <WidgetPickerStep dark={dark} />;
+  if (kind === 'sync') return <SyncStep />;
   return null;
 }
 
 const visualStyles = StyleSheet.create(() => ({
+  syncCircle: {
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   homeWrap: {
     width: 248,
     height: 250,

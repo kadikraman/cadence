@@ -27,11 +27,6 @@ export const logs = {
       attributes: { replayed },
     }),
 
-  onboardingSkipped: (step: number) =>
-    Observe.logEvent('onboarding.skipped', {
-      attributes: { step },
-    }),
-
   taskCreated: (fromStarter: boolean) =>
     Observe.logEvent('task.created', {
       attributes: { fromStarter },
@@ -76,6 +71,18 @@ export const logs = {
   settingsExportCompleted: () => Observe.logEvent('settings.export_completed'),
 
   settingsImportCompleted: () => Observe.logEvent('settings.import_completed'),
+
+  syncEnabled: () => Observe.logEvent('sync.enabled'),
+
+  syncDisabled: () => Observe.logEvent('sync.disabled'),
+
+  syncCompleted: () => Observe.logEvent('sync.completed'),
+
+  syncFailed: (err: unknown) =>
+    Observe.logEvent('sync.failed', {
+      severity: 'warn',
+      attributes: { reason: errorReason(err) },
+    }),
 
   feedbackSendFailed: (kind: FeedbackKind, err: unknown) =>
     Observe.logEvent('feedback.send_failed', {

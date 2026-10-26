@@ -5,6 +5,7 @@ import * as StoreReview from 'expo-store-review';
 import { Alert, Linking } from 'react-native';
 import { exportTasks, importTasks } from '../../lib/exportImport';
 import { logs } from '../../lib/logs';
+import { useSyncSetting } from '../../lib/sync/useSyncSetting';
 import { ThemeMode, useSettingsStore } from '../../stores/settings';
 import { useTasksStore } from '../../stores/tasks';
 
@@ -16,6 +17,7 @@ export function useSettings() {
   const setWeekStartsOnMonday = useSettingsStore(s => s.setWeekStartsOnMonday);
   const todosEnabled = useSettingsStore(s => s.todosEnabled);
   const setTodosEnabledStore = useSettingsStore(s => s.setTodosEnabled);
+  const sync = useSyncSetting();
   const taskCount = useTasksStore(s => s.tasks.length);
   const archivedCount = useTasksStore(
     s => s.tasks.filter(t => t.archived).length
@@ -42,7 +44,7 @@ export function useSettings() {
 
   const handleImport = async () => {
     try {
-      const res = await importTasks();
+      const res = await importTasks(sync.enabled);
       if (res) {
         Alert.alert(
           'Import complete',
@@ -81,6 +83,7 @@ export function useSettings() {
     setWeekStartsOnMonday,
     todosEnabled,
     setTodosEnabled,
+    sync,
     taskCount,
     archivedCount,
     version,

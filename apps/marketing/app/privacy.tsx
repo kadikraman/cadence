@@ -20,7 +20,8 @@ export default function Privacy() {
           <div className="kicker">Privacy Policy</div>
           <h1>The short version.</h1>
           <p>
-            Cadence stores your tasks on your device. We collect anonymous crash
+            Cadence stores your tasks on your device, and, only if you turn on
+            sync, in your own iCloud or Google Drive. We collect anonymous crash
             and performance data so the app keeps working. Nothing that
             identifies you.
           </p>
@@ -47,8 +48,9 @@ export default function Privacy() {
           <div>
             <h3>TL;DR</h3>
             <p>
-              Your tasks never leave your phone. We see anonymous crash reports
-              and performance metrics. No account, no ads, no tracking.
+              Your tasks never reach us. They stay on your phone, or in your own
+              iCloud or Google Drive if you turn on sync. We see anonymous crash
+              reports and performance metrics. No account, no ads, no tracking.
             </p>
           </div>
         </div>
@@ -58,7 +60,49 @@ export default function Privacy() {
           Everything you create in Cadence, your tasks, their schedules, the
           history of when you ticked them off, your streaks, your settings,
           lives in local storage on your phone. We don&apos;t have a server that
-          holds a copy. If you delete the app, it&apos;s gone.
+          holds a copy. If you delete the app and sync is off, it&apos;s gone.
+        </p>
+
+        <h2>Optional sync</h2>
+        <p>
+          Sync is off unless you turn it on, during setup or in{' '}
+          <strong>Settings</strong>. When it is on, Cadence keeps a copy of your
+          tasks, their schedules and completion history, and your to-dos in your
+          own cloud storage, so your other devices stay up to date:
+        </p>
+        <ul>
+          <li>
+            <strong>iPhone:</strong> in Cadence&apos;s private folder in your
+            iCloud account, under{' '}
+            <a
+              href="https://www.apple.com/legal/privacy/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Apple&apos;s privacy policy
+            </a>
+            .
+          </li>
+          <li>
+            <strong>Android:</strong> in a hidden app folder in your Google
+            Drive, after you sign in with Google. Cadence asks only for access
+            to that folder, not to your other files. Google&apos;s{' '}
+            <a
+              href="https://policies.google.com/privacy"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              privacy policy
+            </a>{' '}
+            applies.
+          </li>
+        </ul>
+        <p>
+          The copy goes straight from your phone to your account. It never
+          passes through a Cadence server, and we can&apos;t read it. Your
+          settings are not synced. Turning sync off stops it and signs Cadence
+          out of Google on Android. To remove the copy, delete Cadence&apos;s
+          data in your iCloud or Google Drive storage settings.
         </p>
 
         <h2>What we do collect</h2>
@@ -123,7 +167,8 @@ export default function Privacy() {
         <p>
           Because we don&apos;t store any personally identifiable information,
           there&apos;s nothing to hand over, correct, or delete on our side.
-          Deleting the app deletes your tasks.
+          Deleting the app deletes your tasks on that device. A synced copy
+          stays in your iCloud or Google Drive until you delete it there.
         </p>
 
         <h2>Kids</h2>
@@ -134,10 +179,10 @@ export default function Privacy() {
 
         <h2>Changes to this policy</h2>
         <p>
-          If we ever change what Cadence collects, for example, if we add an
-          optional sync feature, we&apos;ll update this page and call it out in
-          the app&apos;s release notes before it ships. We won&apos;t change the
-          defaults on you silently.
+          If we ever change what Cadence collects, we&apos;ll update this page
+          and call it out in the app&apos;s release notes before it ships. The
+          optional sync described above is the latest change. We won&apos;t
+          change the defaults on you silently.
         </p>
 
         <h2>Contact</h2>
@@ -148,7 +193,7 @@ export default function Privacy() {
         </p>
 
         <p style={{ marginTop: 48, color: 'var(--ink-4)', fontSize: 14 }}>
-          Last updated: April 2026.
+          Last updated: October 2026.
         </p>
       </article>
 

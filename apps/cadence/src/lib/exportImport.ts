@@ -97,7 +97,9 @@ async function applyImport(
   return { imported, skipped, mode };
 }
 
-export async function importTasks(): Promise<ImportResult | null> {
+export async function importTasks(
+  syncEnabled: boolean
+): Promise<ImportResult | null> {
   const result = await DocumentPicker.getDocumentAsync({
     type:
       Platform.OS === 'ios'
@@ -131,7 +133,9 @@ export async function importTasks(): Promise<ImportResult | null> {
   return new Promise(resolve => {
     Alert.alert(
       `Import ${envelope.tasks.length} task${envelope.tasks.length === 1 ? '' : 's'}?`,
-      'Replace overwrites everything. Merge adds only tasks you don\u2019t already have.',
+      syncEnabled
+        ? 'Replace overwrites everything, on this device and on your other synced devices. Merge adds only tasks you don\u2019t already have.'
+        : 'Replace overwrites everything. Merge adds only tasks you don\u2019t already have.',
       [
         {
           text: 'Cancel',

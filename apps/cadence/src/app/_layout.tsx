@@ -12,7 +12,9 @@ import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { useUnistyles } from 'react-native-unistyles';
+import { SyncProvider } from '../contexts/SyncProvider';
 import { useSettingsStore } from '../stores/settings';
+import { useSyncStore } from '../stores/sync';
 import { useTasksStore } from '../stores/tasks';
 import { useTodosStore } from '../stores/todos';
 import { applyThemeMode } from '../unistyles';
@@ -43,6 +45,8 @@ function RootLayoutNav() {
   const loadTodos = useTodosStore(s => s.load);
   const settingsLoaded = useSettingsStore(s => s.loaded);
   const loadSettings = useSettingsStore(s => s.load);
+  const syncLoaded = useSyncStore(s => s.loaded);
+  const loadSync = useSyncStore(s => s.load);
   const onboardingSeen = useSettingsStore(s => s.onboardingSeen);
   const themeMode = useSettingsStore(s => s.themeMode);
 
@@ -50,38 +54,47 @@ function RootLayoutNav() {
     loadTasks();
     loadTodos();
     loadSettings();
-  }, [loadTasks, loadTodos, loadSettings]);
+    loadSync();
+  }, [loadTasks, loadTodos, loadSettings, loadSync]);
 
   useEffect(() => {
     if (settingsLoaded) applyThemeMode(themeMode);
   }, [settingsLoaded, themeMode]);
 
   useEffect(() => {
-    if (tasksLoaded && todosLoaded && settingsLoaded) {
+    if (tasksLoaded && todosLoaded && settingsLoaded && syncLoaded) {
       SplashScreen.hideAsync().catch(() => {});
       markInteractive();
     }
-  }, [tasksLoaded, todosLoaded, settingsLoaded, markInteractive]);
+  }, [tasksLoaded, todosLoaded, settingsLoaded, syncLoaded, markInteractive]);
 
-  if (!tasksLoaded || !todosLoaded || !settingsLoaded) return null;
+  if (!tasksLoaded || !todosLoaded || !settingsLoaded || !syncLoaded) {
+    return null;
+  }
 
   return (
     <ReactNativeThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Protected guard={onboardingSeen}>
-          <Stack.Screen name="index" options={{ headerShown: false }} />
-          <Stack.Screen name="new" options={{ presentation: 'modal' }} />
-          <Stack.Screen name="task/[taskId]" />
-          <Stack.Screen name="stats" options={{ headerShown: false }} />
-          <Stack.Screen name="settings" options={{ headerShown: false }} />
-          <Stack.Screen name="archived" options={{ headerShown: false }} />
-          <Stack.Screen name="feedback" />
-        </Stack.Protected>
-        <Stack.Screen
-          name="onboarding"
-          options={{ headerShown: false, presentation: 'modal' }}
-        />
-      </Stack>
+      <SyncProvider>
+        <Stack>
+          <Stack.Protected guard={onboardingSeen}>
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen name="new" options={{ presentation: 'modal' }} />
+            <Stack.Screen name="task/[taskId]" />
+            <Stack.Screen name="stats" options={{ headerShown: false }} />
+            <Stack.Screen name="settings" options={{ headerShown: false }} />
+            <Stack.Screen name="archived" options={{ headerShown: false }} />
+            <Stack.Screen name="feedback" />
+          </Stack.Protected>
+          <Stack.Screen
+            name="onboarding"
+            options={{
+              headerShown: false,
+              presentation: 'modal',
+              gestureEnabled: onboardingSeen,
+            }}
+          />
+        </Stack>
+      </SyncProvider>
       <StatusBar style={isDark ? 'light' : 'dark'} />
     </ReactNativeThemeProvider>
   );

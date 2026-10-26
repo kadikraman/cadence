@@ -2,6 +2,7 @@ import { useObserve } from 'expo-observe';
 import { useEffect } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import NativeSwitch from '../../components/ui/NativeSwitch';
 import { Step } from './types';
 import { Dot, OnboardingVisual } from './visuals';
 import { useOnboarding } from './useOnboarding';
@@ -19,10 +20,18 @@ const STEPS: Step[] = [
   },
 ];
 
+const SYNC_STEP: Step = {
+  title: 'Sync with iCloud',
+  body: 'Keep your tasks and to-dos up to date on every iPhone signed in to your Apple ID. They are saved in your own iCloud storage. Cadence has no server and cannot see them.',
+  visual: 'sync',
+};
+
 export default function OnboardingScreen() {
   const { rt } = useUnistyles();
-  const { step, next, close, isReplay } = useOnboarding(STEPS.length);
-  const current = STEPS[step];
+  const { steps, current, step, next, isReplay, sync } = useOnboarding(
+    STEPS,
+    SYNC_STEP
+  );
 
   const { markInteractive } = useObserve();
 
@@ -32,29 +41,37 @@ export default function OnboardingScreen() {
 
   return (
     <View style={[styles.root, !isReplay && { paddingTop: rt.insets.top }]}>
-      <View style={styles.topBar}>
-        {!isReplay && (
-          <Pressable onPress={close} hitSlop={8}>
-            <Text style={styles.navText}>Skip</Text>
-          </Pressable>
-        )}
-      </View>
+      <View style={styles.topBar} />
 
       <View style={styles.visualWrap}>
         <OnboardingVisual kind={current.visual} />
         <Text style={styles.stepTitle}>{current.title}</Text>
         <Text style={styles.stepBody}>{current.body}</Text>
+        {current.visual === 'sync' && (
+          <View style={styles.syncRow}>
+            <View style={styles.syncText}>
+              <Text style={styles.syncLabel}>Sync with iCloud</Text>
+              <Text style={styles.syncSub}>
+                You can change this later in Settings.
+              </Text>
+            </View>
+            <NativeSwitch
+              value={sync.enabled}
+              onValueChange={sync.setEnabled}
+            />
+          </View>
+        )}
       </View>
 
       <View style={styles.footer}>
         <View style={styles.dotRow}>
-          {STEPS.map((_, i) => (
+          {steps.map((_, i) => (
             <Dot key={i} isActive={i === step} />
           ))}
         </View>
         <Pressable onPress={next} style={styles.nextBtn}>
           <Text style={styles.nextText}>
-            {step === STEPS.length - 1 ? 'Done' : 'Next'}
+            {step === steps.length - 1 ? 'Done' : 'Next'}
           </Text>
         </Pressable>
       </View>
@@ -76,11 +93,6 @@ const styles = StyleSheet.create((theme, rt) => ({
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
-  },
-  navText: {
-    color: theme.colors.blue,
-    fontSize: 17,
-    padding: 4,
   },
   visualWrap: {
     flex: 1,
@@ -104,6 +116,29 @@ const styles = StyleSheet.create((theme, rt) => ({
     lineHeight: 22,
     marginTop: 10,
     maxWidth: 300,
+  },
+  syncRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginTop: 28,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 12,
+    backgroundColor: theme.colors.surfaceElevated,
+    alignSelf: 'stretch',
+  },
+  syncText: {
+    flex: 1,
+  },
+  syncLabel: {
+    fontSize: 16,
+    color: theme.colors.text,
+  },
+  syncSub: {
+    fontSize: 12,
+    color: theme.colors.label3,
+    marginTop: 1,
   },
   footer: {
     paddingHorizontal: 20,
