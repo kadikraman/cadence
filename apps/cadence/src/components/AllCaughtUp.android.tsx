@@ -2,7 +2,15 @@ import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons/static';
 
-export default function AllCaughtUp() {
+interface AllCaughtUpProps {
+  title?: string;
+  subtitle?: string;
+}
+
+export default function AllCaughtUp({
+  title = 'All caught up',
+  subtitle = 'Nothing due today. Come back tomorrow.',
+}: AllCaughtUpProps) {
   const { theme } = useUnistyles();
 
   return (
@@ -29,10 +37,10 @@ export default function AllCaughtUp() {
       </View>
       <View style={styles.body}>
         <Text style={[styles.title, { color: theme.colors.text }]}>
-          All caught up
+          {title}
         </Text>
         <Text style={[styles.subtitle, { color: theme.colors.label2 }]}>
-          Nothing due today. Come back tomorrow.
+          {subtitle}
         </Text>
       </View>
     </View>

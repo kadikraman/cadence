@@ -1,7 +1,7 @@
-import { SymbolView } from 'expo-symbols';
 import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import UiSymbol from './ui/UiSymbol';
 import { useSettingsStore } from '../stores/settings';
 import { normalizeToMidnight } from '../utils/taskUtils';
 
@@ -61,27 +61,19 @@ export default function MiniCalendar({
         <View style={styles.navRow}>
           <Pressable
             onPress={prev}
+            accessibilityRole="button"
+            accessibilityLabel="Previous month"
             style={[styles.navBtn, { backgroundColor: c.fill3 }]}
           >
-            <SymbolView
-              name="chevron.left"
-              size={14}
-              tintColor={c.text}
-              resizeMode="scaleAspectFit"
-              fallback={null}
-            />
+            <UiSymbol name="chevron.left" size={14} color={c.text} />
           </Pressable>
           <Pressable
             onPress={next}
+            accessibilityRole="button"
+            accessibilityLabel="Next month"
             style={[styles.navBtn, { backgroundColor: c.fill3 }]}
           >
-            <SymbolView
-              name="chevron.right"
-              size={14}
-              tintColor={c.text}
-              resizeMode="scaleAspectFit"
-              fallback={null}
-            />
+            <UiSymbol name="chevron.right" size={14} color={c.text} />
           </Pressable>
         </View>
       </View>

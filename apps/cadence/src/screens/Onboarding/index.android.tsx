@@ -73,7 +73,7 @@ export default function OnboardingScreen() {
             <Dot key={i} isActive={i === step} />
           ))}
         </View>
-        <MaterialButton onPress={next} full>
+        <MaterialButton onPress={next}>
           {step === STEPS.length - 1 ? 'Done' : 'Next'}
         </MaterialButton>
       </View>

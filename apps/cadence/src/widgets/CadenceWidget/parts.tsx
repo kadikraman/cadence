@@ -6,6 +6,7 @@ import {
   TextWidget,
 } from 'react-native-android-widget';
 import type { WidgetTask } from '../../lib/widgetPayloads';
+import { getTint } from '../../utils/taskTints';
 
 export const M3 = {
   primary: '#0061A4',
@@ -30,34 +31,12 @@ export const M3 = {
   onErrorContainerDim: '#6B2E2E',
 } as const;
 
-export const TILE_TINTS = {
-  red: { tint: '#FFDAD6', fg: '#BA1A1A' },
-  maroon: { tint: '#FFDAD6', fg: '#8B2C1A' },
-  orange: { tint: '#FFDDB3', fg: '#8B5000' },
-  peach: { tint: '#FFE0CC', fg: '#7C4A20' },
-  yellow: { tint: '#F3E9C7', fg: '#6F5D10' },
-  olive: { tint: '#E4E9BA', fg: '#4F571B' },
-  green: { tint: '#B0F1B7', fg: '#135322' },
-  forest: { tint: '#A5DDB3', fg: '#0B4A1E' },
-  mint: { tint: '#BEEAD5', fg: '#114D3B' },
-  teal: { tint: '#B8EEEA', fg: '#00504C' },
-  cyan: { tint: '#BDE5F0', fg: '#004E61' },
-  blue: { tint: '#D1E4FF', fg: '#00497D' },
-  indigo: { tint: '#D8DFFF', fg: '#1F2F77' },
-  purple: { tint: '#EADDFF', fg: '#4F378B' },
-  lavender: { tint: '#E6DEFF', fg: '#403972' },
-  pink: { tint: '#FFD8E4', fg: '#7D2E4E' },
-  rose: { tint: '#FFD9DF', fg: '#7D2D3F' },
-  slate: { tint: '#DDE2EB', fg: '#3D4450' },
-  brown: { tint: '#E4D8CA', fg: '#4E3A1C' },
-  gray: { tint: '#E1E3E6', fg: '#44474F' },
-} as const satisfies Record<string, { tint: ColorProp; fg: ColorProp }>;
-
 export function tintFor(colorKey: string | undefined): {
   tint: ColorProp;
   fg: ColorProp;
 } {
-  return TILE_TINTS[colorKey as keyof typeof TILE_TINTS] ?? TILE_TINTS.gray;
+  const { tint, accent } = getTint(colorKey);
+  return { tint: tint as ColorProp, fg: accent as ColorProp };
 }
 
 export function firstLetter(title: string): string {

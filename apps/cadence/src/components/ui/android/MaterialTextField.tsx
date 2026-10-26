@@ -18,7 +18,7 @@ export default function MaterialTextField({
   const { theme } = useUnistyles();
   const [focused, setFocused] = useState(false);
   const hasValue = !!value && value.length > 0;
-  const floating = focused || hasValue;
+  const floating = focused || hasValue || !!rest.placeholder;
 
   const borderColor = focused ? theme.colors.primary : theme.colors.outline;
   const labelColor = focused ? theme.colors.primary : theme.colors.label2;

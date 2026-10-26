@@ -1,4 +1,4 @@
-import { SFSymbol, SymbolView } from 'expo-symbols';
+import { SFSymbol } from 'expo-symbols';
 import { ReactNode, useEffect, useRef } from 'react';
 import { LayoutChangeEvent, Pressable, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -10,6 +10,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { StyleSheet } from 'react-native-unistyles';
+import UiSymbol from './ui/UiSymbol';
 
 export interface SwipeAction {
   label: string;
@@ -167,13 +168,7 @@ export default function SwipeRow({
               onPress={() => fireAction(a)}
               style={[styles.actionBtn, { backgroundColor: a.color }]}
             >
-              <SymbolView
-                name={a.symbol}
-                size={22}
-                tintColor="#fff"
-                resizeMode="scaleAspectFit"
-                fallback={null}
-              />
+              <UiSymbol name={a.symbol} size={22} color="#fff" />
               <Text style={styles.actionLabel}>{a.label}</Text>
             </Pressable>
           ))}
@@ -187,13 +182,7 @@ export default function SwipeRow({
               onPress={() => fireAction(a)}
               style={[styles.actionBtn, { backgroundColor: a.color }]}
             >
-              <SymbolView
-                name={a.symbol}
-                size={24}
-                tintColor="#fff"
-                resizeMode="scaleAspectFit"
-                fallback={null}
-              />
+              <UiSymbol name={a.symbol} size={24} color="#fff" />
               <Text style={styles.actionLabel}>{a.label}</Text>
             </Pressable>
           ))}

@@ -2,7 +2,7 @@ import { useObserve } from 'expo-observe';
 import { Stack } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
 import { useEffect } from 'react';
-import { Pressable, Switch, Text, TextInput, View } from 'react-native';
+import { Pressable, Text, TextInput, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons/static';
@@ -13,6 +13,7 @@ import Chip from '../../components/ui/android/Chip';
 import MaterialButton from '../../components/ui/android/MaterialButton';
 import MaterialTextField from '../../components/ui/android/MaterialTextField';
 import TopAppBar from '../../components/ui/android/TopAppBar';
+import NativeSwitch from '../../components/ui/NativeSwitch';
 import { getMaterialIcon, getSymbol } from '../../utils/glyphs';
 import { getTint } from '../../utils/taskTints';
 import {
@@ -221,7 +222,7 @@ export default function TaskFormScreen() {
           <Text style={[styles.dueLabel, { color: theme.colors.text }]}>
             Fixed schedule
           </Text>
-          <Switch
+          <NativeSwitch
             value={schedule === 'fixed'}
             onValueChange={v => setSchedule(v ? 'fixed' : 'floating')}
           />
@@ -257,6 +258,7 @@ export default function TaskFormScreen() {
             <MaterialButton
               onPress={confirmDelete}
               variant="outlined"
+              destructive
               accessibilityLabel="Delete task"
             >
               Delete task

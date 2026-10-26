@@ -17,10 +17,10 @@ export default function FAB({
   onPress,
   accessibilityLabel,
 }: FABProps) {
-  const { theme } = useUnistyles();
+  const { theme, rt } = useUnistyles();
 
   return (
-    <View style={styles.wrapper}>
+    <View style={[styles.wrapper, { bottom: 16 + rt.insets.bottom }]}>
       <Pressable
         onPress={onPress}
         accessibilityRole="button"
@@ -56,7 +56,6 @@ const styles = StyleSheet.create(() => ({
   wrapper: {
     position: 'absolute',
     right: 16,
-    bottom: 24,
     borderRadius: 16,
     elevation: 6,
     shadowColor: '#000',

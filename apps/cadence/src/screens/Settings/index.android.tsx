@@ -1,6 +1,6 @@
 import { useObserve } from 'expo-observe';
 import { useEffect } from 'react';
-import { ScrollView, Switch, Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons/static';
 import TopAppBar from '../../components/ui/android/TopAppBar';
@@ -104,7 +104,7 @@ export default function SettingsScreen() {
             title="Start week on Monday"
             onPress={() => setWeekStartsOnMonday(!weekStartsOnMonday)}
             trailing={
-              <Switch
+              <NativeSwitch
                 value={weekStartsOnMonday}
                 onValueChange={setWeekStartsOnMonday}
               />

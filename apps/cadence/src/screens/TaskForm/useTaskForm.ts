@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
 import { logs } from '../../lib/logs';
 import { Cadence, DEFAULT_SCHEDULE, Schedule, Task } from '../../lib/types';
 import { useTasksStore } from '../../stores/tasks';
@@ -114,7 +114,9 @@ export function useTaskForm() {
         'Cadence changed',
         'You changed how often this task repeats. What should happen to the next due date?',
         [
-          { text: 'Cancel', style: 'cancel' },
+          ...(Platform.OS === 'android'
+            ? []
+            : [{ text: 'Cancel', style: 'cancel' as const }]),
           {
             text: `Leave as is (${formatDueIn(nextDueDate)})`,
             onPress: () => persistAndExit(newCadence, nextDueDate),
@@ -136,7 +138,8 @@ export function useTaskForm() {
               setDueDatePickerOpen(true);
             },
           },
-        ]
+        ],
+        { cancelable: true }
       );
       return;
     }

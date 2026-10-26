@@ -3,7 +3,15 @@ import { SymbolView } from 'expo-symbols';
 import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
-export default function AllCaughtUp() {
+interface AllCaughtUpProps {
+  title?: string;
+  subtitle?: string;
+}
+
+export default function AllCaughtUp({
+  title = 'All caught up',
+  subtitle = 'Nothing due today. Come back tomorrow.',
+}: AllCaughtUpProps) {
   const { rt } = useUnistyles();
   const dark = rt.themeName === 'dark';
 
@@ -28,10 +36,8 @@ export default function AllCaughtUp() {
         />
       </View>
       <View style={styles.body}>
-        <Text style={styles.title}>All caught up</Text>
-        <Text style={styles.subtitle}>
-          Nothing due today. Come back tomorrow.
-        </Text>
+        <Text style={styles.title}>{title}</Text>
+        <Text style={styles.subtitle}>{subtitle}</Text>
       </View>
     </LinearGradient>
   );

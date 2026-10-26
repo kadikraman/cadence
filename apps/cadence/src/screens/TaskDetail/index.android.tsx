@@ -78,6 +78,7 @@ export default function TaskDetailScreen() {
       <Stack.Screen options={{ headerShown: false }} />
       <TopAppBar
         title=""
+        variant="small"
         onBack={() => router.back()}
         right={
           <IconButton

@@ -95,7 +95,7 @@ const styles = StyleSheet.create(() => ({
   },
   smallBar: {
     height: 64,
-    paddingRight: 8,
+    paddingRight: 12,
   },
   back: {
     width: 48,

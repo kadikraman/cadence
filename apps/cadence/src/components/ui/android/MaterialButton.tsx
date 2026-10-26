@@ -11,6 +11,7 @@ interface MaterialButtonProps {
   variant?: Variant;
   icon?: string;
   full?: boolean;
+  destructive?: boolean;
   disabled?: boolean;
   accessibilityLabel?: string;
 }
@@ -21,6 +22,7 @@ export default function MaterialButton({
   variant = 'filled',
   icon,
   full = false,
+  destructive = false,
   disabled = false,
   accessibilityLabel,
 }: MaterialButtonProps) {
@@ -37,9 +39,15 @@ export default function MaterialButton({
       ? theme.colors.onPrimary
       : variant === 'tonal'
         ? theme.colors.onSecondaryContainer
-        : theme.colors.primary;
+        : destructive
+          ? theme.colors.error
+          : theme.colors.primary;
   const borderColor =
-    variant === 'outlined' ? theme.colors.outline : 'transparent';
+    variant !== 'outlined'
+      ? 'transparent'
+      : destructive
+        ? theme.colors.error
+        : theme.colors.outline;
   const rippleColor =
     variant === 'filled' ? 'rgba(255,255,255,0.20)' : theme.colors.fill2;
 

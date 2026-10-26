@@ -45,7 +45,9 @@ export default function InlineActionBtn({
           />
         }
       />
-      <Text style={styles.label}>{label}</Text>
+      <Text style={styles.label} numberOfLines={1}>
+        {label}
+      </Text>
     </Pressable>
   );
 }

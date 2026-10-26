@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import type { Task } from '../../lib/types';
@@ -18,7 +19,7 @@ export default function ExpandedBar({ task, callbacks }: ExpandedBarProps) {
       style={styles.bar}
     >
       <InlineActionBtn
-        label="Done today"
+        label={Platform.OS === 'android' ? 'Done' : 'Done today'}
         symbol="checkmark"
         color={theme.colors.success}
         onPress={() => callbacks.onQuickDone(task)}
@@ -38,6 +39,14 @@ export default function ExpandedBar({ task, callbacks }: ExpandedBarProps) {
         symbol="clock.fill"
         onPress={() => callbacks.onOpenHistory(task)}
       />
+      {Platform.OS === 'android' && (
+        <InlineActionBtn
+          label="Delete"
+          symbol="trash.fill"
+          color={theme.colors.error}
+          onPress={() => callbacks.onDelete(task)}
+        />
+      )}
     </Animated.View>
   );
 }

@@ -73,7 +73,11 @@
               "name": "widget",
               "displayName": "Cadence",
               "description": "See what's due at a glance.",
-              "supportedFamilies": ["systemSmall", "systemMedium", "systemLarge"],
+              "supportedFamilies": [
+                "systemSmall",
+                "systemMedium",
+                "systemLarge"
+              ],
               "ios": {
                 "initialLayout": "./src/widgets/ios/CadenceWidget.tsx"
               }
@@ -81,7 +85,15 @@
           ]
         }
       ],
-      "react-native-edge-to-edge",
+      [
+        "react-native-edge-to-edge",
+        {
+          "android": {
+            "parentTheme": "Material3"
+          }
+        }
+      ],
+      "./plugins/withAndroidThemeColors.js",
       "@react-native-community/datetimepicker",
       "expo-image",
       "expo-font",

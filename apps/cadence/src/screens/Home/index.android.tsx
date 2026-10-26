@@ -33,7 +33,7 @@ const TABS: MaterialTabOption<HomeTab>[] = [
 ];
 
 export default function Home({ tasks }: { tasks: Task[] }) {
-  const { theme } = useUnistyles();
+  const { theme, rt } = useUnistyles();
   const [filter, setFilter] = useState<HomeFilter>('all');
   const {
     router,
@@ -66,6 +66,9 @@ export default function Home({ tasks }: { tasks: Task[] }) {
     filter === 'all' || filter === 'today' || filter === 'overdue';
   const showToday = filter === 'all' || filter === 'today';
   const showLaterGroups = filter === 'all';
+  const allCaughtUp =
+    buckets.overdue.length === 0 &&
+    buckets.today.filter(t => !isCompletedToday(t, today)).length === 0;
 
   return (
     <View style={styles.container}>
@@ -123,13 +126,24 @@ export default function Home({ tasks }: { tasks: Task[] }) {
       ) : emptyState ? (
         <EmptyStateStarters />
       ) : (
-        <ScrollView contentContainerStyle={styles.scroll}>
+        <ScrollView
+          contentContainerStyle={[
+            styles.scroll,
+            { paddingBottom: 104 + rt.insets.bottom },
+          ]}
+        >
           {filter === 'all' && (
             <WidgetNudge onLearnMore={() => router.push(routes.onboarding)} />
           )}
-          {buckets.overdue.length === 0 &&
-            buckets.today.filter(t => !isCompletedToday(t, today)).length ===
-              0 && <AllCaughtUp />}
+          {allCaughtUp && <AllCaughtUp />}
+          {!allCaughtUp &&
+            filter === 'overdue' &&
+            buckets.overdue.length === 0 && (
+              <AllCaughtUp
+                title="Nothing overdue"
+                subtitle="Every task is on schedule."
+              />
+            )}
           {showOverdue && (
             <Section
               label="Overdue"
@@ -242,7 +256,5 @@ const styles = StyleSheet.create((theme, rt) => ({
   chipRowTabbed: {
     paddingTop: 12,
   },
-  scroll: {
-    paddingBottom: 40,
-  },
+  scroll: {},
 }));
