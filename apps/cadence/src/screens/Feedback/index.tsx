@@ -185,9 +185,11 @@ export default function FeedbackScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((_theme, rt) => ({
   root: {
     flex: 1,
+    paddingLeft: rt.insets.left,
+    paddingRight: rt.insets.right,
   },
   scroll: {
     paddingTop: 4,
@@ -283,4 +285,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-});
+}));

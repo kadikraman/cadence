@@ -64,10 +64,12 @@ export default function ArchivedScreen() {
   );
 }
 
-const styles = StyleSheet.create(theme => ({
+const styles = StyleSheet.create((theme, rt) => ({
   root: {
     flex: 1,
     backgroundColor: theme.colors.groupedBackground,
+    paddingLeft: rt.insets.left,
+    paddingRight: rt.insets.right,
   },
   nav: {
     flexDirection: 'row',

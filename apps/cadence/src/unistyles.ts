@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
-import { Platform } from 'react-native';
+import { Appearance, Platform } from 'react-native';
 import { StyleSheet, UnistylesRuntime } from 'react-native-unistyles';
 import type { ThemeMode } from './stores/settings';
 
@@ -210,6 +210,9 @@ StyleSheet.configure({
 });
 
 export function applyThemeMode(mode: ThemeMode) {
+  if (Platform.OS === 'ios') {
+    Appearance.setColorScheme(mode === 'system' ? 'unspecified' : mode);
+  }
   if (mode === 'system') {
     UnistylesRuntime.setAdaptiveThemes(true);
   } else {

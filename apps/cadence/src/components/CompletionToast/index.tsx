@@ -52,8 +52,8 @@ export default function CompletionToast({
 const styles = StyleSheet.create((_theme, rt) => ({
   position: (bottomOffset: number) => ({
     position: 'absolute',
-    left: 16,
-    right: 16,
+    left: 16 + rt.insets.left,
+    right: 16 + rt.insets.right,
     bottom: Math.max(rt.insets.bottom, 16) + bottomOffset,
   }),
 }));

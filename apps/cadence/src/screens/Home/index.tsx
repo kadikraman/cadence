@@ -150,6 +150,8 @@ const styles = StyleSheet.create((theme, rt) => ({
     flex: 1,
     backgroundColor: theme.colors.groupedBackground,
     paddingTop: rt.insets.top,
+    paddingLeft: rt.insets.left,
+    paddingRight: rt.insets.right,
   },
   header: {
     paddingHorizontal: 20,
