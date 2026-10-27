@@ -1,4 +1,4 @@
-import { Task } from './types';
+import { Task, Todo } from './types';
 import { MS_DAY, normalizeToMidnight } from '../utils/taskUtils';
 
 const dayMidnight = (daysAgo: number): number =>
@@ -89,10 +89,17 @@ export function generateSampleTasks(): Task[] {
     makeTask({
       id: 'sample-sheets',
       title: 'Change bed sheets',
-      cadence: { type: 'monthly' },
+      cadence: { type: 'custom', value: 2, unit: 'weeks' },
       color: 'lavender',
       glyph: 'bed',
-      completedDates: [dayMidnight(95), dayMidnight(62), dayMidnight(30)],
+      completedDates: [
+        dayMidnight(86),
+        dayMidnight(72),
+        dayMidnight(57),
+        dayMidnight(44),
+        dayMidnight(30),
+        dayMidnight(16),
+      ],
     }),
     makeTask({
       id: 'sample-bathroom',
@@ -118,5 +125,31 @@ export function generateSampleTasks(): Task[] {
       glyph: 'heart',
       completedDates: [dayMidnight(170)],
     }),
+  ];
+}
+
+function makeTodo(
+  title: string,
+  minutesAgo: number,
+  completedMinutesAgo?: number
+): Todo {
+  const createdAt = Date.now() - minutesAgo * 60000;
+  return {
+    id: `todo_${createdAt}`,
+    title,
+    createdAt,
+    ...(completedMinutesAgo !== undefined && {
+      completedAt: Date.now() - completedMinutesAgo * 60000,
+    }),
+  };
+}
+
+export function generateSampleTodos(): Todo[] {
+  return [
+    makeTodo('Return library books', 30),
+    makeTodo('Renew passport', 180),
+    makeTodo('Fix the squeaky door', 1500),
+    makeTodo('Order new phone case', 2900, 20),
+    makeTodo('Book a table for Friday', 4400),
   ];
 }

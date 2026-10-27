@@ -5,9 +5,14 @@ import * as StoreReview from 'expo-store-review';
 import { Alert, Linking } from 'react-native';
 import { exportTasks, importTasks } from '../../lib/exportImport';
 import { logs } from '../../lib/logs';
+import {
+  generateSampleTasks,
+  generateSampleTodos,
+} from '../../lib/sampleTasks';
 import { useSyncSetting } from '../../lib/sync/useSyncSetting';
 import { ThemeMode, useSettingsStore } from '../../stores/settings';
 import { useTasksStore } from '../../stores/tasks';
+import { useTodosStore } from '../../stores/todos';
 
 export function useSettings() {
   const router = useRouter();
@@ -18,6 +23,8 @@ export function useSettings() {
   const todosEnabled = useSettingsStore(s => s.todosEnabled);
   const setTodosEnabledStore = useSettingsStore(s => s.setTodosEnabled);
   const sync = useSyncSetting();
+  const replaceAllTasks = useTasksStore(s => s.replaceAll);
+  const replaceAllTodos = useTodosStore(s => s.replaceAll);
   const taskCount = useTasksStore(s => s.tasks.length);
   const archivedCount = useTasksStore(
     s => s.tasks.filter(t => t.archived).length
@@ -58,6 +65,12 @@ export function useSettings() {
     }
   };
 
+  const handleLoadSampleData = () => {
+    replaceAllTasks(generateSampleTasks());
+    replaceAllTodos(generateSampleTodos());
+    setTodosEnabledStore(true);
+  };
+
   const handleRate = async () => {
     try {
       const available = await StoreReview.isAvailableAsync();
@@ -91,5 +104,6 @@ export function useSettings() {
     handleExport,
     handleImport,
     handleRate,
+    handleLoadSampleData,
   };
 }

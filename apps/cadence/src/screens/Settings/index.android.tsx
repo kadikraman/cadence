@@ -7,9 +7,7 @@ import TopAppBar from '../../components/ui/android/TopAppBar';
 import NativeSwitch from '../../components/ui/NativeSwitch';
 import { routes } from '../../lib/routes';
 import { SYNC_PROVIDER_NAME } from '../../lib/sync/useSyncSetting';
-import { generateSampleTasks } from '../../lib/sampleTasks';
 import { ThemeMode } from '../../stores/settings';
-import { useTasksStore } from '../../stores/tasks';
 import AndroidGroup from './AndroidGroup';
 import AndroidSettingsRow from './AndroidSettingsRow';
 import { useSettings } from './useSettings';
@@ -44,6 +42,7 @@ export default function SettingsScreen() {
     handleExport,
     handleImport,
     handleRate,
+    handleLoadSampleData,
   } = useSettings();
 
   const { markInteractive } = useObserve();
@@ -51,11 +50,6 @@ export default function SettingsScreen() {
   useEffect(() => {
     markInteractive();
   }, [markInteractive]);
-
-  const replaceAll = useTasksStore(s => s.replaceAll);
-  const handleLoadSampleData = () => {
-    replaceAll(generateSampleTasks());
-  };
 
   return (
     <View style={[styles.root, { paddingTop: rt.insets.top }]}>
@@ -203,7 +197,7 @@ export default function SettingsScreen() {
             <AndroidSettingsRow
               icon="database-plus"
               title="Load sample data (screenshots)"
-              subtitle="Replaces all tasks with sample data"
+              subtitle="Replaces all tasks and to-dos with sample data"
               onPress={handleLoadSampleData}
               last
             />
