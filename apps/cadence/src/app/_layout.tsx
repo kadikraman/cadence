@@ -28,7 +28,9 @@ Sentry.init({
 });
 
 Observe.configure({
-  environment: __DEV__ ? 'development' : 'production',
+  environment:
+    process.env.EXPO_PUBLIC_OBSERVE_ENVIRONMENT ??
+    (__DEV__ ? 'development' : 'production'),
   integrations: {
     'expo-router': true,
   },
