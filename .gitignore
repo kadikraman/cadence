@@ -41,3 +41,7 @@ app-example
 # generated native folders
 apps/*/ios
 apps/*/android
+
+# Expo Simulators sessions and agentic workflows
+.env.eas-simulator
+agent-output/
