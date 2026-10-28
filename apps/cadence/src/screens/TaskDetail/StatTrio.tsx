@@ -6,7 +6,11 @@ import { TaskStats } from '../../utils/statsUtils';
 export default function StatTrio({ stats }: { stats: TaskStats }) {
   const { theme } = useUnistyles();
   const items = [
-    { value: `${stats.onTimePct}%`, label: 'on time', flame: false },
+    {
+      value: stats.onTime + stats.late > 0 ? `${stats.onTimePct}%` : '–',
+      label: 'on time',
+      flame: false,
+    },
     { value: String(stats.streak), label: 'in a row', flame: true },
     { value: String(stats.total), label: 'done', flame: false },
   ];
