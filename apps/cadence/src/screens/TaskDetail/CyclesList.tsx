@@ -78,7 +78,7 @@ export default function CyclesList({
                 kind="now"
                 days={cycle.days}
                 elapsed={cycle.elapsed}
-                unitDays={unit.days}
+                unit={unit}
                 accent={accent}
               />
             }
@@ -106,7 +106,7 @@ export default function CyclesList({
                     cadDays={cadDays}
                     deltaDays={entry.deltaDays}
                     status={entry.status}
-                    unitDays={unit.days}
+                    unit={unit}
                     accent={accent}
                   />
                 }

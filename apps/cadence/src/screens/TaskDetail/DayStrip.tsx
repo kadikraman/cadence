@@ -5,6 +5,7 @@ import {
   CompletionStatus,
   stripSquareIndex,
   stripSquares,
+  StripUnit,
 } from '../../utils/statsUtils';
 
 type DayStripProps =
@@ -12,7 +13,7 @@ type DayStripProps =
       kind: 'now';
       days: number;
       elapsed: number;
-      unitDays: number;
+      unit: StripUnit;
       accent: string;
     }
   | {
@@ -20,7 +21,7 @@ type DayStripProps =
       cadDays: number;
       deltaDays: number | null;
       status: CompletionStatus;
-      unitDays: number;
+      unit: StripUnit;
       accent: string;
     };
 
@@ -30,7 +31,8 @@ type Square =
 
 export default function DayStrip(props: DayStripProps) {
   const { theme } = useUnistyles();
-  const { accent, unitDays } = props;
+  const { accent, unit } = props;
+  const unitDays = unit.days;
   const muted = theme.colors.label4;
   const squares: Square[] = [];
 
@@ -77,7 +79,11 @@ export default function DayStrip(props: DayStripProps) {
   const dense = squares.length > 20;
 
   return (
-    <View style={[styles.strip, { gap: dense ? 1 : 3 }]}>
+    <View
+      accessible
+      accessibilityLabel={`${squares.length} ${squares.length === 1 ? 'square' : 'squares'}, one per ${unit.label}`}
+      style={[styles.strip, { gap: dense ? 1 : 3 }]}
+    >
       {squares.map((s, i) => (
         <View
           key={i}
