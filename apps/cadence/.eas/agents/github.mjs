@@ -64,6 +64,16 @@ switch (command) {
     });
     break;
   }
+  case 'create-issue': {
+    const [title, bodyFile, ...labels] = args;
+    const issue = await request('POST', `${repo}/issues`, {
+      title,
+      body: await readFile(bodyFile, 'utf8'),
+      labels,
+    });
+    console.log(issue.number);
+    break;
+  }
   case 'open-pull-request': {
     const [branch, title, bodyFile] = args;
     const owner = repository.split('/')[0];
@@ -92,7 +102,7 @@ switch (command) {
   }
   default:
     console.error(
-      `Unknown command "${command}". Use issue, comment, open-pull-request, or author-email.`
+      `Unknown command "${command}". Use issue, comment, create-issue, open-pull-request, or author-email.`
     );
     process.exit(1);
 }

@@ -34,6 +34,7 @@ Install packages with `npx expo install <package>` from inside the relevant work
 | --- | --- | --- |
 | Agentic CI (`agentic-ci-android.yml`, `agentic-ci-ios.yml`) | A pull request to `main` is opened, reopened, updated, or marked ready for review. Drafts are skipped. | A coding agent tests the change that the pull request title and description describe, on a cloud Android Emulator and iOS Simulator, and comments with a verdict. |
 | QA Swarm (`qa-swarm.yml`) | Someone runs `eas workflow:run .eas/workflows/qa-swarm.yml` from `apps/cadence`. | One agent per flow in `.eas/qa-flows/` and per platform, each on its own simulator. |
+| Bug triage (`bug-triage-android.yml`, `bug-triage-ios.yml`) | Someone runs `eas workflow:run .eas/workflows/bug-triage-<platform>.yml --ref main -F issue_number=<number>` from `apps/cadence`. The iOS workflow also starts on TestFlight screenshot and crash feedback, and files it as an issue first. | A coding agent follows the bug report on a build of `main` and comments on the issue with REPLICATED, NOT-REPLICATED, or INCONCLUSIVE. For REPLICATED, read the report, then add the `agent` label to start Issue to PR. |
 | Issue to PR (`issue-to-pr.yml`, started by `.github/workflows/agent-label.yml`) | Someone adds the `agent` label to an issue. | A coding agent changes the code for the issue, pushes `agent/issue-<number>`, and opens a pull request, which Agentic CI then tests. The agent follows the issue text, so read the issue before you add the label. |
 
 - Merging to `main` does not start these workflows.

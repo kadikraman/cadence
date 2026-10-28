@@ -1,0 +1,60 @@
+name: Bug triage (Android)
+
+on:
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: The number of the issue with the bug report
+        type: string
+        required: true
+
+jobs:
+  fingerprint:
+    type: fingerprint
+    environment: preview
+
+  get_build:
+    type: get-build
+    needs: [fingerprint]
+    params:
+      platform: android
+      profile: preview
+      fingerprint_hash: ${{ needs.fingerprint.outputs.android_fingerprint_hash }}
+      wait_for_in_progress: true
+
+  build:
+    type: build
+    needs: [get_build]
+    if: ${{ !needs.get_build.outputs.build_id }}
+    params:
+      platform: android
+      profile: preview
+
+  repack:
+    type: repack
+    needs: [get_build]
+    if: ${{ needs.get_build.outputs.build_id }}
+    params:
+      build_id: ${{ needs.get_build.outputs.build_id }}
+      profile: preview
+
+  reproduce:
+    needs: [get_build]
+    after: [build, repack]
+    environment: preview
+    env:
+      BUILD_ID: ${{ after.build.outputs.build_id || after.repack.outputs.build_id }}
+      ISSUE_NUMBER: ${{ inputs.issue_number }}
+      RUN_URL: ${{ workflow.url }}
+      PLATFORM: android
+    steps:
+      - uses: eas/checkout
+      - uses: eas/install_node_modules
+      - name: Reproduce the bug on a remote Android Emulator
+        run: bash .eas/agents/reproduce.sh
+      - uses: eas/upload_artifact
+        if: ${{ always() }}
+        with:
+          type: other
+          name: bug-triage-evidence
+          path: apps/cadence/agent-output/evidence/**/*
