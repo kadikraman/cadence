@@ -34,6 +34,7 @@ Install packages with `npx expo install <package>` from inside the relevant work
 | --- | --- | --- |
 | Agentic CI (`agentic-ci-android.yml`, `agentic-ci-ios.yml`) | A pull request to `main` is opened, reopened, updated, or marked ready for review. Drafts are skipped. | A coding agent tests the change that the pull request title and description describe, on a cloud Android Emulator and iOS Simulator, and comments with a verdict. |
 | QA Swarm (`qa-swarm.yml`) | Someone runs `eas workflow:run .eas/workflows/qa-swarm.yml` from `apps/cadence`. | One agent per flow in `.eas/qa-flows/` and per platform, each on its own simulator. |
+| Issue to PR (`issue-to-pr.yml`, started by `.github/workflows/agent-label.yml`) | Someone adds the `agent` label to an issue. | A coding agent changes the code for the issue, pushes `agent/issue-<number>`, and opens a pull request, which Agentic CI then tests. The agent follows the issue text, so read the issue before you add the label. |
 
 - Merging to `main` does not start these workflows.
 - Describe each pull request so the agent can test it: what changed, and what a user sees.
