@@ -1,18 +1,11 @@
 import { useObserve } from 'expo-observe';
-import { useRouter } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
 import { useEffect } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import BigStatTile from '../../components/BigStatTile';
-import CadenceMixBar from '../../components/CadenceMixBar';
-import DowChart from '../../components/DowChart';
-import SectionCard from '../../components/SectionCard';
 import SegmentedControl from '../../components/ui/SegmentedControl';
-import TaskTile from '../../components/ui/TaskTile';
-import WeeklyChart from '../../components/WeeklyChart';
-import { routes } from '../../lib/routes';
-import { formatDueIn, getNextDueDate } from '../../utils/taskUtils';
+import OnTimeSummary from './OnTimeSummary';
+import TaskLanes from './TaskLanes';
 import { Range, useStats } from './useStats';
 
 const RANGE_OPTIONS: { value: Range; label: string }[] = [
@@ -23,20 +16,17 @@ const RANGE_OPTIONS: { value: Range; label: string }[] = [
 ];
 
 export default function StatsScreen() {
-  const router = useRouter();
   const { theme, rt } = useUnistyles();
   const {
+    router,
     range,
     setRange,
     rangeDays,
-    overall,
-    weekly,
-    longestStreak,
-    avgLateDrift,
-    mostReliable,
-    dowCounts,
-    cadenceMix,
-    hallOfShame,
+    start,
+    end,
+    stats,
+    ticks,
+    openTask,
   } = useStats();
 
   const { markInteractive } = useObserve();
@@ -70,116 +60,21 @@ export default function StatsScreen() {
           />
         </View>
 
-        <View style={styles.tiles}>
-          <BigStatTile
-            label="On-time"
-            value={`${overall.pct}%`}
-            sub={`${overall.onTime} on time · ${overall.late} late`}
-            accent={theme.colors.success}
-          />
-          <BigStatTile
-            label="Completions"
-            value={overall.completions}
-            sub={`over ${rangeDays} days`}
-            accent={theme.colors.blue}
-          />
+        <View style={styles.summary}>
+          <OnTimeSummary stats={stats} />
         </View>
 
-        <View style={styles.tiles}>
-          <BigStatTile
-            label="Longest streak"
-            value={longestStreak.streak}
-            sub={
-              longestStreak.task ? longestStreak.task.title : 'No active streak'
-            }
-            accent={theme.colors.warning}
-          />
-          <BigStatTile
-            label="Avg drift"
-            value={avgLateDrift > 0 ? `${avgLateDrift.toFixed(1)}d` : '—'}
-            sub={avgLateDrift > 0 ? 'when late' : 'No late completions'}
-            accent={
-              avgLateDrift > 0 ? theme.colors.error : theme.colors.success
-            }
-          />
-        </View>
-
-        <SectionCard title="Weekly completions">
-          <WeeklyChart weekly={weekly} />
-        </SectionCard>
-
-        <SectionCard title="Busiest day of week">
-          <DowChart counts={dowCounts} />
-        </SectionCard>
-
-        {cadenceMix.total > 0 && (
-          <SectionCard title="Cadence mix">
-            <CadenceMixBar mix={cadenceMix} />
-          </SectionCard>
-        )}
-
-        {mostReliable.task && (
-          <SectionCard title="Most reliable" flush>
-            <Pressable
-              style={styles.overdueRow}
-              onPress={() =>
-                router.push(routes.taskDetail(mostReliable.task!.id))
-              }
-            >
-              <TaskTile task={mostReliable.task} size={34} />
-              <View style={styles.overdueBody}>
-                <Text style={styles.overdueTitle}>
-                  {mostReliable.task.title}
-                </Text>
-                <Text
-                  style={[styles.reliableSub, { color: theme.colors.success }]}
-                >
-                  {mostReliable.pct}% on time · {mostReliable.completions}{' '}
-                  completions
-                </Text>
-              </View>
-              <SymbolView
-                name="chevron.right"
-                size={14}
-                tintColor={theme.colors.label4}
-                resizeMode="scaleAspectFit"
-                fallback={null}
-              />
-            </Pressable>
-          </SectionCard>
-        )}
-
-        {hallOfShame.length > 0 && (
-          <SectionCard title="Most overdue" flush>
-            {hallOfShame.map((x, i) => (
-              <Pressable
-                key={x.t.id}
-                style={[
-                  styles.overdueRow,
-                  i > 0 && {
-                    borderTopWidth: 0.5,
-                    borderTopColor: theme.colors.sepSubtle,
-                  },
-                ]}
-                onPress={() => router.push(routes.taskDetail(x.t.id))}
-              >
-                <TaskTile task={x.t} size={34} overdue />
-                <View style={styles.overdueBody}>
-                  <Text style={styles.overdueTitle}>{x.t.title}</Text>
-                  <Text style={styles.overdueSub}>
-                    {formatDueIn(getNextDueDate(x.t))}
-                  </Text>
-                </View>
-                <SymbolView
-                  name="chevron.right"
-                  size={14}
-                  tintColor={theme.colors.label4}
-                  resizeMode="scaleAspectFit"
-                  fallback={null}
-                />
-              </Pressable>
-            ))}
-          </SectionCard>
+        {stats.lanes.length > 0 && (
+          <View style={styles.card}>
+            <TaskLanes
+              lanes={stats.lanes}
+              start={start}
+              end={end}
+              rangeDays={rangeDays}
+              ticks={ticks}
+              onPressTask={openTask}
+            />
+          </View>
         )}
       </ScrollView>
     </View>
@@ -224,40 +119,18 @@ const styles = StyleSheet.create((theme, rt) => ({
   },
   rangeWrap: {
     marginHorizontal: 16,
-    marginBottom: 14,
   },
-  tiles: {
-    flexDirection: 'row',
-    gap: 10,
+  summary: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 18,
+  },
+  card: {
     marginHorizontal: 16,
-    marginBottom: 14,
-  },
-  overdueRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-  },
-  overdueBody: {
-    flex: 1,
-    minWidth: 0,
-  },
-  overdueTitle: {
-    fontSize: 15,
-    fontWeight: '500',
-    color: theme.colors.text,
-    letterSpacing: -0.2,
-  },
-  overdueSub: {
-    fontSize: 12,
-    color: theme.colors.error,
-    marginTop: 2,
-    fontWeight: '500',
-  },
-  reliableSub: {
-    fontSize: 12,
-    marginTop: 2,
-    fontWeight: '500',
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 14,
+    borderRadius: 22,
+    backgroundColor: theme.colors.surfaceElevated,
   },
 }));

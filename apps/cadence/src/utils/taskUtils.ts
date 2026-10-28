@@ -16,6 +16,13 @@ export const normalizeToMidnight = (date: Date | number): number => {
   return d.getTime();
 };
 
+export const addDays = (ts: number, n: number): number => {
+  const d = new Date(ts);
+  d.setDate(d.getDate() + n);
+  d.setHours(0, 0, 0, 0);
+  return d.getTime();
+};
+
 const stepCadence = (
   ts: number,
   cadence: Cadence,
@@ -175,6 +182,17 @@ export const formatShortDay = (timestamp: number): string =>
     month: 'short',
     day: 'numeric',
   });
+
+export const formatMonthDay = (timestamp: number): string =>
+  new Date(timestamp).toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+  });
+
+export const formatWeekday = (
+  timestamp: number,
+  weekday: 'long' | 'narrow' = 'long'
+): string => new Date(timestamp).toLocaleString('en-US', { weekday });
 
 export const formatDayPhrase = (
   timestamp: number,

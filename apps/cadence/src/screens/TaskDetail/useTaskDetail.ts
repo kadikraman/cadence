@@ -1,11 +1,14 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { logs } from '../../lib/logs';
 import { useTasksStore } from '../../stores/tasks';
+import {
+  computeCurrentCycle,
+  computeHistory,
+  computeTaskStats,
+} from '../../utils/statsUtils';
 import { getTodayTimestamp, MS_DAY } from '../../utils/taskUtils';
 import type { QuickOption } from '../../components/DatePickerSheet';
-
-export type Tab = 'timeline' | 'cycles';
 
 function nextDueQuickOptions(): QuickOption[] {
   const today = getTodayTimestamp();
@@ -27,11 +30,17 @@ export function useTaskDetail() {
   const unmarkCompleted = useTasksStore(s => s.unmarkCompleted);
   const unarchiveTask = useTasksStore(s => s.unarchive);
 
-  const [tab, setTab] = useState<Tab>('timeline');
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<number | null>(null);
   const [completionSheetOpen, setCompletionSheetOpen] = useState(false);
   const [unarchiveOpen, setUnarchiveOpen] = useState(false);
+
+  const stats = useMemo(() => (task ? computeTaskStats(task) : null), [task]);
+  const history = useMemo(() => (task ? computeHistory(task) : []), [task]);
+  const cycle = useMemo(
+    () => (task && !task.archived ? computeCurrentCycle(task) : null),
+    [task]
+  );
 
   const openCompletionSheet = () => setCompletionSheetOpen(true);
   const closeCompletionSheet = () => setCompletionSheetOpen(false);
@@ -84,8 +93,9 @@ export function useTaskDetail() {
   return {
     router,
     task,
-    tab,
-    setTab,
+    stats,
+    history,
+    cycle,
     datePickerOpen,
     editingEntry,
     openEditDatePicker,

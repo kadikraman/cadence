@@ -2,9 +2,10 @@ import { describe, expect, test } from 'bun:test';
 import { Task } from '../lib/types';
 import {
   cadenceDays,
-  computeAvgLateDrift,
-  computeMostReliable,
+  computeCurrentCycle,
+  computeHistory,
   computeOnTimePct,
+  computeRangeStats,
   computeTaskStats,
   iterCompletionDeltas,
 } from './statsUtils';
@@ -98,6 +99,7 @@ describe('iterCompletionDeltas', () => {
     const recent = [...iterCompletionDeltas(task, midnight(-2))];
     expect(recent).toHaveLength(2);
     expect(recent[0].completedAt).toBe(midnight(-1));
+    expect(recent[0].previousAt).toBe(midnight(-4));
   });
 
   test('sorts unsorted completedDates before walking', () => {
@@ -180,57 +182,122 @@ describe('computeTaskStats', () => {
   });
 });
 
-describe('computeAvgLateDrift', () => {
-  test('averages drift across only the late completions', () => {
-    const tasks = [
-      makeTask({
-        cadence: { type: 'daily' },
-        completedDates: [
-          midnight(-10),
-          midnight(-9), // 1d on time
-          midnight(-6), // 3d late, drift = 2
-          midnight(-2), // 4d late, drift = 3
-        ],
-      }),
-    ];
-    const avg = computeAvgLateDrift(tasks, 30);
-    expect(avg).toBeCloseTo(2.5);
-  });
-
-  test('returns 0 when no late completions exist', () => {
-    const tasks = [
-      makeTask({
-        cadence: { type: 'daily' },
-        completedDates: [midnight(-2), midnight(-1), midnight()],
-      }),
-    ];
-    expect(computeAvgLateDrift(tasks, 30)).toBe(0);
-  });
-});
-
-describe('computeMostReliable', () => {
-  test('picks the task with the highest on-time percentage', () => {
-    const reliable = makeTask({
-      id: 'reliable',
+describe('computeRangeStats', () => {
+  test('counts completions in range and grades all but the first', () => {
+    const task = makeTask({
       cadence: { type: 'daily' },
-      completedDates: [midnight(-3), midnight(-2), midnight(-1), midnight()],
+      completedDates: [midnight(-6), midnight(-5), midnight(-2), midnight(-1)],
+    });
+    const stats = computeRangeStats([task], midnight(-6), midnight(1));
+    expect(stats.completions).toBe(4);
+    expect(stats.onTime).toBe(2);
+    expect(stats.late).toBe(1);
+    expect(stats.pct).toBe(67);
+    expect(stats.graded).toEqual(['onTime', 'late', 'onTime']);
+    const [lane] = stats.lanes;
+    expect(lane.completions[0].status).toBe('first');
+    expect(lane.lateSpans).toEqual([
+      { dueAt: midnight(-4), completedAt: midnight(-2) },
+    ]);
+    expect(lane.pct).toBe(67);
+  });
+
+  test('ignores completions outside the range', () => {
+    const task = makeTask({
+      cadence: { type: 'daily' },
+      completedDates: [midnight(-20), midnight(-19), midnight(-1)],
+    });
+    const stats = computeRangeStats([task], midnight(-6), midnight(1));
+    expect(stats.completions).toBe(1);
+    expect(stats.graded).toEqual(['late']);
+  });
+
+  test('sorts overdue lanes first, then by lowest on-time rate', () => {
+    const overdue = makeTask({
+      id: 'overdue',
+      cadence: { type: 'weekly' },
+      completedDates: [midnight(-10)],
+      lastCompletedAt: midnight(-10),
+      nextDueDate: midnight(-3),
     });
     const flaky = makeTask({
       id: 'flaky',
-      cadence: { type: 'daily' },
-      completedDates: [midnight(-9), midnight(-6), midnight(-2), midnight()],
+      completedDates: [midnight(-4), midnight(-1)],
+      lastCompletedAt: midnight(-1),
+      nextDueDate: midnight(),
     });
-    const result = computeMostReliable([flaky, reliable], 30, 2);
-    expect(result.task?.id).toBe('reliable');
-    expect(result.pct).toBe(100);
+    const steady = makeTask({
+      id: 'steady',
+      completedDates: [midnight(-2), midnight(-1)],
+      lastCompletedAt: midnight(-1),
+      nextDueDate: midnight(),
+    });
+    const stats = computeRangeStats(
+      [steady, flaky, overdue],
+      midnight(-29),
+      midnight(1),
+      midnight()
+    );
+    expect(stats.lanes.map(l => l.task.id)).toEqual([
+      'overdue',
+      'flaky',
+      'steady',
+    ]);
+    expect(stats.lanes[0].overdueDays).toBe(3);
+    expect(stats.lanes[0].pct).toBeNull();
   });
 
-  test('ignores tasks below the minimum completion threshold', () => {
+  test('leaves archived tasks out of the lanes but in the totals', () => {
     const task = makeTask({
-      cadence: { type: 'daily' },
-      completedDates: [midnight(-1), midnight()],
+      archived: true,
+      completedDates: [midnight(-2), midnight(-1)],
     });
-    const result = computeMostReliable([task], 30, 5);
-    expect(result.task).toBeNull();
+    const stats = computeRangeStats([task], midnight(-6), midnight(1));
+    expect(stats.completions).toBe(2);
+    expect(stats.lanes).toEqual([]);
+  });
+});
+
+describe('computeCurrentCycle', () => {
+  test('measures the cycle that ends at the next due date', () => {
+    const task = makeTask({
+      cadence: { type: 'weekly' },
+      completedDates: [midnight(-2)],
+      lastCompletedAt: midnight(-2),
+      nextDueDate: midnight(5),
+    });
+    const cycle = computeCurrentCycle(task, midnight());
+    expect(cycle.start).toBe(midnight(-2));
+    expect(cycle.days).toBe(7);
+    expect(cycle.elapsed).toBe(2);
+    expect(cycle.dueIn).toBe(5);
+  });
+
+  test('reports a negative dueIn when overdue', () => {
+    const task = makeTask({
+      cadence: { type: 'weekly' },
+      nextDueDate: midnight(-3),
+    });
+    const cycle = computeCurrentCycle(task, midnight());
+    expect(cycle.elapsed).toBe(10);
+    expect(cycle.dueIn).toBe(-3);
+  });
+});
+
+describe('computeHistory', () => {
+  test('lists completions newest first with whole-day gaps', () => {
+    const task = makeTask({
+      cadence: { type: 'weekly' },
+      completedDates: [midnight(-16), midnight(-7), midnight()],
+    });
+    expect(computeHistory(task)).toEqual([
+      { completedAt: midnight(), deltaDays: 7, status: 'onTime' },
+      { completedAt: midnight(-7), deltaDays: 9, status: 'late' },
+      { completedAt: midnight(-16), deltaDays: null, status: 'first' },
+    ]);
+  });
+
+  test('returns nothing for a task never completed', () => {
+    expect(computeHistory(makeTask())).toEqual([]);
   });
 });

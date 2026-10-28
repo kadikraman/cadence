@@ -1,79 +1,51 @@
-import { useMemo, useState } from 'react';
+import { useRouter } from 'expo-router';
+import { useCallback, useMemo, useState } from 'react';
+import { routes } from '../../lib/routes';
+import { Task } from '../../lib/types';
 import { useTasksStore } from '../../stores/tasks';
-import {
-  computeAvgLateDrift,
-  computeCadenceMix,
-  computeDowCounts,
-  computeLongestStreak,
-  computeMostReliable,
-  computeOnTimePct,
-  computeWeeklyCompletions,
-  taskHealth,
-} from '../../utils/statsUtils';
-import { getTodayTimestamp, MS_DAY } from '../../utils/taskUtils';
+import { computeRangeStats } from '../../utils/statsUtils';
+import { addDays, getTodayTimestamp } from '../../utils/taskUtils';
+import { rangeTicks } from './helpers';
 
 export type Range = '7' | '30' | '90' | '365';
 
 export function useStats() {
+  const router = useRouter();
   const tasks = useTasksStore(s => s.tasks);
   const [range, setRange] = useState<Range>('30');
   const rangeDays = parseInt(range);
 
-  const activeTasks = useMemo(() => tasks.filter(t => !t.archived), [tasks]);
+  const { start, end } = useMemo(() => {
+    const today = getTodayTimestamp();
+    return {
+      start: addDays(today, -(rangeDays - 1)),
+      end: addDays(today, 1),
+    };
+  }, [rangeDays]);
 
-  const overall = useMemo(() => {
-    const { onTime, late, pct } = computeOnTimePct(tasks, rangeDays);
-    const cutoff = getTodayTimestamp() - rangeDays * MS_DAY;
-    let completions = 0;
-    for (const t of tasks) {
-      for (const d of t.completedDates ?? []) {
-        if (d >= cutoff) completions++;
-      }
-    }
-    return { onTime, late, pct, completions };
-  }, [tasks, rangeDays]);
-
-  const weekly = useMemo(() => computeWeeklyCompletions(tasks, 12), [tasks]);
-  const longestStreak = useMemo(
-    () => computeLongestStreak(activeTasks),
-    [activeTasks]
+  const stats = useMemo(
+    () => computeRangeStats(tasks, start, end),
+    [tasks, start, end]
   );
-  const avgLateDrift = useMemo(
-    () => computeAvgLateDrift(tasks, rangeDays),
-    [tasks, rangeDays]
-  );
-  const mostReliable = useMemo(
-    () => computeMostReliable(activeTasks, rangeDays),
-    [activeTasks, rangeDays]
-  );
-  const dowCounts = useMemo(
-    () => computeDowCounts(tasks, rangeDays),
-    [tasks, rangeDays]
-  );
-  const cadenceMix = useMemo(
-    () => computeCadenceMix(activeTasks),
-    [activeTasks]
+  const ticks = useMemo(
+    () => rangeTicks(start, end, rangeDays),
+    [start, end, rangeDays]
   );
 
-  const hallOfShame = useMemo(() => {
-    return [...activeTasks]
-      .map(t => ({ t, h: taskHealth(t) }))
-      .filter(x => x.h > 1)
-      .sort((a, b) => b.h - a.h)
-      .slice(0, 4);
-  }, [activeTasks]);
+  const openTask = useCallback(
+    (task: Task) => router.push(routes.taskDetail(task.id)),
+    [router]
+  );
 
   return {
+    router,
     range,
     setRange,
     rangeDays,
-    overall,
-    weekly,
-    longestStreak,
-    avgLateDrift,
-    mostReliable,
-    dowCounts,
-    cadenceMix,
-    hallOfShame,
+    start,
+    end,
+    stats,
+    ticks,
+    openTask,
   };
 }

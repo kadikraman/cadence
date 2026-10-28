@@ -1,9 +1,12 @@
 import { Cadence, Task } from '../lib/types';
 import {
+  addOneCadence,
   getNextDueDate,
+  getTaskStatus,
   getTodayTimestamp,
   MS_DAY,
   normalizeToMidnight,
+  subtractOneCadence,
 } from './taskUtils';
 
 export const cadenceDays = (cadence: Cadence): number => {
@@ -15,14 +18,6 @@ export const cadenceDays = (cadence: Cadence): number => {
   if (cadence.unit === 'weeks') return v * 7;
   if (cadence.unit === 'months') return v * 30;
   return 1;
-};
-
-export const taskHealth = (task: Task): number => {
-  const last = task.lastCompletedAt ?? task.createdAt;
-  const next = getNextDueDate(task);
-  const span = Math.max(next - last, MS_DAY);
-  const elapsed = getTodayTimestamp() - last;
-  return elapsed / span;
 };
 
 export type DriftStatus = 'onTime' | 'late' | 'early';
@@ -51,6 +46,8 @@ export const formatDriftLabel = (
 export interface CompletionDelta {
   /** Timestamp of the completion that closed this cycle. */
   completedAt: number;
+  /** Timestamp of the completion that opened this cycle. */
+  previousAt: number;
   /** Days between this completion and the previous one. */
   deltaDays: number;
   /** deltaDays minus the task's cadence in days (negative = early, positive = late). */
@@ -82,6 +79,7 @@ export function* iterCompletionDeltas(
     const drift = deltaDays - cadDays;
     yield {
       completedAt: sorted[i],
+      previousAt: sorted[i - 1],
       deltaDays,
       drift,
       isLate: drift > tolerance,
@@ -162,126 +160,155 @@ export const computeTaskStats = (task: Task): TaskStats => {
   return { onTimePct: pct, onTime, late, total, avgDrift, streak };
 };
 
-export interface WeekBucket {
-  count: number;
-  end: number;
+export type CompletionStatus = DriftStatus | 'first';
+
+export interface RangeCompletion {
+  completedAt: number;
+  status: CompletionStatus;
 }
 
-export const computeWeeklyCompletions = (
-  tasks: Task[],
-  weeks = 12
-): WeekBucket[] => {
-  const out: WeekBucket[] = [];
-  const today = getTodayTimestamp();
-  for (let w = weeks - 1; w >= 0; w--) {
-    const end = today - w * 7 * MS_DAY;
-    const start = end - 7 * MS_DAY;
-    let count = 0;
-    for (const task of tasks) {
-      for (const d of task.completedDates ?? []) {
-        if (d >= start && d < end) count++;
-      }
-    }
-    out.push({ count, end });
-  }
-  return out;
-};
-
-export interface LongestStreak {
-  task: Task | null;
-  streak: number;
+export interface LateSpan {
+  dueAt: number;
+  completedAt: number;
 }
 
-export const computeLongestStreak = (tasks: Task[]): LongestStreak => {
-  let best: LongestStreak = { task: null, streak: 0 };
-  for (const task of tasks) {
-    const s = computeTaskStats(task).streak;
-    if (s > best.streak) best = { task, streak: s };
-  }
-  return best;
-};
+export interface TaskLane {
+  task: Task;
+  completions: RangeCompletion[];
+  lateSpans: LateSpan[];
+  overdueDays: number;
+  nextDue: number;
+  pct: number | null;
+}
 
-export const computeAvgLateDrift = (
-  tasks: Task[],
-  rangeDays: number
-): number => {
-  const cutoff = getTodayTimestamp() - rangeDays * MS_DAY;
-  let totalDrift = 0;
-  let count = 0;
-  for (const task of tasks) {
-    for (const d of iterCompletionDeltas(task, cutoff)) {
-      if (d.isLate) {
-        totalDrift += d.drift;
-        count++;
-      }
-    }
-  }
-  return count > 0 ? totalDrift / count : 0;
-};
-
-export interface MostReliable {
-  task: Task | null;
+export interface RangeStats {
+  onTime: number;
+  late: number;
   pct: number;
   completions: number;
+  graded: DriftStatus[];
+  lanes: TaskLane[];
 }
 
-export const computeMostReliable = (
+export const computeRangeStats = (
   tasks: Task[],
-  rangeDays: number,
-  minCompletions = 3
-): MostReliable => {
-  const cutoff = getTodayTimestamp() - rangeDays * MS_DAY;
-  let best: MostReliable = { task: null, pct: 0, completions: 0 };
+  start: number,
+  end: number,
+  todayTs: number = getTodayTimestamp()
+): RangeStats => {
+  let onTime = 0;
+  let late = 0;
+  let completions = 0;
+  const graded: { at: number; status: DriftStatus }[] = [];
+  const lanes: TaskLane[] = [];
+
   for (const task of tasks) {
-    let onTime = 0;
-    let late = 0;
-    for (const d of iterCompletionDeltas(task, cutoff)) {
-      if (d.isLate) late++;
-      else onTime++;
+    const sorted = [...(task.completedDates ?? [])].sort((a, b) => a - b);
+    const inRange = (ts: number) => ts >= start && ts < end;
+    const laneCompletions: RangeCompletion[] = [];
+    const lateSpans: LateSpan[] = [];
+    let laneGraded = 0;
+    let laneLate = 0;
+
+    if (sorted.length > 0 && inRange(sorted[0])) {
+      laneCompletions.push({ completedAt: sorted[0], status: 'first' });
     }
-    const total = onTime + late;
-    if (total < minCompletions) continue;
-    const pct = Math.round((onTime / total) * 100);
-    if (pct > best.pct || (pct === best.pct && total > best.completions)) {
-      best = { task, pct, completions: total };
+    for (const d of iterCompletionDeltas(task, start)) {
+      if (!inRange(d.completedAt)) continue;
+      laneCompletions.push({ completedAt: d.completedAt, status: d.status });
+      graded.push({ at: d.completedAt, status: d.status });
+      laneGraded++;
+      if (d.isLate) {
+        laneLate++;
+        late++;
+        lateSpans.push({
+          dueAt: addOneCadence(d.previousAt, task.cadence),
+          completedAt: d.completedAt,
+        });
+      } else {
+        onTime++;
+      }
     }
+    completions += laneCompletions.length;
+
+    if (task.archived) continue;
+    const nextDue = getNextDueDate(task);
+    const overdueDays =
+      getTaskStatus(task, todayTs) === 'overdue'
+        ? Math.round((todayTs - normalizeToMidnight(nextDue)) / MS_DAY)
+        : 0;
+    lanes.push({
+      task,
+      completions: laneCompletions,
+      lateSpans,
+      overdueDays,
+      nextDue,
+      pct:
+        laneGraded > 0
+          ? Math.round(((laneGraded - laneLate) / laneGraded) * 100)
+          : null,
+    });
   }
-  return best;
-};
 
-export const computeDowCounts = (
-  tasks: Task[],
-  rangeDays: number
-): number[] => {
-  const cutoff = getTodayTimestamp() - rangeDays * MS_DAY;
-  const counts = Array(7).fill(0) as number[];
-  for (const task of tasks) {
-    for (const ts of task.completedDates ?? []) {
-      if (ts < cutoff) continue;
-      counts[new Date(ts).getDay()]++;
-    }
-  }
-  return counts;
-};
-
-export interface CadenceMix {
-  daily: number;
-  weekly: number;
-  monthly: number;
-  custom: number;
-  total: number;
-}
-
-export const computeCadenceMix = (tasks: Task[]): CadenceMix => {
-  const mix: CadenceMix = {
-    daily: 0,
-    weekly: 0,
-    monthly: 0,
-    custom: 0,
-    total: tasks.length,
+  lanes.sort(
+    (a, b) =>
+      b.overdueDays - a.overdueDays ||
+      (a.pct ?? 101) - (b.pct ?? 101) ||
+      cadenceDays(a.task.cadence) - cadenceDays(b.task.cadence)
+  );
+  graded.sort((a, b) => a.at - b.at);
+  const total = onTime + late;
+  return {
+    onTime,
+    late,
+    pct: total > 0 ? Math.round((onTime / total) * 100) : 100,
+    completions,
+    graded: graded.map(g => g.status),
+    lanes,
   };
-  for (const task of tasks) {
-    mix[task.cadence.type]++;
+};
+
+export interface CurrentCycle {
+  start: number;
+  nextDue: number;
+  days: number;
+  elapsed: number;
+  dueIn: number;
+}
+
+export const computeCurrentCycle = (
+  task: Task,
+  todayTs: number = getTodayTimestamp()
+): CurrentCycle => {
+  const nextDue = normalizeToMidnight(getNextDueDate(task));
+  const start = subtractOneCadence(nextDue, task.cadence);
+  return {
+    start,
+    nextDue,
+    days: Math.max(1, Math.round((nextDue - start) / MS_DAY)),
+    elapsed: Math.round((todayTs - start) / MS_DAY),
+    dueIn: Math.round((nextDue - todayTs) / MS_DAY),
+  };
+};
+
+export interface HistoryEntry {
+  completedAt: number;
+  deltaDays: number | null;
+  status: CompletionStatus;
+}
+
+export const computeHistory = (task: Task): HistoryEntry[] => {
+  const sorted = [...(task.completedDates ?? [])].sort((a, b) => a - b);
+  if (sorted.length === 0) return [];
+  const out: HistoryEntry[] = [
+    { completedAt: sorted[0], deltaDays: null, status: 'first' },
+  ];
+  for (const d of iterCompletionDeltas(task)) {
+    out.push({
+      completedAt: d.completedAt,
+      deltaDays: Math.round(d.deltaDays),
+      status: d.status,
+    });
   }
-  return mix;
+  return out.reverse();
 };
