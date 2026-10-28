@@ -28,6 +28,8 @@ Control the device only with this shell command:
 
     npx --yes eas-cli@latest simulator:exec npx --yes agent-device@latest <command>
 
+Run this command alone in each shell call. Do not add another command before or after it with ";", "&&", or "|". The job allows only this exact command, so a combined command is denied. The folder agent-output/evidence already exists. If a command is denied, run it again by itself before you decide that you cannot test.
+
 Use these agent-device commands:
 
 - snapshot -i lists the elements on the screen, with references such as @e2. The references change after each action, so run snapshot -i again before each press or fill.
