@@ -10,4 +10,5 @@ Cadence is a task app for things you do on a loop, such as "water the plants eve
 - Stats and Settings are buttons at the top of the main screen.
 - Do not turn on sync. Do not sign in to iCloud or Google.
 - Do not send feedback from Settings.
+- Do not press "Load sample data" in Settings. It replaces all data.
 - Type only made-up text, such as "Test task". Never type an email address, a name, or a password.

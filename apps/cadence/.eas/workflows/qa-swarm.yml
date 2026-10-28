@@ -156,14 +156,206 @@ jobs:
           name: qa-ios-onboarding-evidence
           path: apps/cadence/agent-output/evidence/**/*
 
+  lane_android_create_task:
+    needs: [get_build_android]
+    after: [build_android, repack_android]
+    environment: preview
+    env:
+      BUILD_ID: ${{ after.build_android.outputs.build_id || after.repack_android.outputs.build_id }}
+      PLATFORM: android
+      FLOW: create-task
+    outputs:
+      verdict: ${{ steps.lane.outputs.verdict }}
+      site_url: ${{ steps.lane.outputs.site_url }}
+    steps:
+      - uses: eas/checkout
+      - uses: eas/install_node_modules
+      - id: lane
+        run: bash .eas/agents/qa-lane.sh
+      - uses: eas/upload_artifact
+        if: ${{ always() }}
+        with:
+          type: other
+          name: qa-android-create-task-evidence
+          path: apps/cadence/agent-output/evidence/**/*
+
+  lane_android_complete_task:
+    needs: [get_build_android]
+    after: [build_android, repack_android]
+    environment: preview
+    env:
+      BUILD_ID: ${{ after.build_android.outputs.build_id || after.repack_android.outputs.build_id }}
+      PLATFORM: android
+      FLOW: complete-task
+    outputs:
+      verdict: ${{ steps.lane.outputs.verdict }}
+      site_url: ${{ steps.lane.outputs.site_url }}
+    steps:
+      - uses: eas/checkout
+      - uses: eas/install_node_modules
+      - id: lane
+        run: bash .eas/agents/qa-lane.sh
+      - uses: eas/upload_artifact
+        if: ${{ always() }}
+        with:
+          type: other
+          name: qa-android-complete-task-evidence
+          path: apps/cadence/agent-output/evidence/**/*
+
+  lane_android_stats:
+    needs: [get_build_android]
+    after: [build_android, repack_android]
+    environment: preview
+    env:
+      BUILD_ID: ${{ after.build_android.outputs.build_id || after.repack_android.outputs.build_id }}
+      PLATFORM: android
+      FLOW: stats
+    outputs:
+      verdict: ${{ steps.lane.outputs.verdict }}
+      site_url: ${{ steps.lane.outputs.site_url }}
+    steps:
+      - uses: eas/checkout
+      - uses: eas/install_node_modules
+      - id: lane
+        run: bash .eas/agents/qa-lane.sh
+      - uses: eas/upload_artifact
+        if: ${{ always() }}
+        with:
+          type: other
+          name: qa-android-stats-evidence
+          path: apps/cadence/agent-output/evidence/**/*
+
+  lane_android_todos:
+    needs: [get_build_android]
+    after: [build_android, repack_android]
+    environment: preview
+    env:
+      BUILD_ID: ${{ after.build_android.outputs.build_id || after.repack_android.outputs.build_id }}
+      PLATFORM: android
+      FLOW: todos
+    outputs:
+      verdict: ${{ steps.lane.outputs.verdict }}
+      site_url: ${{ steps.lane.outputs.site_url }}
+    steps:
+      - uses: eas/checkout
+      - uses: eas/install_node_modules
+      - id: lane
+        run: bash .eas/agents/qa-lane.sh
+      - uses: eas/upload_artifact
+        if: ${{ always() }}
+        with:
+          type: other
+          name: qa-android-todos-evidence
+          path: apps/cadence/agent-output/evidence/**/*
+
+  lane_ios_create_task:
+    needs: [get_build_ios]
+    after: [build_ios, repack_ios]
+    environment: preview
+    env:
+      BUILD_ID: ${{ after.build_ios.outputs.build_id || after.repack_ios.outputs.build_id }}
+      PLATFORM: ios
+      FLOW: create-task
+    outputs:
+      verdict: ${{ steps.lane.outputs.verdict }}
+      site_url: ${{ steps.lane.outputs.site_url }}
+    steps:
+      - uses: eas/checkout
+      - uses: eas/install_node_modules
+      - id: lane
+        run: bash .eas/agents/qa-lane.sh
+      - uses: eas/upload_artifact
+        if: ${{ always() }}
+        with:
+          type: other
+          name: qa-ios-create-task-evidence
+          path: apps/cadence/agent-output/evidence/**/*
+
+  lane_ios_complete_task:
+    needs: [get_build_ios]
+    after: [build_ios, repack_ios]
+    environment: preview
+    env:
+      BUILD_ID: ${{ after.build_ios.outputs.build_id || after.repack_ios.outputs.build_id }}
+      PLATFORM: ios
+      FLOW: complete-task
+    outputs:
+      verdict: ${{ steps.lane.outputs.verdict }}
+      site_url: ${{ steps.lane.outputs.site_url }}
+    steps:
+      - uses: eas/checkout
+      - uses: eas/install_node_modules
+      - id: lane
+        run: bash .eas/agents/qa-lane.sh
+      - uses: eas/upload_artifact
+        if: ${{ always() }}
+        with:
+          type: other
+          name: qa-ios-complete-task-evidence
+          path: apps/cadence/agent-output/evidence/**/*
+
+  lane_ios_stats:
+    needs: [get_build_ios]
+    after: [build_ios, repack_ios]
+    environment: preview
+    env:
+      BUILD_ID: ${{ after.build_ios.outputs.build_id || after.repack_ios.outputs.build_id }}
+      PLATFORM: ios
+      FLOW: stats
+    outputs:
+      verdict: ${{ steps.lane.outputs.verdict }}
+      site_url: ${{ steps.lane.outputs.site_url }}
+    steps:
+      - uses: eas/checkout
+      - uses: eas/install_node_modules
+      - id: lane
+        run: bash .eas/agents/qa-lane.sh
+      - uses: eas/upload_artifact
+        if: ${{ always() }}
+        with:
+          type: other
+          name: qa-ios-stats-evidence
+          path: apps/cadence/agent-output/evidence/**/*
+
+  lane_ios_todos:
+    needs: [get_build_ios]
+    after: [build_ios, repack_ios]
+    environment: preview
+    env:
+      BUILD_ID: ${{ after.build_ios.outputs.build_id || after.repack_ios.outputs.build_id }}
+      PLATFORM: ios
+      FLOW: todos
+    outputs:
+      verdict: ${{ steps.lane.outputs.verdict }}
+      site_url: ${{ steps.lane.outputs.site_url }}
+    steps:
+      - uses: eas/checkout
+      - uses: eas/install_node_modules
+      - id: lane
+        run: bash .eas/agents/qa-lane.sh
+      - uses: eas/upload_artifact
+        if: ${{ always() }}
+        with:
+          type: other
+          name: qa-ios-todos-evidence
+          path: apps/cadence/agent-output/evidence/**/*
+
   report:
     type: doc
-    after: [lane_android_launch, lane_android_onboarding, lane_ios_launch, lane_ios_onboarding]
+    after: [lane_android_launch, lane_android_onboarding, lane_android_create_task, lane_android_complete_task, lane_android_stats, lane_android_todos, lane_ios_launch, lane_ios_onboarding, lane_ios_create_task, lane_ios_complete_task, lane_ios_stats, lane_ios_todos]
     params:
       md: |
         # QA Swarm report
 
         - **Android, launch:** ${{ after.lane_android_launch.outputs.verdict || 'FAIL: The lane did not finish.' }} [Evidence site](${{ after.lane_android_launch.outputs.site_url }})
         - **Android, onboarding:** ${{ after.lane_android_onboarding.outputs.verdict || 'FAIL: The lane did not finish.' }} [Evidence site](${{ after.lane_android_onboarding.outputs.site_url }})
+        - **Android, create-task:** ${{ after.lane_android_create_task.outputs.verdict || 'FAIL: The lane did not finish.' }} [Evidence site](${{ after.lane_android_create_task.outputs.site_url }})
+        - **Android, complete-task:** ${{ after.lane_android_complete_task.outputs.verdict || 'FAIL: The lane did not finish.' }} [Evidence site](${{ after.lane_android_complete_task.outputs.site_url }})
+        - **Android, stats:** ${{ after.lane_android_stats.outputs.verdict || 'FAIL: The lane did not finish.' }} [Evidence site](${{ after.lane_android_stats.outputs.site_url }})
+        - **Android, todos:** ${{ after.lane_android_todos.outputs.verdict || 'FAIL: The lane did not finish.' }} [Evidence site](${{ after.lane_android_todos.outputs.site_url }})
         - **iOS, launch:** ${{ after.lane_ios_launch.outputs.verdict || 'FAIL: The lane did not finish.' }} [Evidence site](${{ after.lane_ios_launch.outputs.site_url }})
         - **iOS, onboarding:** ${{ after.lane_ios_onboarding.outputs.verdict || 'FAIL: The lane did not finish.' }} [Evidence site](${{ after.lane_ios_onboarding.outputs.site_url }})
+        - **iOS, create-task:** ${{ after.lane_ios_create_task.outputs.verdict || 'FAIL: The lane did not finish.' }} [Evidence site](${{ after.lane_ios_create_task.outputs.site_url }})
+        - **iOS, complete-task:** ${{ after.lane_ios_complete_task.outputs.verdict || 'FAIL: The lane did not finish.' }} [Evidence site](${{ after.lane_ios_complete_task.outputs.site_url }})
+        - **iOS, stats:** ${{ after.lane_ios_stats.outputs.verdict || 'FAIL: The lane did not finish.' }} [Evidence site](${{ after.lane_ios_stats.outputs.site_url }})
+        - **iOS, todos:** ${{ after.lane_ios_todos.outputs.verdict || 'FAIL: The lane did not finish.' }} [Evidence site](${{ after.lane_ios_todos.outputs.site_url }})
