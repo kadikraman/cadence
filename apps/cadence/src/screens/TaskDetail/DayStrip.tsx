@@ -1,15 +1,26 @@
 import { View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { withAlpha } from '../../utils/colorUtils';
-import { CompletionStatus } from '../../utils/statsUtils';
+import {
+  CompletionStatus,
+  stripSquareIndex,
+  stripSquares,
+} from '../../utils/statsUtils';
 
 type DayStripProps =
-  | { kind: 'now'; days: number; elapsed: number; accent: string }
+  | {
+      kind: 'now';
+      days: number;
+      elapsed: number;
+      unitDays: number;
+      accent: string;
+    }
   | {
       kind: 'entry';
       cadDays: number;
       deltaDays: number | null;
       status: CompletionStatus;
+      unitDays: number;
       accent: string;
     };
 
@@ -19,12 +30,13 @@ type Square =
 
 export default function DayStrip(props: DayStripProps) {
   const { theme } = useUnistyles();
-  const { accent } = props;
+  const { accent, unitDays } = props;
   const muted = theme.colors.label4;
   const squares: Square[] = [];
 
   if (props.kind === 'now') {
-    const { days, elapsed } = props;
+    const days = stripSquares(props.days, unitDays);
+    const elapsed = stripSquareIndex(props.elapsed, props.days, unitDays);
     for (let k = 1; k <= Math.max(days, elapsed); k++) {
       if (k > days) {
         squares.push(
@@ -39,7 +51,13 @@ export default function DayStrip(props: DayStripProps) {
   } else if (props.deltaDays === null) {
     squares.push({ fill: accent });
   } else {
-    const { cadDays, deltaDays, status } = props;
+    const { status } = props;
+    const cadDays = stripSquares(props.cadDays, unitDays);
+    const deltaDays = stripSquareIndex(
+      props.deltaDays,
+      props.cadDays,
+      unitDays
+    );
     for (let k = 1; k <= Math.max(deltaDays, cadDays); k++) {
       if (k === deltaDays) {
         squares.push({

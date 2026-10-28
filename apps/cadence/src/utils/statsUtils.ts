@@ -268,6 +268,33 @@ export const computeRangeStats = (
   };
 };
 
+export interface StripUnit {
+  days: number;
+  label: 'day' | 'week' | 'month';
+}
+
+export const stripUnit = (cadDays: number): StripUnit => {
+  if (cadDays <= 31) return { days: 1, label: 'day' };
+  if (cadDays <= 31 * 7) return { days: 7, label: 'week' };
+  return { days: 30, label: 'month' };
+};
+
+export const stripSquares = (cycleDays: number, unitDays: number): number =>
+  Math.max(1, Math.round(cycleDays / unitDays));
+
+export const stripSquareIndex = (
+  dayCount: number,
+  cycleDays: number,
+  unitDays: number
+): number => {
+  if (dayCount <= 0) return 0;
+  const squares = stripSquares(cycleDays, unitDays);
+  if (dayCount <= cycleDays) {
+    return Math.ceil((dayCount * squares) / cycleDays);
+  }
+  return squares + Math.ceil((dayCount - cycleDays) / unitDays);
+};
+
 export interface CurrentCycle {
   start: number;
   nextDue: number;
