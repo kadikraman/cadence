@@ -9,6 +9,7 @@ import {
   CurrentCycle,
   formatDriftLabel,
   HistoryEntry,
+  stripUnit,
 } from '../../utils/statsUtils';
 import { formatMonthDay, formatWeekday } from '../../utils/taskUtils';
 import DayStrip from './DayStrip';
@@ -32,6 +33,7 @@ export default function CyclesList({
 }: CyclesListProps) {
   const { theme } = useUnistyles();
   const cadDays = cadenceDays(task.cadence);
+  const unit = stripUnit(cadDays);
   const cardColor = Platform.select({
     android: theme.colors.surface,
     default: theme.colors.surfaceElevated,
@@ -64,7 +66,7 @@ export default function CyclesList({
     <View>
       <View style={styles.head}>
         <Text style={styles.headTitle}>Cycles</Text>
-        <Text style={styles.headNote}>one square per day</Text>
+        <Text style={styles.headNote}>one square per {unit.label}</Text>
       </View>
       <View style={[styles.card, { backgroundColor: cardColor }]}>
         {cycle && (
@@ -76,6 +78,7 @@ export default function CyclesList({
                 kind="now"
                 days={cycle.days}
                 elapsed={cycle.elapsed}
+                unit={unit}
                 accent={accent}
               />
             }
@@ -103,6 +106,7 @@ export default function CyclesList({
                     cadDays={cadDays}
                     deltaDays={entry.deltaDays}
                     status={entry.status}
+                    unit={unit}
                     accent={accent}
                   />
                 }
@@ -203,6 +207,7 @@ const styles = StyleSheet.create(theme => ({
   },
   stripCol: {
     flex: 1,
+    overflow: 'hidden',
   },
   status: {
     fontSize: 13,

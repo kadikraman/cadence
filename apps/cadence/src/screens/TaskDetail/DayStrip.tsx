@@ -1,15 +1,27 @@
 import { View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { withAlpha } from '../../utils/colorUtils';
-import { CompletionStatus } from '../../utils/statsUtils';
+import {
+  CompletionStatus,
+  stripSquareIndex,
+  stripSquares,
+  StripUnit,
+} from '../../utils/statsUtils';
 
 type DayStripProps =
-  | { kind: 'now'; days: number; elapsed: number; accent: string }
+  | {
+      kind: 'now';
+      days: number;
+      elapsed: number;
+      unit: StripUnit;
+      accent: string;
+    }
   | {
       kind: 'entry';
       cadDays: number;
       deltaDays: number | null;
       status: CompletionStatus;
+      unit: StripUnit;
       accent: string;
     };
 
@@ -19,12 +31,14 @@ type Square =
 
 export default function DayStrip(props: DayStripProps) {
   const { theme } = useUnistyles();
-  const { accent } = props;
+  const { accent, unit } = props;
+  const unitDays = unit.days;
   const muted = theme.colors.label4;
   const squares: Square[] = [];
 
   if (props.kind === 'now') {
-    const { days, elapsed } = props;
+    const days = stripSquares(props.days, unitDays);
+    const elapsed = stripSquareIndex(props.elapsed, props.days, unitDays);
     for (let k = 1; k <= Math.max(days, elapsed); k++) {
       if (k > days) {
         squares.push(
@@ -39,7 +53,13 @@ export default function DayStrip(props: DayStripProps) {
   } else if (props.deltaDays === null) {
     squares.push({ fill: accent });
   } else {
-    const { cadDays, deltaDays, status } = props;
+    const { status } = props;
+    const cadDays = stripSquares(props.cadDays, unitDays);
+    const deltaDays = stripSquareIndex(
+      props.deltaDays,
+      props.cadDays,
+      unitDays
+    );
     for (let k = 1; k <= Math.max(deltaDays, cadDays); k++) {
       if (k === deltaDays) {
         squares.push({
@@ -59,7 +79,11 @@ export default function DayStrip(props: DayStripProps) {
   const dense = squares.length > 20;
 
   return (
-    <View style={[styles.strip, { gap: dense ? 1 : 3 }]}>
+    <View
+      accessible
+      accessibilityLabel={`${squares.length} ${squares.length === 1 ? 'square' : 'squares'}, one per ${unit.label}`}
+      style={[styles.strip, { gap: dense ? 1 : 3 }]}
+    >
       {squares.map((s, i) => (
         <View
           key={i}

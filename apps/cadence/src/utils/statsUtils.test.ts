@@ -8,6 +8,9 @@ import {
   computeRangeStats,
   computeTaskStats,
   iterCompletionDeltas,
+  stripSquareIndex,
+  stripSquares,
+  stripUnit,
 } from './statsUtils';
 import { MS_DAY } from './taskUtils';
 
@@ -281,6 +284,50 @@ describe('computeCurrentCycle', () => {
     const cycle = computeCurrentCycle(task, midnight());
     expect(cycle.elapsed).toBe(10);
     expect(cycle.dueIn).toBe(-3);
+  });
+});
+
+describe('stripUnit', () => {
+  test('uses days up to a month, weeks up to 31 weeks, then months', () => {
+    expect(stripUnit(1).label).toBe('day');
+    expect(stripUnit(31).label).toBe('day');
+    expect(stripUnit(32).label).toBe('week');
+    expect(stripUnit(217).label).toBe('week');
+    expect(stripUnit(218).label).toBe('month');
+    expect(
+      stripUnit(cadenceDays({ type: 'custom', value: 12, unit: 'months' })).days
+    ).toBe(30);
+  });
+});
+
+describe('stripSquares', () => {
+  test('fits a yearly cycle in 12 month squares', () => {
+    expect(stripSquares(365, 30)).toBe(12);
+    expect(stripSquares(360, 30)).toBe(12);
+  });
+
+  test('keeps one square per day for short cycles', () => {
+    expect(stripSquares(7, 1)).toBe(7);
+  });
+});
+
+describe('stripSquareIndex', () => {
+  test('matches the day count when each square is one day', () => {
+    expect(stripSquareIndex(0, 7, 1)).toBe(0);
+    expect(stripSquareIndex(3, 7, 1)).toBe(3);
+    expect(stripSquareIndex(7, 7, 1)).toBe(7);
+    expect(stripSquareIndex(10, 7, 1)).toBe(10);
+  });
+
+  test('spreads a yearly cycle over its squares', () => {
+    expect(stripSquareIndex(1, 365, 30)).toBe(1);
+    expect(stripSquareIndex(58, 365, 30)).toBe(2);
+    expect(stripSquareIndex(365, 365, 30)).toBe(12);
+  });
+
+  test('adds one square per unit after the cycle ends', () => {
+    expect(stripSquareIndex(366, 365, 30)).toBe(13);
+    expect(stripSquareIndex(396, 365, 30)).toBe(14);
   });
 });
 
