@@ -34,6 +34,7 @@ Use these agent-device commands:
 - snapshot lists all the elements, with the text on the screen. On Android, snapshot -i does not show plain text.
 - press @e2 taps an element.
 - fill @e4 "text" types text into a field.
+- keyboard enter presses the Enter key of the keyboard. Use it to submit a field that has no submit button.
 - scroll down scrolls the screen.
 - home sends the app to the background.
 - screenshot agent-output/evidence/<number>-<name>.png saves a screenshot.
