@@ -23,6 +23,24 @@ Root scripts in `package.json` delegate into `apps/cadence` (via `bun run --cwd`
 
 Install packages with `npx expo install <package>` from inside the relevant workspace (`apps/cadence` or `apps/marketing`), not `bun add`, so versions stay aligned with the Expo SDK.
 
+## Branches and pull requests
+
+- Build each feature or fix on its own branch and open a pull request to `main`. Do not commit features straight to `main`.
+- Pull requests to `main` start EAS workflows that cost builds, Expo Simulators sessions, and model tokens. Open a pull request as a draft while the work is in progress, and mark it ready for review when you want the checks to run.
+
+### Agentic workflows (`apps/cadence/.eas/`)
+
+| Workflow | Starts when | What it does |
+| --- | --- | --- |
+| Agentic CI (`agentic-ci-android.yml`, `agentic-ci-ios.yml`) | A pull request to `main` is opened, reopened, updated, or marked ready for review. Drafts are skipped. | A coding agent tests the change that the pull request title and description describe, on a cloud Android Emulator and iOS Simulator, and comments with a verdict. |
+| QA Swarm (`qa-swarm.yml`) | Someone runs `eas workflow:run .eas/workflows/qa-swarm.yml` from `apps/cadence`. | One agent per flow in `.eas/qa-flows/` and per platform, each on its own simulator. |
+
+- Merging to `main` does not start these workflows.
+- Describe each pull request so the agent can test it: what changed, and what a user sees.
+- Agents follow `.eas/agents/app-facts.md`. Update it when onboarding, the main screen titles, or a Settings row that agents must avoid changes.
+- Workflow artifact paths start at the repository root (`apps/cadence/agent-output/...`), but job steps run in `apps/cadence`.
+- The agent jobs read every variable of the EAS `preview` environment. Keep secrets other than the agent tokens out of `preview`.
+
 ## Tech stack
 
 - TypeScript with strict typing
