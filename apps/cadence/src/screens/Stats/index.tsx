@@ -1,8 +1,8 @@
 import { useObserve } from 'expo-observe';
-import { SymbolView } from 'expo-symbols';
 import { useEffect } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import GlassBackButton from '../../components/ui/GlassBackButton';
 import SegmentedControl from '../../components/ui/SegmentedControl';
 import OnTimeSummary from './OnTimeSummary';
 import TaskLanes from './TaskLanes';
@@ -16,7 +16,7 @@ const RANGE_OPTIONS: { value: Range; label: string }[] = [
 ];
 
 export default function StatsScreen() {
-  const { theme, rt } = useUnistyles();
+  const { rt } = useUnistyles();
   const {
     router,
     range,
@@ -38,16 +38,7 @@ export default function StatsScreen() {
   return (
     <View style={[styles.root, { paddingTop: rt.insets.top }]}>
       <View style={styles.nav}>
-        <Pressable onPress={() => router.back()} style={styles.backBtn}>
-          <SymbolView
-            name="chevron.left"
-            size={18}
-            tintColor={theme.colors.blue}
-            resizeMode="scaleAspectFit"
-            fallback={null}
-          />
-          <Text style={styles.backText}>Tasks</Text>
-        </Pressable>
+        <GlassBackButton label="Tasks" onPress={() => router.back()} />
       </View>
       <Text style={styles.title}>Stats</Text>
 
@@ -94,16 +85,6 @@ const styles = StyleSheet.create((theme, rt) => ({
     paddingHorizontal: 16,
     paddingTop: 4,
     paddingBottom: 4,
-  },
-  backBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
-    padding: 4,
-  },
-  backText: {
-    color: theme.colors.blue,
-    fontSize: 17,
   },
   title: {
     fontSize: 34,

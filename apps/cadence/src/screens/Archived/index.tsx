@@ -1,9 +1,10 @@
 import { useObserve } from 'expo-observe';
 import { SymbolView } from 'expo-symbols';
 import { useEffect } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import FormGroup from '../../components/ui/FormGroup';
+import GlassBackButton from '../../components/ui/GlassBackButton';
 import ArchivedRow from './ArchivedRow';
 import { useArchived } from './useArchived';
 
@@ -20,16 +21,7 @@ export default function ArchivedScreen() {
   return (
     <View style={[styles.root, { paddingTop: rt.insets.top }]}>
       <View style={styles.nav}>
-        <Pressable onPress={() => router.back()} style={styles.backBtn}>
-          <SymbolView
-            name="chevron.left"
-            size={18}
-            tintColor={theme.colors.blue}
-            resizeMode="scaleAspectFit"
-            fallback={null}
-          />
-          <Text style={styles.backText}>Settings</Text>
-        </Pressable>
+        <GlassBackButton label="Settings" onPress={() => router.back()} />
       </View>
       <Text style={styles.title}>Archived</Text>
 
@@ -76,16 +68,6 @@ const styles = StyleSheet.create((theme, rt) => ({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 4,
-  },
-  backBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
-    padding: 4,
-  },
-  backText: {
-    color: theme.colors.blue,
-    fontSize: 17,
   },
   title: {
     fontSize: 34,

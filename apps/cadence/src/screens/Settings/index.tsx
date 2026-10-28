@@ -5,6 +5,7 @@ import { Pressable, ScrollView, Switch, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import FormGroup from '../../components/ui/FormGroup';
 import FormLabel from '../../components/ui/FormLabel';
+import GlassBackButton from '../../components/ui/GlassBackButton';
 import NativeSwitch from '../../components/ui/NativeSwitch';
 import { routes } from '../../lib/routes';
 import { SYNC_PROVIDER_NAME } from '../../lib/sync/useSyncSetting';
@@ -74,16 +75,7 @@ export default function SettingsScreen() {
   return (
     <View style={[styles.root, { paddingTop: rt.insets.top }]}>
       <View style={styles.nav}>
-        <Pressable onPress={() => router.back()} style={styles.backBtn}>
-          <SymbolView
-            name="chevron.left"
-            size={18}
-            tintColor={theme.colors.blue}
-            resizeMode="scaleAspectFit"
-            fallback={null}
-          />
-          <Text style={styles.backText}>Tasks</Text>
-        </Pressable>
+        <GlassBackButton label="Tasks" onPress={() => router.back()} />
       </View>
       <Text style={styles.title}>Settings</Text>
 
@@ -400,16 +392,6 @@ const styles = StyleSheet.create((theme, rt) => ({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 4,
-  },
-  backBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
-    padding: 4,
-  },
-  backText: {
-    color: theme.colors.blue,
-    fontSize: 17,
   },
   title: {
     fontSize: 34,
