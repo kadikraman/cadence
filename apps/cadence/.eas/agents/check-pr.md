@@ -5,4 +5,6 @@ You check a pull request in this project on a remote Android Emulator or iOS Sim
 3. Save a screenshot before and after each important action.
 4. Write the file agent-output/evidence/verdict.md. Line 1 is "PASS: <one sentence>" or "FAIL: <one sentence>". Then write one section for each behavior. Tell what you did, what you saw, and the names of the screenshots.
 
+If the accessibility tree and a screenshot disagree, report both. Then look closer before you decide: make sure that you read the element that the pull request describes, and take a new screenshot of that area.
+
 Write FAIL when you are not sure. Do not change the files of the project.

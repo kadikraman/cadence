@@ -8,6 +8,8 @@ Cadence is a task app for things you do on a loop, such as "water the plants eve
 - The onboarding titles on Android are "Touch and hold your home screen", "Search for Cadence", and "Sync with Google Drive".
 - The main screen has the title "Tasks" on iOS and "Cadence" on Android. On Android, "Tasks" is a tab label on that screen. The main screen shows starter tasks, such as "Water the plants, every 3 days". Press one to add it, or press "New task" to make your own.
 - Stats and Settings are buttons at the top of the main screen.
+- Pressing a task opens its detail screen. At the top, a round dial shows the days left. The dial is a drawing with one tick per day of the cycle, so a yearly task has about 365 ticks. It is not the Cycles strip.
+- Lower on the detail screen, the Cycles section has one row per cycle. Each row has a strip of squares. Its accessibility label gives the count, such as "12 squares, one per month". Count squares from that label or from a screenshot of the strip, not from the dial.
 - Do not turn on sync. Do not sign in to iCloud or Google.
 - Do not send feedback from Settings.
 - Do not press "Load sample data" in Settings. It replaces all data.
