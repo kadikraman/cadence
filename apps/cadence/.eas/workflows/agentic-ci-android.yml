@@ -48,6 +48,9 @@ jobs:
       verdict: ${{ steps.check.outputs.verdict }}
       session_url: ${{ steps.check.outputs.session_url }}
       build_id: ${{ steps.check.outputs.build_id }}
+      badge: ${{ steps.check.outputs.badge }}
+      summary: ${{ steps.check.outputs.summary }}
+      commit: ${{ steps.check.outputs.commit }}
     steps:
       - uses: eas/checkout
       - uses: eas/install_node_modules
@@ -65,7 +68,15 @@ jobs:
           env -u EXPO_TOKEN -u EXPO_TOKEN_SIMULATOR -u GITHUB_TOKEN \
             timeout 20m bash .eas/agents/run-agent.sh agent-output/prompt.md device || true
 
-          set-output verdict "$(head -n 1 agent-output/evidence/verdict.md 2> /dev/null || echo 'FAIL: The agent did not write a verdict.')"
+          VERDICT=$(head -n 1 agent-output/evidence/verdict.md 2> /dev/null || echo 'FAIL: The agent did not write a verdict.')
+          case "$VERDICT" in
+            PASS:*) BADGE='✅ Passed' ;;
+            *) BADGE='❌ Failed' ;;
+          esac
+          set-output verdict "$VERDICT"
+          set-output badge "$BADGE"
+          set-output summary "${VERDICT#*: }"
+          set-output commit "$(git rev-parse --short HEAD)"
           set-output session_url "$(node -p 'require("/tmp/session.json").deviceRunSessionUrl')"
           set-output build_id "$BUILD_ID"
       - uses: eas/upload_artifact
@@ -80,13 +91,19 @@ jobs:
     after: [check]
     params:
       payload: |
-        ## Agentic CI (Android)
+        ## 🤖 Agentic CI · Android
 
-        **Verdict:** ${{ after.check.outputs.verdict || 'FAIL: The check job did not finish. See the workflow run.' }}
+        ### ${{ after.check.outputs.badge || '⚠️ Did not finish' }}
 
-        - [Session recording](${{ after.check.outputs.session_url }})
-        - [Agent report and screenshots](${{ workflow.url }})
-        - [Try this build in your browser](https://expo.dev/accounts/${{ account.name }}/projects/${{ app.slug }}/simulator-sessions/create?buildId=${{ after.check.outputs.build_id }})
+        > **${{ after.check.outputs.summary || 'The check job did not finish. Open the workflow run to see why.' }}**
+
+        | | |
+        | --- | --- |
+        | 🎥 **[Session recording](${{ after.check.outputs.session_url }})** | Watch every tap the agent made |
+        | 📸 **[Agent report and screenshots](${{ workflow.url }})** | The full report, screenshots, and agent log, in the run artifacts |
+        | ▶️ **[Try this build in your browser](https://expo.dev/accounts/${{ account.name }}/projects/${{ app.slug }}/simulator-sessions/create?buildId=${{ after.check.outputs.build_id }})** | Each click starts a new Android Emulator session |
+
+        <sub>Tested by a Claude Code agent on an Android Emulator with Expo Simulators, at commit `${{ after.check.outputs.commit }}`. A person reviews the evidence and decides.</sub>
 
   result:
     after: [check]
