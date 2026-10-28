@@ -84,6 +84,7 @@ export default function SettingsScreen() {
             icon="format-list-checks"
             title="To-do list"
             subtitle="Adds a To do tab for one-off items"
+            onPress={() => setTodosEnabled(!todosEnabled)}
             trailing={
               <NativeSwitch
                 value={todosEnabled}
@@ -103,6 +104,7 @@ export default function SettingsScreen() {
                 ? `${sync.account}\n${sync.statusText}`
                 : sync.statusText
             }
+            onPress={() => sync.setEnabled(!sync.enabled)}
             trailing={
               <NativeSwitch
                 value={sync.enabled}
