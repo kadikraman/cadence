@@ -1,0 +1,21 @@
+diff --git a/android/build.gradle b/android/build.gradle
+index 6d405945296b7adcf39eb1da4f49586a45582b6a..317ea05e65d275a3386baf315cf10f70c8e6e6b0 100644
+--- a/android/build.gradle
++++ b/android/build.gradle
+@@ -27,6 +27,7 @@ android {
+     versionName packageJson.version
+ 
+     buildConfigField "String", "EXPO_OBSERVE_VERSION", "\"${packageJson.version}\""
++    consumerProguardFiles("proguard-rules.pro")
+   }
+ 
+   buildFeatures {
+diff --git a/node_modules/expo-observe/android/proguard-rules.pro b/android/proguard-rules.pro
+new file mode 100644
+index 0000000000000000000000000000000000000000..dae526a04e2f09b968c59c95b5b59608b5a11e69
+--- /dev/null
++++ b/android/proguard-rules.pro
+@@ -0,0 +1,3 @@
++-keepclassmembers class * extends androidx.work.InputMerger {
++  public <init>();
++}

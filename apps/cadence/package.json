@@ -78,6 +78,14 @@
       ]
     },
     "autolinking": {
+      "android": {
+        "buildFromSource": [
+          "expo-observe",
+          "expo-app-metrics",
+          "expo-eas-client",
+          "expo-updates-interface"
+        ]
+      },
       "ios": {
         "exclude": [
           "@react-native-google-signin/google-signin"
