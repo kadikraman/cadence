@@ -182,6 +182,7 @@ Rules:
 - Put shared status/color/label derivation in a colocated hook (`useFooVisuals.ts`). Never duplicate the logic across the two platform files.
 - Pull any sub-view used by both platforms into its own file in the folder (e.g. `ExpandedBar.tsx`).
 - Single-file `if (Platform.OS === ...)` branches are still fine for trivial divergences (one icon swap, one `paddingTop`). Reach for the file split when you start writing a second JSX tree.
+- iOS files may import `@expo/ui/swift-ui`. The native build also bundles every route for web, to export the API routes, and SwiftUI components throw when they load on web. `metro.config.js` resolves `@expo/ui/swift-ui` to an empty module on web for this reason. Keep that rule, or the EAS build fails at the bundle step.
 
 Reference implementation: `components/TaskRow/`.
 

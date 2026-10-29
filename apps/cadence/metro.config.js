@@ -13,4 +13,17 @@ config.resolver.nodeModulesPaths = [
   path.resolve(workspaceRoot, 'node_modules'),
 ];
 
+const resolveRequest = config.resolver.resolveRequest;
+
+config.resolver.resolveRequest = (context, moduleName, platform) => {
+  if (platform === 'web' && moduleName === '@expo/ui/swift-ui') {
+    return { type: 'empty' };
+  }
+  return (resolveRequest ?? context.resolveRequest)(
+    context,
+    moduleName,
+    platform
+  );
+};
+
 module.exports = config;
