@@ -34,8 +34,6 @@ export default function SettingsScreen() {
     router,
     themeMode,
     setThemeMode,
-    weekStartsOnMonday,
-    setWeekStartsOnMonday,
     todosEnabled,
     setTodosEnabled,
     sync,
@@ -112,15 +110,6 @@ export default function SettingsScreen() {
               systemImage="icloud.fill"
               isOn={sync.enabled}
               onIsOnChange={sync.setEnabled}
-            />
-          </Section>
-
-          <Section title="Calendar">
-            <Toggle
-              label="Start week on Monday"
-              systemImage="calendar"
-              isOn={weekStartsOnMonday}
-              onIsOnChange={setWeekStartsOnMonday}
             />
           </Section>
 

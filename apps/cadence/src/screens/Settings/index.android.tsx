@@ -30,8 +30,6 @@ export default function SettingsScreen() {
     router,
     themeMode,
     setThemeMode,
-    weekStartsOnMonday,
-    setWeekStartsOnMonday,
     todosEnabled,
     setTodosEnabled,
     sync,
@@ -109,21 +107,6 @@ export default function SettingsScreen() {
               <NativeSwitch
                 value={sync.enabled}
                 onValueChange={sync.setEnabled}
-              />
-            }
-            last
-          />
-        </AndroidGroup>
-
-        <AndroidGroup title="Calendar">
-          <AndroidSettingsRow
-            icon="calendar"
-            title="Start week on Monday"
-            onPress={() => setWeekStartsOnMonday(!weekStartsOnMonday)}
-            trailing={
-              <NativeSwitch
-                value={weekStartsOnMonday}
-                onValueChange={setWeekStartsOnMonday}
               />
             }
             last
