@@ -9,7 +9,7 @@ import { useTodoList } from './useTodoList';
 
 export type { TodoListProps, TodoRowCallbacks } from './types';
 
-export default function TodoList({ inputRef }: TodoListProps) {
+export default function TodoList({ inputRef, header }: TodoListProps) {
   const { theme } = useUnistyles();
   const {
     isEmpty,
@@ -41,7 +41,14 @@ export default function TodoList({ inputRef }: TodoListProps) {
 
   return (
     <LayoutAnimationConfig skipEntering skipExiting>
-      <View style={styles.root}>
+      <Animated.ScrollView
+        style={styles.root}
+        contentContainerStyle={styles.scroll}
+        contentInsetAdjustmentBehavior="automatic"
+        keyboardDismissMode="on-drag"
+        keyboardShouldPersistTaps="handled"
+      >
+        {header}
         <View style={styles.quickAdd}>
           <UiSymbol name="plus" size={20} color={theme.colors.blue} />
           <TextInput
@@ -75,12 +82,7 @@ export default function TodoList({ inputRef }: TodoListProps) {
             </Text>
           </Animated.View>
         ) : (
-          <Animated.ScrollView
-            entering={todoEntering}
-            contentContainerStyle={styles.scroll}
-            keyboardDismissMode="on-drag"
-            keyboardShouldPersistTaps="handled"
-          >
+          <>
             {open.length > 0 && (
               <Animated.View
                 layout={todoLayout}
@@ -155,9 +157,9 @@ export default function TodoList({ inputRef }: TodoListProps) {
                 )}
               </Animated.View>
             )}
-          </Animated.ScrollView>
+          </>
         )}
-      </View>
+      </Animated.ScrollView>
     </LayoutAnimationConfig>
   );
 }

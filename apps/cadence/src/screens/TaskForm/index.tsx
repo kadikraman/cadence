@@ -2,7 +2,7 @@ import { useObserve } from 'expo-observe';
 import { Stack } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
 import { useEffect } from 'react';
-import { Pressable, Switch, Text, TextInput, View } from 'react-native';
+import { Pressable, Text, TextInput, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import ColorPicker from '../../components/ColorPicker';
@@ -10,6 +10,7 @@ import DatePickerSheet from '../../components/DatePickerSheet';
 import GlyphPicker from '../../components/GlyphPicker';
 import FormGroup from '../../components/ui/FormGroup';
 import FormLabel from '../../components/ui/FormLabel';
+import NativeSwitch from '../../components/ui/NativeSwitch';
 import SegmentedControl from '../../components/ui/SegmentedControl';
 import { getSymbol } from '../../utils/glyphs';
 import { getTint } from '../../utils/taskTints';
@@ -70,33 +71,20 @@ export default function TaskFormScreen() {
 
   return (
     <View style={styles.root}>
-      <Stack.Screen
-        options={{
-          title: isEdit ? 'Edit Task' : 'New Task',
-          headerLeft: () => (
-            <Pressable onPress={() => router.back()} hitSlop={10}>
-              <Text style={{ color: theme.colors.blue, fontSize: 17 }}>
-                Cancel
-              </Text>
-            </Pressable>
-          ),
-          headerRight: () => (
-            <Pressable onPress={save} disabled={!canSave} hitSlop={10}>
-              <Text
-                style={{
-                  color: canSave ? theme.colors.blue : theme.colors.label4,
-                  fontSize: 17,
-                  fontWeight: '600',
-                }}
-              >
-                Save
-              </Text>
-            </Pressable>
-          ),
-        }}
-      />
+      <Stack.Title>{isEdit ? 'Edit Task' : 'New Task'}</Stack.Title>
+      <Stack.Toolbar placement="left">
+        <Stack.Toolbar.Button onPress={() => router.back()}>
+          Cancel
+        </Stack.Toolbar.Button>
+      </Stack.Toolbar>
+      <Stack.Toolbar placement="right">
+        <Stack.Toolbar.Button variant="done" onPress={save} disabled={!canSave}>
+          Save
+        </Stack.Toolbar.Button>
+      </Stack.Toolbar>
       <KeyboardAwareScrollView
         contentContainerStyle={styles.scroll}
+        contentInsetAdjustmentBehavior="automatic"
         keyboardShouldPersistTaps="handled"
         bottomOffset={20}
       >
@@ -185,7 +173,7 @@ export default function TaskFormScreen() {
             style={styles.dueRow}
           >
             <Text style={styles.dueLabel}>Fixed schedule</Text>
-            <Switch
+            <NativeSwitch
               value={schedule === 'fixed'}
               onValueChange={v => setSchedule(v ? 'fixed' : 'floating')}
             />

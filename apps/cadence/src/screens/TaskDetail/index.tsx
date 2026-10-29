@@ -59,24 +59,20 @@ export default function TaskDetailScreen() {
         options={{
           title: '',
           headerBackTitle: 'Tasks',
-          headerRight: () => (
-            <Pressable
-              onPress={() => router.push(routes.editTask(task.id))}
-              hitSlop={10}
-            >
-              <Text
-                style={{
-                  color: theme.colors.blue,
-                  fontSize: 17,
-                }}
-              >
-                Edit
-              </Text>
-            </Pressable>
-          ),
+          headerTransparent: true,
         }}
       />
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <Stack.Toolbar placement="right">
+        <Stack.Toolbar.Button
+          onPress={() => router.push(routes.editTask(task.id))}
+        >
+          Edit
+        </Stack.Toolbar.Button>
+      </Stack.Toolbar>
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        contentInsetAdjustmentBehavior="automatic"
+      >
         <DetailHeader task={task} />
 
         {cycle ? (

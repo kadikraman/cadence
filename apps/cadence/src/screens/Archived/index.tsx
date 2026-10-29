@@ -1,16 +1,16 @@
 import { useObserve } from 'expo-observe';
+import { Stack } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
 import { useEffect } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import FormGroup from '../../components/ui/FormGroup';
-import GlassBackButton from '../../components/ui/GlassBackButton';
 import ArchivedRow from './ArchivedRow';
 import { useArchived } from './useArchived';
 
 export default function ArchivedScreen() {
-  const { theme, rt } = useUnistyles();
-  const { router, archived, openTask } = useArchived();
+  const { theme } = useUnistyles();
+  const { archived, openTask } = useArchived();
 
   const { markInteractive } = useObserve();
 
@@ -19,11 +19,8 @@ export default function ArchivedScreen() {
   }, [markInteractive]);
 
   return (
-    <View style={[styles.root, { paddingTop: rt.insets.top }]}>
-      <View style={styles.nav}>
-        <GlassBackButton label="Settings" onPress={() => router.back()} />
-      </View>
-      <Text style={styles.title}>Archived</Text>
+    <View style={styles.root}>
+      <Stack.Title large>Archived</Stack.Title>
 
       {archived.length === 0 ? (
         <View style={styles.empty}>
@@ -41,7 +38,10 @@ export default function ArchivedScreen() {
           </Text>
         </View>
       ) : (
-        <ScrollView contentContainerStyle={styles.scroll}>
+        <ScrollView
+          contentContainerStyle={styles.scroll}
+          contentInsetAdjustmentBehavior="automatic"
+        >
           <FormGroup>
             {archived.map((t, i) => (
               <View key={t.id}>
@@ -62,21 +62,6 @@ const styles = StyleSheet.create((theme, rt) => ({
     backgroundColor: theme.colors.groupedBackground,
     paddingLeft: rt.insets.left,
     paddingRight: rt.insets.right,
-  },
-  nav: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 4,
-  },
-  title: {
-    fontSize: 34,
-    fontWeight: '700',
-    color: theme.colors.text,
-    letterSpacing: 0.37,
-    paddingHorizontal: 20,
-    paddingTop: 4,
-    paddingBottom: 12,
   },
   scroll: {
     paddingBottom: 40,
