@@ -1,0 +1,15 @@
+name: Deploy the marketing site
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - apps/marketing/**
+
+jobs:
+  deploy:
+    name: Deploy to production
+    type: deploy
+    params:
+      prod: true
