@@ -12,5 +12,5 @@ esac
 
 mkdir -p agent-output/evidence
 exec npx --yes @anthropic-ai/claude-code@latest -p "Do the task that standard input describes." \
-  --allowedTools "$tools" --permission-mode dontAsk --max-turns 80 \
+  --allowedTools "$tools" --permission-mode dontAsk --max-turns 120 \
   --output-format stream-json --verbose < "$1" > agent-output/evidence/agent-log.jsonl

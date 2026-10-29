@@ -1,4 +1,4 @@
-import type { RefObject } from 'react';
+import type { ReactNode, RefObject } from 'react';
 import type { TextInputInstance } from 'react-native';
 import type { Todo } from '../../../lib/types';
 
@@ -16,6 +16,7 @@ export interface TodoRowProps {
 
 export interface TodoListProps {
   inputRef: RefObject<TextInputInstance | null>;
+  header?: ReactNode;
 }
 
 export interface TodoUndo {

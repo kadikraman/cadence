@@ -13,7 +13,6 @@ interface Settings {
   themeMode: ThemeMode;
   onboardingSeen: boolean;
   widgetNudgeDismissed: boolean;
-  weekStartsOnMonday: boolean;
   todosEnabled: boolean;
   homeTab: HomeTab;
   statsRange: StatsRange;
@@ -25,7 +24,6 @@ interface SettingsStore extends Settings {
   setThemeMode: (mode: ThemeMode) => Promise<void>;
   setOnboardingSeen: () => Promise<void>;
   dismissWidgetNudge: () => Promise<void>;
-  setWeekStartsOnMonday: (value: boolean) => Promise<void>;
   setTodosEnabled: (value: boolean) => Promise<void>;
   setHomeTab: (tab: HomeTab) => Promise<void>;
   setStatsRange: (range: StatsRange) => Promise<void>;
@@ -35,7 +33,6 @@ const DEFAULTS: Settings = {
   themeMode: 'system',
   onboardingSeen: false,
   widgetNudgeDismissed: false,
-  weekStartsOnMonday: true,
   todosEnabled: false,
   homeTab: 'tasks',
   statsRange: '30',
@@ -46,7 +43,6 @@ function pickSettings(store: SettingsStore): Settings {
     themeMode: store.themeMode,
     onboardingSeen: store.onboardingSeen,
     widgetNudgeDismissed: store.widgetNudgeDismissed,
-    weekStartsOnMonday: store.weekStartsOnMonday,
     todosEnabled: store.todosEnabled,
     homeTab: store.homeTab,
     statsRange: store.statsRange,
@@ -84,10 +80,6 @@ export const useSettingsStore = create<SettingsStore>((set, get) => {
               : DEFAULTS.themeMode,
           onboardingSeen: !!parsed.onboardingSeen,
           widgetNudgeDismissed: !!parsed.widgetNudgeDismissed,
-          weekStartsOnMonday:
-            typeof parsed.weekStartsOnMonday === 'boolean'
-              ? parsed.weekStartsOnMonday
-              : DEFAULTS.weekStartsOnMonday,
           todosEnabled: !!parsed.todosEnabled,
           homeTab: parsed.homeTab === 'todo' ? 'todo' : DEFAULTS.homeTab,
           statsRange: STATS_RANGES.includes(parsed.statsRange as StatsRange)
@@ -103,8 +95,6 @@ export const useSettingsStore = create<SettingsStore>((set, get) => {
     setThemeMode: mode => updateAndPersist({ themeMode: mode }),
     setOnboardingSeen: () => updateAndPersist({ onboardingSeen: true }),
     dismissWidgetNudge: () => updateAndPersist({ widgetNudgeDismissed: true }),
-    setWeekStartsOnMonday: value =>
-      updateAndPersist({ weekStartsOnMonday: value }),
     setTodosEnabled: value => updateAndPersist({ todosEnabled: value }),
     setHomeTab: tab => updateAndPersist({ homeTab: tab }),
     setStatsRange: range => updateAndPersist({ statsRange: range }),

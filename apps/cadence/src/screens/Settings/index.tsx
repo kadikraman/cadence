@@ -1,25 +1,25 @@
+import { Host } from '@expo/ui';
+import { Form, Label, Picker, Section, Text, Toggle } from '@expo/ui/swift-ui';
+import { labelsHidden, pickerStyle, tag } from '@expo/ui/swift-ui/modifiers';
 import { useObserve } from 'expo-observe';
-import { SymbolView } from 'expo-symbols';
-import { useEffect, useRef, useState } from 'react';
-import { Pressable, ScrollView, Switch, Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import FormGroup from '../../components/ui/FormGroup';
-import FormLabel from '../../components/ui/FormLabel';
-import GlassBackButton from '../../components/ui/GlassBackButton';
-import NativeSwitch from '../../components/ui/NativeSwitch';
+import { Stack } from 'expo-router';
+import type { SFSymbol } from 'expo-symbols';
+import { useCallback, useEffect, useRef } from 'react';
+import { useUnistyles } from 'react-native-unistyles';
 import { routes } from '../../lib/routes';
 import { SYNC_PROVIDER_NAME } from '../../lib/sync/useSyncSetting';
 import { ThemeMode } from '../../stores/settings';
-import EventInspectorModal from './EventInspectorModal';
+import LinkRow from './LinkRow';
 import { useSettings } from './useSettings';
 
 const SECRET_TAP_COUNT = 3;
 const SECRET_TAP_TIMEOUT = 1500;
+const STAR_ORANGE = '#FF9500';
 
 interface AppearanceOption {
   value: ThemeMode;
   label: string;
-  symbol: Parameters<typeof SymbolView>[0]['name'];
+  symbol: SFSymbol;
 }
 
 const APPEARANCE: AppearanceOption[] = [
@@ -29,13 +29,11 @@ const APPEARANCE: AppearanceOption[] = [
 ];
 
 export default function SettingsScreen() {
-  const { theme, rt } = useUnistyles();
+  const { theme } = useUnistyles();
   const {
     router,
     themeMode,
     setThemeMode,
-    weekStartsOnMonday,
-    setWeekStartsOnMonday,
     todosEnabled,
     setTodosEnabled,
     sync,
@@ -55,390 +53,137 @@ export default function SettingsScreen() {
     markInteractive();
   }, [markInteractive]);
 
-  const [inspectorOpen, setInspectorOpen] = useState(false);
   const tapCountRef = useRef(0);
   const tapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const onVersionTap = () => {
+  const onVersionTap = useCallback(() => {
     tapCountRef.current += 1;
     if (tapTimerRef.current) clearTimeout(tapTimerRef.current);
     if (tapCountRef.current >= SECRET_TAP_COUNT) {
       tapCountRef.current = 0;
-      setInspectorOpen(true);
+      router.push(routes.eventInspector);
       return;
     }
     tapTimerRef.current = setTimeout(() => {
       tapCountRef.current = 0;
     }, SECRET_TAP_TIMEOUT);
-  };
+  }, [router]);
 
   return (
-    <View style={[styles.root, { paddingTop: rt.insets.top }]}>
-      <View style={styles.nav}>
-        <GlassBackButton label="Tasks" onPress={() => router.back()} />
-      </View>
-      <Text style={styles.title}>Settings</Text>
-
-      <ScrollView contentContainerStyle={styles.scroll}>
-        <FormLabel>Appearance</FormLabel>
-        <FormGroup>
-          {APPEARANCE.map((opt, i) => {
-            const selected = themeMode === opt.value;
-            return (
-              <Pressable
-                key={opt.value}
-                onPress={() => setThemeMode(opt.value)}
-                style={[
-                  styles.row,
-                  i > 0 && {
-                    borderTopWidth: 0.5,
-                    borderTopColor: theme.colors.sepSubtle,
-                  },
-                ]}
-              >
-                <SymbolView
-                  name={opt.symbol}
-                  size={20}
-                  tintColor={theme.colors.label2}
-                  resizeMode="scaleAspectFit"
-                  fallback={null}
+    <>
+      <Stack.Title large>Settings</Stack.Title>
+      <Host style={{ flex: 1 }}>
+        <Form>
+          <Section title="Appearance">
+            <Picker
+              label="Appearance"
+              selection={themeMode}
+              onSelectionChange={setThemeMode}
+              modifiers={[pickerStyle('inline'), labelsHidden()]}
+            >
+              {APPEARANCE.map(opt => (
+                <Label
+                  key={opt.value}
+                  title={opt.label}
+                  systemImage={opt.symbol}
+                  modifiers={[tag(opt.value)]}
                 />
-                <Text style={styles.rowLabel}>{opt.label}</Text>
-                {selected && (
-                  <SymbolView
-                    name="checkmark"
-                    size={18}
-                    tintColor={theme.colors.blue}
-                    resizeMode="scaleAspectFit"
-                    fallback={null}
-                  />
-                )}
-              </Pressable>
-            );
-          })}
-        </FormGroup>
+              ))}
+            </Picker>
+          </Section>
 
-        <FormLabel>Features</FormLabel>
-        <FormGroup>
-          <View style={styles.row}>
-            <View
-              style={[
-                styles.rowIcon,
-                { backgroundColor: theme.colors.blue + '22' },
-              ]}
-            >
-              <SymbolView
-                name="checklist"
-                size={16}
-                tintColor={theme.colors.blue}
-                resizeMode="scaleAspectFit"
-                fallback={null}
-              />
-            </View>
-            <View style={styles.rowBody}>
-              <Text style={styles.rowLabel}>To-do list</Text>
-              <Text style={styles.rowSub}>
-                Adds a To do tab for one-off items
-              </Text>
-            </View>
-            <NativeSwitch
-              value={todosEnabled}
-              onValueChange={setTodosEnabled}
-            />
-          </View>
-        </FormGroup>
-
-        <FormLabel>Sync</FormLabel>
-        <FormGroup>
-          <View style={styles.row}>
-            <View
-              style={[
-                styles.rowIcon,
-                { backgroundColor: theme.colors.blue + '22' },
-              ]}
-            >
-              <SymbolView
-                name="icloud.fill"
-                size={16}
-                tintColor={theme.colors.blue}
-                resizeMode="scaleAspectFit"
-                fallback={null}
-              />
-            </View>
-            <View style={styles.rowBody}>
-              <Text style={styles.rowLabel}>
-                Sync with {SYNC_PROVIDER_NAME}
-              </Text>
-              <Text style={styles.rowSub}>{sync.statusText}</Text>
-            </View>
-            <NativeSwitch
-              value={sync.enabled}
-              onValueChange={sync.setEnabled}
-            />
-          </View>
-        </FormGroup>
-
-        <FormLabel>Calendar</FormLabel>
-        <FormGroup>
-          <Pressable
-            onPress={() => setWeekStartsOnMonday(!weekStartsOnMonday)}
-            style={styles.row}
+          <Section
+            title="Features"
+            footer={<Text>Adds a To do tab for one-off items.</Text>}
           >
-            <SymbolView
-              name="calendar"
-              size={20}
-              tintColor={theme.colors.label2}
-              resizeMode="scaleAspectFit"
-              fallback={null}
+            <Toggle
+              label="To-do list"
+              systemImage="checklist"
+              isOn={todosEnabled}
+              onIsOnChange={setTodosEnabled}
             />
-            <Text style={styles.rowLabel}>Start week on Monday</Text>
-            <Switch
-              value={weekStartsOnMonday}
-              onValueChange={setWeekStartsOnMonday}
-            />
-          </Pressable>
-        </FormGroup>
+          </Section>
 
-        <FormLabel>Tasks</FormLabel>
-        <FormGroup>
-          <Pressable
-            onPress={() => router.push(routes.archived)}
-            style={styles.row}
-          >
-            <SymbolView
-              name="archivebox"
-              size={20}
-              tintColor={theme.colors.label2}
-              resizeMode="scaleAspectFit"
-              fallback={null}
+          <Section title="Sync" footer={<Text>{sync.statusText}</Text>}>
+            <Toggle
+              label={`Sync with ${SYNC_PROVIDER_NAME}`}
+              systemImage="icloud.fill"
+              isOn={sync.enabled}
+              onIsOnChange={sync.setEnabled}
             />
-            <Text style={styles.rowLabel}>Archived tasks</Text>
-            {archivedCount > 0 && (
-              <Text style={styles.rowValue}>{archivedCount}</Text>
+          </Section>
+
+          <Section title="Tasks">
+            <LinkRow
+              title="Archived tasks"
+              symbol="archivebox"
+              symbolColor={theme.colors.blue}
+              value={archivedCount > 0 ? String(archivedCount) : undefined}
+              onPress={() => router.push(routes.archived)}
+            />
+          </Section>
+
+          <Section title="Home Screen Widget">
+            <LinkRow
+              title="Set up the widget"
+              symbol="square.grid.2x2.fill"
+              symbolColor={theme.colors.blue}
+              onPress={() => router.push(routes.onboarding)}
+            />
+          </Section>
+
+          <Section title="Data">
+            <LinkRow
+              title="Export all tasks"
+              symbol="square.and.arrow.up"
+              symbolColor={theme.colors.blue}
+              value={`${taskCount} task${taskCount === 1 ? '' : 's'}`}
+              chevron={false}
+              onPress={handleExport}
+            />
+            <LinkRow
+              title="Import from file"
+              symbol="square.and.arrow.down"
+              symbolColor={theme.colors.blue}
+              chevron={false}
+              onPress={handleImport}
+            />
+            {__DEV__ && (
+              <LinkRow
+                title="Load sample data"
+                symbol="wand.and.stars"
+                symbolColor={theme.colors.blue}
+                chevron={false}
+                onPress={handleLoadSampleData}
+              />
             )}
-            <SymbolView
-              name="chevron.right"
-              size={14}
-              tintColor={theme.colors.label4}
-              resizeMode="scaleAspectFit"
-              fallback={null}
-            />
-          </Pressable>
-        </FormGroup>
+          </Section>
 
-        <FormLabel>Home Screen Widget</FormLabel>
-        <FormGroup>
-          <Pressable
-            onPress={() => router.push(routes.onboarding)}
-            style={styles.row}
-          >
-            <SymbolView
-              name="square.grid.2x2.fill"
-              size={20}
-              tintColor={theme.colors.blue}
-              resizeMode="scaleAspectFit"
-              fallback={null}
+          <Section title="About">
+            <LinkRow
+              title="Feedback & feature requests"
+              symbol="bubble.left.fill"
+              symbolColor={theme.colors.blue}
+              onPress={() => router.push(routes.feedback)}
             />
-            <Text style={styles.rowLabel}>Set up the widget</Text>
-            <SymbolView
-              name="chevron.right"
-              size={14}
-              tintColor={theme.colors.label4}
-              resizeMode="scaleAspectFit"
-              fallback={null}
+            <LinkRow
+              title="Rate on the App Store"
+              symbol="star.fill"
+              symbolColor={STAR_ORANGE}
+              chevron={false}
+              onPress={handleRate}
             />
-          </Pressable>
-        </FormGroup>
-
-        <FormLabel>Data</FormLabel>
-        <FormGroup>
-          <Pressable onPress={handleExport} style={styles.row}>
-            <SymbolView
-              name="arrow.up"
-              size={20}
-              tintColor={theme.colors.label2}
-              resizeMode="scaleAspectFit"
-              fallback={null}
+            <LinkRow
+              title="Version"
+              symbol="info.circle"
+              symbolColor={theme.colors.label3}
+              value={`${version} (${buildNumber})`}
+              chevron={false}
+              onPress={onVersionTap}
             />
-            <Text style={styles.rowLabel}>Export all tasks</Text>
-            <Text style={styles.rowValue}>
-              {taskCount} task{taskCount === 1 ? '' : 's'}
-            </Text>
-            <SymbolView
-              name="chevron.right"
-              size={14}
-              tintColor={theme.colors.label4}
-              resizeMode="scaleAspectFit"
-              fallback={null}
-            />
-          </Pressable>
-          <View style={styles.inset} />
-          <Pressable onPress={handleImport} style={styles.row}>
-            <SymbolView
-              name="arrow.down"
-              size={20}
-              tintColor={theme.colors.label2}
-              resizeMode="scaleAspectFit"
-              fallback={null}
-            />
-            <Text style={styles.rowLabel}>Import from file</Text>
-            <SymbolView
-              name="chevron.right"
-              size={14}
-              tintColor={theme.colors.label4}
-              resizeMode="scaleAspectFit"
-              fallback={null}
-            />
-          </Pressable>
-          {__DEV__ && (
-            <>
-              <View style={styles.inset} />
-              <Pressable onPress={handleLoadSampleData} style={styles.row}>
-                <SymbolView
-                  name="wand.and.stars"
-                  size={20}
-                  tintColor={theme.colors.label2}
-                  resizeMode="scaleAspectFit"
-                  fallback={null}
-                />
-                <Text style={styles.rowLabel}>Load sample data</Text>
-              </Pressable>
-            </>
-          )}
-        </FormGroup>
-
-        <FormLabel>About</FormLabel>
-        <FormGroup>
-          <Pressable
-            onPress={() => router.push(routes.feedback)}
-            style={styles.row}
-          >
-            <View
-              style={[
-                styles.rowIcon,
-                { backgroundColor: theme.colors.blue + '22' },
-              ]}
-            >
-              <SymbolView
-                name="bubble.left.fill"
-                size={15}
-                tintColor={theme.colors.blue}
-                resizeMode="scaleAspectFit"
-                fallback={null}
-              />
-            </View>
-            <View style={styles.rowBody}>
-              <Text style={styles.rowLabel}>
-                Feedback &amp; feature requests
-              </Text>
-              <Text style={styles.rowSub}>Tell us what to build next</Text>
-            </View>
-            <SymbolView
-              name="chevron.right"
-              size={14}
-              tintColor={theme.colors.label4}
-              resizeMode="scaleAspectFit"
-              fallback={null}
-            />
-          </Pressable>
-          <View style={styles.inset} />
-          <Pressable onPress={handleRate} style={styles.row}>
-            <View style={[styles.rowIcon, { backgroundColor: '#FF950029' }]}>
-              <SymbolView
-                name="star.fill"
-                size={15}
-                tintColor="#FF9500"
-                resizeMode="scaleAspectFit"
-                fallback={null}
-              />
-            </View>
-            <Text style={[styles.rowLabel, { marginLeft: 0 }]}>
-              Rate on the App Store
-            </Text>
-            <SymbolView
-              name="chevron.right"
-              size={14}
-              tintColor={theme.colors.label4}
-              resizeMode="scaleAspectFit"
-              fallback={null}
-            />
-          </Pressable>
-          <View style={styles.inset} />
-          <Pressable onPress={onVersionTap} style={styles.row}>
-            <Text style={[styles.rowLabel, { marginLeft: 0 }]}>Version</Text>
-            <Text style={styles.rowValue}>
-              {version} ({buildNumber})
-            </Text>
-          </Pressable>
-        </FormGroup>
-      </ScrollView>
-      <EventInspectorModal
-        visible={inspectorOpen}
-        onClose={() => setInspectorOpen(false)}
-      />
-    </View>
+          </Section>
+        </Form>
+      </Host>
+    </>
   );
 }
-
-const styles = StyleSheet.create((theme, rt) => ({
-  root: {
-    flex: 1,
-    backgroundColor: theme.colors.groupedBackground,
-    paddingLeft: rt.insets.left,
-    paddingRight: rt.insets.right,
-  },
-  nav: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 4,
-  },
-  title: {
-    fontSize: 34,
-    fontWeight: '700',
-    color: theme.colors.text,
-    letterSpacing: 0.37,
-    paddingHorizontal: 20,
-    paddingTop: 4,
-    paddingBottom: 12,
-  },
-  scroll: {
-    paddingBottom: 40,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 13,
-  },
-  rowIcon: {
-    width: 28,
-    height: 28,
-    borderRadius: 7,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  rowBody: {
-    flex: 1,
-  },
-  rowLabel: {
-    flex: 1,
-    fontSize: 16,
-    color: theme.colors.text,
-  },
-  rowSub: {
-    fontSize: 12,
-    color: theme.colors.label3,
-    marginTop: 1,
-  },
-  rowValue: {
-    fontSize: 14,
-    color: theme.colors.label3,
-  },
-  inset: {
-    height: 0.5,
-    backgroundColor: theme.colors.sepSubtle,
-    marginLeft: 48,
-  },
-}));

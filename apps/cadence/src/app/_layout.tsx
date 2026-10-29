@@ -9,6 +9,7 @@ import {
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { useUnistyles } from 'react-native-unistyles';
@@ -18,6 +19,8 @@ import { useSyncStore } from '../stores/sync';
 import { useTasksStore } from '../stores/tasks';
 import { useTodosStore } from '../stores/todos';
 import { applyThemeMode } from '../unistyles';
+
+const IOS_HEADER = Platform.OS === 'ios';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -37,7 +40,7 @@ Observe.configure({
 });
 
 function RootLayoutNav() {
-  const { rt } = useUnistyles();
+  const { theme, rt } = useUnistyles();
   const { markInteractive } = useObserve();
   const isDark = rt.themeName === 'dark';
 
@@ -77,15 +80,38 @@ function RootLayoutNav() {
   return (
     <ReactNativeThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
       <SyncProvider>
-        <Stack>
+        <Stack
+          screenOptions={{
+            contentStyle: { backgroundColor: theme.colors.groupedBackground },
+          }}
+        >
           <Stack.Protected guard={onboardingSeen}>
-            <Stack.Screen name="index" options={{ headerShown: false }} />
-            <Stack.Screen name="new" options={{ presentation: 'modal' }} />
+            <Stack.Screen name="index" options={{ headerShown: IOS_HEADER }} />
+            <Stack.Screen
+              name="new"
+              options={{
+                presentation: 'modal',
+                headerTransparent: IOS_HEADER,
+              }}
+            />
             <Stack.Screen name="task/[taskId]" />
-            <Stack.Screen name="stats" options={{ headerShown: false }} />
-            <Stack.Screen name="settings" options={{ headerShown: false }} />
-            <Stack.Screen name="archived" options={{ headerShown: false }} />
-            <Stack.Screen name="feedback" />
+            <Stack.Screen name="stats" options={{ headerShown: IOS_HEADER }} />
+            <Stack.Screen
+              name="settings"
+              options={{ headerShown: IOS_HEADER }}
+            />
+            <Stack.Screen
+              name="archived"
+              options={{ headerShown: IOS_HEADER }}
+            />
+            <Stack.Screen
+              name="feedback"
+              options={{ headerTransparent: IOS_HEADER }}
+            />
+            <Stack.Screen
+              name="event-inspector"
+              options={{ presentation: 'modal' }}
+            />
           </Stack.Protected>
           <Stack.Screen
             name="onboarding"

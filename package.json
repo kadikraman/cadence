@@ -27,10 +27,11 @@
     "unrs-resolver"
   ],
   "overrides": {
-    "react-native": "0.88.0-rc.3",
+    "react-native": "0.88.1",
     "react-native-worklets": "0.13.0"
   },
   "patchedDependencies": {
-    "expo-observe@58.0.13": "patches/expo-observe@58.0.13.patch"
+    "expo-observe@58.0.16": "patches/expo-observe@58.0.16.patch",
+    "@expo/fingerprint@0.21.7": "patches/@expo%2Ffingerprint@0.21.7.patch"
   }
 }

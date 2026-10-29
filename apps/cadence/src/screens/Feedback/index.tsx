@@ -35,17 +35,12 @@ export default function FeedbackScreen() {
   if (sent) {
     return (
       <View style={[styles.root, { backgroundColor: c.groupedBackground }]}>
-        <Stack.Screen
-          options={{
-            title: '',
-            headerBackVisible: false,
-            headerRight: () => (
-              <Pressable onPress={() => router.back()} hitSlop={10}>
-                <Text style={{ color: c.blue, fontSize: 17 }}>Done</Text>
-              </Pressable>
-            ),
-          }}
-        />
+        <Stack.Screen options={{ title: '', headerBackVisible: false }} />
+        <Stack.Toolbar placement="right">
+          <Stack.Toolbar.Button variant="done" onPress={() => router.back()}>
+            Done
+          </Stack.Toolbar.Button>
+        </Stack.Toolbar>
         <View style={styles.sentWrap}>
           <View style={styles.sentBadge}>
             <SymbolView
@@ -64,41 +59,26 @@ export default function FeedbackScreen() {
             a few days.
           </Text>
         </View>
-        <View style={styles.sentFooter}>
-          <Pressable
-            onPress={() => router.back()}
-            style={[styles.primaryBtn, { backgroundColor: c.blue }]}
-          >
-            <Text style={styles.primaryBtnText}>Back to Settings</Text>
-          </Pressable>
-        </View>
       </View>
     );
   }
 
   return (
     <View style={[styles.root, { backgroundColor: c.groupedBackground }]}>
-      <Stack.Screen
-        options={{
-          title: 'Feedback',
-          headerRight: () => (
-            <Pressable onPress={submit} disabled={!canSend} hitSlop={10}>
-              <Text
-                style={{
-                  color: canSend ? c.blue : c.label4,
-                  fontSize: 17,
-                  fontWeight: '600',
-                }}
-              >
-                Send
-              </Text>
-            </Pressable>
-          ),
-        }}
-      />
+      <Stack.Title>Feedback</Stack.Title>
+      <Stack.Toolbar placement="right">
+        <Stack.Toolbar.Button
+          variant="done"
+          onPress={submit}
+          disabled={!canSend}
+        >
+          Send
+        </Stack.Toolbar.Button>
+      </Stack.Toolbar>
 
       <KeyboardAwareScrollView
         contentContainerStyle={styles.scroll}
+        contentInsetAdjustmentBehavior="automatic"
         keyboardShouldPersistTaps="handled"
         bottomOffset={20}
       >
@@ -270,19 +250,5 @@ const styles = StyleSheet.create((_theme, rt) => ({
     marginTop: 10,
     textAlign: 'center',
     maxWidth: 300,
-  },
-  sentFooter: {
-    paddingHorizontal: 20,
-    paddingBottom: 24,
-  },
-  primaryBtn: {
-    borderRadius: 14,
-    paddingVertical: 14,
-    alignItems: 'center',
-  },
-  primaryBtnText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
   },
 }));

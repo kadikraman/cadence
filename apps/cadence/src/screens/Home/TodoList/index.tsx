@@ -1,7 +1,8 @@
-import { ActionSheetIOS, Pressable, Text, TextInput, View } from 'react-native';
+import { Pressable, Text, TextInput, View } from 'react-native';
 import Animated, { LayoutAnimationConfig } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import UiSymbol from '../../../components/ui/UiSymbol';
+import ClearDoneButton from './ClearDoneButton';
 import { todoEntering, todoExiting, todoLayout } from './motion';
 import TodoRow from './TodoRow';
 import type { TodoListProps } from './types';
@@ -9,7 +10,7 @@ import { useTodoList } from './useTodoList';
 
 export type { TodoListProps, TodoRowCallbacks } from './types';
 
-export default function TodoList({ inputRef }: TodoListProps) {
+export default function TodoList({ inputRef, header }: TodoListProps) {
   const { theme } = useUnistyles();
   const {
     isEmpty,
@@ -25,23 +26,16 @@ export default function TodoList({ inputRef }: TodoListProps) {
     callbacks,
   } = useTodoList();
 
-  const confirmClearDone = () => {
-    ActionSheetIOS.showActionSheetWithOptions(
-      {
-        title: `Delete ${done.length} done to-do${done.length === 1 ? '' : 's'}?`,
-        options: ['Clear done', 'Cancel'],
-        destructiveButtonIndex: 0,
-        cancelButtonIndex: 1,
-      },
-      index => {
-        if (index === 0) clearDoneItems();
-      }
-    );
-  };
-
   return (
     <LayoutAnimationConfig skipEntering skipExiting>
-      <View style={styles.root}>
+      <Animated.ScrollView
+        style={styles.root}
+        contentContainerStyle={styles.scroll}
+        contentInsetAdjustmentBehavior="automatic"
+        keyboardDismissMode="on-drag"
+        keyboardShouldPersistTaps="handled"
+      >
+        {header}
         <View style={styles.quickAdd}>
           <UiSymbol name="plus" size={20} color={theme.colors.blue} />
           <TextInput
@@ -75,12 +69,7 @@ export default function TodoList({ inputRef }: TodoListProps) {
             </Text>
           </Animated.View>
         ) : (
-          <Animated.ScrollView
-            entering={todoEntering}
-            contentContainerStyle={styles.scroll}
-            keyboardDismissMode="on-drag"
-            keyboardShouldPersistTaps="handled"
-          >
+          <>
             {open.length > 0 && (
               <Animated.View
                 layout={todoLayout}
@@ -136,9 +125,10 @@ export default function TodoList({ inputRef }: TodoListProps) {
                       color={theme.colors.label3}
                     />
                   </Pressable>
-                  <Pressable onPress={confirmClearDone} hitSlop={8}>
-                    <Text style={styles.clearDone}>Clear done</Text>
-                  </Pressable>
+                  <ClearDoneButton
+                    count={done.length}
+                    onConfirm={clearDoneItems}
+                  />
                 </View>
                 {doneExpanded && (
                   <Animated.View layout={todoLayout} style={styles.card}>
@@ -155,9 +145,9 @@ export default function TodoList({ inputRef }: TodoListProps) {
                 )}
               </Animated.View>
             )}
-          </Animated.ScrollView>
+          </>
         )}
-      </View>
+      </Animated.ScrollView>
     </LayoutAnimationConfig>
   );
 }
@@ -218,10 +208,6 @@ const styles = StyleSheet.create(theme => ({
     fontSize: 13,
     fontWeight: '500',
     color: theme.colors.label3,
-  },
-  clearDone: {
-    fontSize: 15,
-    color: theme.colors.blue,
   },
   card: {
     marginHorizontal: 16,

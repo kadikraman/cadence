@@ -18,8 +18,6 @@ export function useSettings() {
   const router = useRouter();
   const themeMode = useSettingsStore(s => s.themeMode);
   const setThemeModeStore = useSettingsStore(s => s.setThemeMode);
-  const weekStartsOnMonday = useSettingsStore(s => s.weekStartsOnMonday);
-  const setWeekStartsOnMonday = useSettingsStore(s => s.setWeekStartsOnMonday);
   const todosEnabled = useSettingsStore(s => s.todosEnabled);
   const setTodosEnabledStore = useSettingsStore(s => s.setTodosEnabled);
   const sync = useSyncSetting();
@@ -92,8 +90,6 @@ export function useSettings() {
     router,
     themeMode,
     setThemeMode,
-    weekStartsOnMonday,
-    setWeekStartsOnMonday,
     todosEnabled,
     setTodosEnabled,
     sync,

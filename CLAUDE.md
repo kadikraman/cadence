@@ -4,7 +4,7 @@ Bun workspace monorepo for the Cadence task management app, built with React Nat
 
 ## Workspaces
 
-- `apps/cadence` the iOS/Android app (Expo SDK 55, Expo Router, React Native 0.83)
+- `apps/cadence` the iOS/Android app (Expo SDK 58, Expo Router, React Native 0.88)
 - `apps/marketing` the marketing site (Expo Router for web)
 - `packages/` reserved for shared code (currently empty)
 
@@ -46,7 +46,7 @@ Install packages with `npx expo install <package>` from inside the relevant work
 ## Tech stack
 
 - TypeScript with strict typing
-- React 19, React Native 0.83, Expo SDK 55, Expo Router
+- React 19, React Native 0.88, Expo SDK 58, Expo Router
 - `react-native-unistyles` for styling (not `StyleSheet.create`)
 - `expo-image` instead of `Image`
 - `zustand` for state; stores live in `apps/cadence/src/stores/`
@@ -182,6 +182,7 @@ Rules:
 - Put shared status/color/label derivation in a colocated hook (`useFooVisuals.ts`). Never duplicate the logic across the two platform files.
 - Pull any sub-view used by both platforms into its own file in the folder (e.g. `ExpandedBar.tsx`).
 - Single-file `if (Platform.OS === ...)` branches are still fine for trivial divergences (one icon swap, one `paddingTop`). Reach for the file split when you start writing a second JSX tree.
+- iOS files may import `@expo/ui/swift-ui`. The native build also bundles every route for web, to export the API routes, and SwiftUI components throw when they load on web. `metro.config.js` resolves `@expo/ui/swift-ui` to an empty module on web for this reason. Keep that rule, or the EAS build fails at the bundle step.
 
 Reference implementation: `components/TaskRow/`.
 

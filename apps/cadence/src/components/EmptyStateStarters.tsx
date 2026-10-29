@@ -1,5 +1,6 @@
 import { SymbolView } from 'expo-symbols';
 import { useRouter } from 'expo-router';
+import { ReactNode } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons/static';
@@ -62,7 +63,7 @@ function buildStarterRoute(s: Starter): `/new?${string}` {
   return `/new?${params.toString()}`;
 }
 
-export default function EmptyStateStarters() {
+export default function EmptyStateStarters({ header }: { header?: ReactNode }) {
   const router = useRouter();
   const { theme } = useUnistyles();
   const c = theme.colors;
@@ -70,8 +71,10 @@ export default function EmptyStateStarters() {
   return (
     <ScrollView
       contentContainerStyle={styles.scroll}
+      contentInsetAdjustmentBehavior="automatic"
       showsVerticalScrollIndicator={false}
     >
+      {header && <View style={styles.header}>{header}</View>}
       <View style={styles.heroRow}>
         <View
           style={[
@@ -202,6 +205,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 4,
     paddingBottom: 40,
+  },
+  header: {
+    marginHorizontal: -16,
   },
   heroRow: {
     flexDirection: 'row',

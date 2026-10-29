@@ -1,8 +1,10 @@
+import { Link } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
 import { memo } from 'react';
-import { Alert, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { routes } from '../../lib/routes';
 import { formatCadence } from '../../utils/taskUtils';
 import SwipeRow, { SwipeAction } from '../SwipeRow';
 import TaskTile from '../ui/TaskTile';
@@ -16,25 +18,6 @@ function TaskRow({ task, today, isExpanded, callbacks }: TaskRowProps) {
   const { theme } = useUnistyles();
   const { overdue, completed, dueLabel, dueColor, borderColor } =
     useTaskRowVisuals(task, today);
-
-  const showMenu = () => {
-    Alert.alert(
-      task.title,
-      undefined,
-      [
-        { text: 'Edit', onPress: () => callbacks.onEdit(task) },
-        { text: 'View history', onPress: () => callbacks.onOpenHistory(task) },
-        { text: 'Done earlier…', onPress: () => callbacks.onDoneEarlier(task) },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: () => callbacks.onDelete(task),
-        },
-        { text: 'Cancel', style: 'cancel' },
-      ],
-      { cancelable: true }
-    );
-  };
 
   const rightActions: SwipeAction[] = [
     {
@@ -68,67 +51,100 @@ function TaskRow({ task, today, isExpanded, callbacks }: TaskRowProps) {
 
   return (
     <Animated.View layout={LinearTransition.duration(220)}>
-      <SwipeRow
-        leftActions={leftActions}
-        rightActions={rightActions}
-        onTap={() => callbacks.onTap(task)}
-        onLongPress={showMenu}
-        onCheckTap={() => callbacks.onToggleComplete(task)}
-      >
-        <View style={styles.row}>
-          <TaskTile task={task} size={40} overdue={overdue && !completed} />
-          <View style={styles.middle}>
-            <Text
-              style={[styles.title, completed && styles.titleCompleted]}
-              numberOfLines={1}
+      <Link href={routes.taskDetail(task.id)} asChild>
+        <Link.Trigger>
+          <View>
+            <SwipeRow
+              leftActions={leftActions}
+              rightActions={rightActions}
+              onTap={() => callbacks.onTap(task)}
+              onCheckTap={() => callbacks.onToggleComplete(task)}
             >
-              {task.title}
-            </Text>
-            <View style={styles.metaRow}>
-              <View style={styles.metaItem}>
-                {overdue && !completed && (
-                  <SymbolView
-                    name="exclamationmark.triangle.fill"
-                    size={11}
-                    tintColor={theme.colors.error}
-                    resizeMode="scaleAspectFit"
-                    fallback={null}
-                  />
-                )}
-                <Text style={[styles.metaText, { color: dueColor }]}>
-                  {dueLabel}
-                </Text>
-              </View>
-              <Text style={styles.metaDivider}>·</Text>
-              <View style={styles.metaItem}>
-                <SymbolView
-                  name="arrow.triangle.2.circlepath"
-                  size={11}
-                  tintColor={theme.colors.label3}
-                  resizeMode="scaleAspectFit"
-                  fallback={null}
+              <View style={styles.row}>
+                <TaskTile
+                  task={task}
+                  size={40}
+                  overdue={overdue && !completed}
                 />
-                <Text style={styles.cadenceText}>
-                  {formatCadence(task.cadence)}
-                </Text>
+                <View style={styles.middle}>
+                  <Text
+                    style={[styles.title, completed && styles.titleCompleted]}
+                    numberOfLines={1}
+                  >
+                    {task.title}
+                  </Text>
+                  <View style={styles.metaRow}>
+                    <View style={styles.metaItem}>
+                      {overdue && !completed && (
+                        <SymbolView
+                          name="exclamationmark.triangle.fill"
+                          size={11}
+                          tintColor={theme.colors.error}
+                          resizeMode="scaleAspectFit"
+                          fallback={null}
+                        />
+                      )}
+                      <Text style={[styles.metaText, { color: dueColor }]}>
+                        {dueLabel}
+                      </Text>
+                    </View>
+                    <Text style={styles.metaDivider}>·</Text>
+                    <View style={styles.metaItem}>
+                      <SymbolView
+                        name="arrow.triangle.2.circlepath"
+                        size={11}
+                        tintColor={theme.colors.label3}
+                        resizeMode="scaleAspectFit"
+                        fallback={null}
+                      />
+                      <Text style={styles.cadenceText}>
+                        {formatCadence(task.cadence)}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+                <View style={styles.checkWrap}>
+                  {completed ? (
+                    <SymbolView
+                      name="checkmark.circle.fill"
+                      size={28}
+                      tintColor={theme.colors.success}
+                      resizeMode="scaleAspectFit"
+                      fallback={null}
+                    />
+                  ) : (
+                    <View style={[styles.checkCircle, { borderColor }]} />
+                  )}
+                </View>
               </View>
-            </View>
+            </SwipeRow>
           </View>
-          <View style={styles.checkWrap}>
-            {completed ? (
-              <SymbolView
-                name="checkmark.circle.fill"
-                size={28}
-                tintColor={theme.colors.success}
-                resizeMode="scaleAspectFit"
-                fallback={null}
-              />
-            ) : (
-              <View style={[styles.checkCircle, { borderColor }]} />
-            )}
-          </View>
-        </View>
-      </SwipeRow>
+        </Link.Trigger>
+        <Link.Preview />
+        <Link.Menu>
+          <Link.MenuAction
+            title="Edit"
+            icon="pencil"
+            onPress={() => callbacks.onEdit(task)}
+          />
+          <Link.MenuAction
+            title="View history"
+            icon="clock"
+            onPress={() => callbacks.onOpenHistory(task)}
+          />
+          <Link.MenuAction
+            title="Done earlier…"
+            icon="calendar.badge.clock"
+            onPress={() => callbacks.onDoneEarlier(task)}
+          />
+          <Link.MenuAction
+            title="Delete"
+            icon="trash"
+            destructive
+            onPress={() => callbacks.onDelete(task)}
+          />
+        </Link.Menu>
+      </Link>
       {isExpanded && <ExpandedBar task={task} callbacks={callbacks} />}
     </Animated.View>
   );

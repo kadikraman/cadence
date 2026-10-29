@@ -1,5 +1,6 @@
 import { SegmentedControl } from '@expo/ui/community/segmented-control';
 import { useObserve } from 'expo-observe';
+import { Stack } from 'expo-router';
 import { useEffect } from 'react';
 import { Dimensions, ScrollView, Text, View } from 'react-native';
 import ConfettiCannon from 'react-native-confetti-cannon';
@@ -8,7 +9,6 @@ import AllCaughtUp from '../../components/AllCaughtUp';
 import CompletionSheet from '../../components/CompletionSheet';
 import CompletionToast from '../../components/CompletionToast';
 import EmptyStateStarters from '../../components/EmptyStateStarters';
-import IconButton from '../../components/ui/IconButton';
 import WidgetNudge from '../../components/WidgetNudge';
 import { routes } from '../../lib/routes';
 import { Task } from '../../lib/types';
@@ -46,52 +46,57 @@ export default function Home({ tasks }: { tasks: Task[] }) {
   const screenWidth = Dimensions.get('window').width;
   const emptyState = tasks.length === 0;
 
+  const header = (
+    <View style={styles.header}>
+      <Text style={styles.subtitle}>{heading}</Text>
+      {todosEnabled && (
+        <View style={styles.tabs}>
+          <SegmentedControl
+            values={TAB_LABELS}
+            selectedIndex={TABS.indexOf(tab)}
+            onChange={e => setTab(TABS[e.nativeEvent.selectedSegmentIndex])}
+          />
+        </View>
+      )}
+    </View>
+  );
+
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.headerTop}>
-          <Text style={styles.title}>{tab === 'todo' ? 'To do' : 'Tasks'}</Text>
-          <View style={styles.headerButtons}>
-            <IconButton
-              symbol="chart.bar.fill"
-              onPress={() => router.push(routes.stats)}
-              accessibilityLabel="Stats"
-            />
-            <IconButton
-              symbol="gearshape.fill"
-              onPress={() => router.push(routes.settings)}
-              accessibilityLabel="Settings"
-            />
-            <IconButton
-              symbol="plus"
-              filled
-              onPress={() =>
-                tab === 'todo'
-                  ? todoInputRef.current?.focus()
-                  : router.push(routes.newTask)
-              }
-              accessibilityLabel={tab === 'todo' ? 'New to-do' : 'New task'}
-            />
-          </View>
-        </View>
-        <Text style={styles.subtitle}>{heading}</Text>
-        {todosEnabled && (
-          <View style={styles.tabs}>
-            <SegmentedControl
-              values={TAB_LABELS}
-              selectedIndex={TABS.indexOf(tab)}
-              onChange={e => setTab(TABS[e.nativeEvent.selectedSegmentIndex])}
-            />
-          </View>
-        )}
-      </View>
-
+      <Stack.Title large>{tab === 'todo' ? 'To do' : 'Tasks'}</Stack.Title>
+      <Stack.Toolbar placement="right">
+        <Stack.Toolbar.Button
+          icon="chart.bar.fill"
+          onPress={() => router.push(routes.stats)}
+          accessibilityLabel="Stats"
+        />
+        <Stack.Toolbar.Button
+          icon="gearshape.fill"
+          onPress={() => router.push(routes.settings)}
+          accessibilityLabel="Settings"
+        />
+        <Stack.Toolbar.Button
+          icon="plus"
+          variant="prominent"
+          separateBackground
+          onPress={() =>
+            tab === 'todo'
+              ? todoInputRef.current?.focus()
+              : router.push(routes.newTask)
+          }
+          accessibilityLabel={tab === 'todo' ? 'New to-do' : 'New task'}
+        />
+      </Stack.Toolbar>
       {tab === 'todo' ? (
-        <TodoList inputRef={todoInputRef} />
+        <TodoList inputRef={todoInputRef} header={header} />
       ) : emptyState ? (
-        <EmptyStateStarters />
+        <EmptyStateStarters header={header} />
       ) : (
-        <ScrollView contentContainerStyle={styles.scroll}>
+        <ScrollView
+          contentContainerStyle={styles.scroll}
+          contentInsetAdjustmentBehavior="automatic"
+        >
+          {header}
           <WidgetNudge onLearnMore={() => router.push(routes.onboarding)} />
           {buckets.overdue.length === 0 &&
             buckets.today.filter(t => !isCompletedToday(t, today)).length ===
@@ -149,35 +154,16 @@ const styles = StyleSheet.create((theme, rt) => ({
   container: {
     flex: 1,
     backgroundColor: theme.colors.groupedBackground,
-    paddingTop: rt.insets.top,
     paddingLeft: rt.insets.left,
     paddingRight: rt.insets.right,
   },
   header: {
-    paddingHorizontal: 20,
-    paddingTop: 8,
+    paddingHorizontal: 16,
     paddingBottom: 14,
-  },
-  headerTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  title: {
-    fontSize: 34,
-    fontWeight: '700',
-    color: theme.colors.text,
-    letterSpacing: 0.37,
-    lineHeight: 41,
-  },
-  headerButtons: {
-    flexDirection: 'row',
-    gap: 10,
   },
   subtitle: {
     fontSize: 15,
     color: theme.colors.label3,
-    marginTop: 4,
   },
   tabs: {
     marginTop: 14,
