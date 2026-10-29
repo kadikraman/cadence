@@ -69,27 +69,29 @@ export default function Support() {
               That&apos;s by design. Cadence is meant to be glanceable, not
               pushy. The widget lives on your Home Screen so you see what&apos;s
               due whenever you unlock your phone. If you really want a
-              notification, the iOS reminders app or your calendar will serve
-              you better.
+              notification, a reminders or calendar app will serve you better.
             </div>
           </details>
 
           <details>
             <summary>Can I sync across devices?</summary>
             <div className="faq-body">
-              Not right now. We prefer to keep Cadence simple, with your tasks
-              on the device you installed it on. If there&apos;s a lot of demand
-              for syncing, we&apos;ll consider building it. You can export and
-              import a JSON backup from Settings in the meantime.
+              Yes, if you turn it on. Go to{' '}
+              <strong>Settings → Sync with iCloud</strong> on iPhone, or{' '}
+              <strong>Settings → Sync with Google Drive</strong> on Android.
+              Your tasks sync through your own account, never a Cadence server.
+              iCloud and Google Drive don&apos;t sync with each other, so to
+              move between iPhone and Android, use an export.
             </div>
           </details>
 
           <details>
             <summary>Can I back up or move my data?</summary>
             <div className="faq-body">
-              Yes. Go to <strong>Settings → Export</strong> to save a JSON file
-              of your tasks and history. You can re-import it on the same
-              device, or on a new one once you&apos;ve installed Cadence there.
+              Yes. Go to <strong>Settings → Export all tasks</strong> to save a
+              JSON file of your tasks and history. To load it, use{' '}
+              <strong>Settings → Import from file</strong> on the same device or
+              a new one, and choose whether to replace or merge your tasks.
             </div>
           </details>
 
@@ -136,9 +138,10 @@ export default function Support() {
             <div className="faq-body">
               Submit feedback from inside the app:{' '}
               <strong>Settings → Feedback &amp; feature requests</strong>. Tell
-              us what you were doing when it happened and include a screenshot
-              if you have one. Even a rough description helps. We&apos;d rather
-              hear &ldquo;something weird happened&rdquo; than hear nothing.
+              us what you were doing when it happened, and leave your email if
+              you&apos;d like a reply. Even a rough description helps. We&apos;d
+              rather hear &ldquo;something weird happened&rdquo; than hear
+              nothing.
             </div>
           </details>
 
@@ -146,10 +149,11 @@ export default function Support() {
             <summary>How do I delete my data?</summary>
             <div className="faq-body">
               Delete the app. Since we don&apos;t store your tasks on a server,
-              removing Cadence removes all your data. If you&apos;ve turned on
-              anonymous analytics, you can turn it off in{' '}
-              <strong>Settings → Privacy</strong> at any time. We don&apos;t
-              retain any user-identifiable records to delete.
+              removing Cadence removes your data from the device. If you turned
+              on sync, a copy stays in your iCloud or Google Drive until you
+              delete Cadence&apos;s data in that account&apos;s storage
+              settings. Crash reports and performance metrics are anonymous, so
+              we don&apos;t hold any records that identify you.
             </div>
           </details>
         </div>
@@ -158,8 +162,8 @@ export default function Support() {
         <p>
           Open Cadence, tap{' '}
           <strong>Settings → Feedback &amp; feature requests</strong>, and tell
-          us what&apos;s going on. Real person, no form, no ticket number. We
-          usually reply within a day.
+          us what&apos;s going on. Real person, no ticket number. Leave your
+          email and we&apos;ll reply within a few days.
         </p>
       </article>
 

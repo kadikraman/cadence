@@ -12,16 +12,6 @@ export default function Root({ children }: PropsWithChildren) {
         />
         <link rel="icon" type="image/png" href="/favicon.png" />
         <link rel="apple-touch-icon" href="/favicon.png" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin=""
-        />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=Young+Serif&display=swap"
-        />
         <style dangerouslySetInnerHTML={{ __html: globalStyles }} />
       </head>
       <body>{children}</body>
@@ -224,6 +214,7 @@ a:hover { color: var(--accent-ink); }
   --lp-ink2: oklch(0.48 0.03 260);
   --lp-line: oklch(0.88 0.02 250);
   --lp-accent: oklch(0.53 0.19 258);
+  --lp-font: -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Segoe UI', sans-serif;
   --lp-on-accent: #fff;
   --lp-late: oklch(0.6 0.15 50);
   --lp-mark-0: #d8e0f0;
@@ -276,7 +267,7 @@ html:has(.lp), html:has(.lp) body { background: var(--lp-bg); }
 .lp {
   background: var(--lp-bg);
   color: var(--lp-ink);
-  font-family: 'Hanken Grotesk', system-ui, sans-serif;
+  font-family: var(--lp-font);
   font-size: 16px;
   line-height: normal;
   -moz-osx-font-smoothing: grayscale;
@@ -288,8 +279,8 @@ html:has(.lp), html:has(.lp) body { background: var(--lp-bg); }
 .lp button { font: inherit; }
 .lp p { color: var(--lp-ink2); text-wrap: pretty; }
 .lp h1, .lp h2, .lp h3 {
-  font-family: 'Young Serif', Georgia, serif;
-  font-weight: 400;
+  font-family: var(--lp-font);
+  font-weight: 600;
   margin: 0;
 }
 
@@ -315,7 +306,7 @@ html:has(.lp), html:has(.lp) body { background: var(--lp-bg); }
 
 .lp-chrome {
   color: var(--lp-ink);
-  font-family: 'Hanken Grotesk', system-ui, sans-serif;
+  font-family: var(--lp-font);
   font-size: 16px;
   line-height: normal;
 }
@@ -331,8 +322,8 @@ html:has(.lp), html:has(.lp) body { background: var(--lp-bg); }
   display: flex;
   align-items: center;
   gap: 10px;
-  font-family: 'Young Serif', Georgia, serif;
   font-size: 22px;
+  font-weight: 600;
   text-decoration: none;
   color: var(--lp-ink);
 }
@@ -467,7 +458,7 @@ html:has(.lp), html:has(.lp) body { background: var(--lp-bg); }
   padding-bottom: 14px;
   border-bottom: 1px solid var(--lp-line);
 }
-.lp-count { font-family: 'Young Serif', Georgia, serif; font-size: 28px; line-height: 1; }
+.lp-count { font-size: 28px; font-weight: 600; line-height: 1; }
 .lp-count-late { color: var(--lp-late); }
 .lp-count-today { color: var(--lp-accent); }
 .lp-count-label { font-size: 12px; color: var(--lp-ink2); margin-top: 4px; }
