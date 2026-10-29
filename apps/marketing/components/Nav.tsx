@@ -1,22 +1,16 @@
-const ICON = '/icon.png';
+import type { ReactNode } from 'react';
 
-export function Nav() {
+export function Nav({ children }: { children?: ReactNode }) {
   return (
-    <nav className="nav">
-      <div className="nav-inner">
-        <a href="/" className="brand">
-          <img src={ICON} alt="" />
-          Cadence
-        </a>
-        <div className="nav-links">
-          <a href="/#features">Features</a>
-          <a href="/#widgets">Widgets</a>
-          <a href="/support">Support</a>
-          <a href="/#download-bottom" className="nav-cta">
-            Download
-          </a>
-        </div>
-      </div>
-    </nav>
+    <header className="lp-wrap lp-chrome lp-header">
+      <a href="/#top" className="lp-brand">
+        <img src="/cadence-icon.png" alt="" width={36} height={36} />
+        <span>Cadence</span>
+      </a>
+      {children}
+      <a href="/#download" className="lp-get">
+        Get Cadence
+      </a>
+    </header>
   );
 }
