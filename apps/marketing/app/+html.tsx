@@ -226,6 +226,11 @@ a:hover { color: var(--accent-ink); }
   --lp-accent: oklch(0.53 0.19 258);
   --lp-on-accent: #fff;
   --lp-late: oklch(0.6 0.15 50);
+  --lp-mark-0: #d8e0f0;
+  --lp-mark-1: #aaccff;
+  --lp-mark-2: #57a6ff;
+  --lp-mark-3: #1a8cff;
+  --lp-mark-4: #0066d9;
 }
 @media (prefers-color-scheme: dark) {
   :root:has(.lp):not([data-theme=light]) {
@@ -238,6 +243,11 @@ a:hover { color: var(--accent-ink); }
     --lp-accent: oklch(0.72 0.14 252);
     --lp-on-accent: oklch(0.2 0.028 260);
     --lp-late: oklch(0.75 0.14 55);
+    --lp-mark-0: #232d44;
+    --lp-mark-1: #1b437f;
+    --lp-mark-2: #2363c2;
+    --lp-mark-3: #2f82eb;
+    --lp-mark-4: #4da3ff;
   }
 }
 :root[data-theme=dark] {
@@ -250,6 +260,11 @@ a:hover { color: var(--accent-ink); }
   --lp-accent: oklch(0.72 0.14 252);
   --lp-on-accent: oklch(0.2 0.028 260);
   --lp-late: oklch(0.75 0.14 55);
+  --lp-mark-0: #232d44;
+  --lp-mark-1: #1b437f;
+  --lp-mark-2: #2363c2;
+  --lp-mark-3: #2f82eb;
+  --lp-mark-4: #4da3ff;
 }
 html:has(.lp) { scroll-padding-top: 0; color-scheme: light; }
 @media (prefers-color-scheme: dark) {
@@ -334,11 +349,7 @@ html:has(.lp), html:has(.lp) body { background: var(--lp-bg); }
   cursor: pointer;
 }
 .lp-theme:hover { color: var(--lp-ink); background: var(--lp-bg2); }
-.lp-brand img {
-  display: block;
-  width: 36px; height: 36px;
-  margin: -4px 0 -4px -6px;
-}
+.lp-brand svg { display: block; flex: none; }
 .lp-chrome .lp-get {
   flex: none;
   font-size: 15px;
