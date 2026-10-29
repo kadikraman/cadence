@@ -24,27 +24,30 @@ VERDICT=${VERDICT:-"INCONCLUSIVE: The agent did not write a verdict. See the log
 SESSION_URL=$(node -p 'require("/tmp/session.json").deviceRunSessionUrl')
 
 case "$PLATFORM" in
-  ios) PLATFORM_HEADING='🍏 Bug triage · iOS'; DEVICE='an iOS Simulator' ;;
-  *) PLATFORM_HEADING='🤖 Bug triage · Android'; DEVICE='an Android Emulator' ;;
+  ios) TITLE='🍏 iOS · Bug triage'; DEVICE='iOS Simulator' ;;
+  *) TITLE='🤖 Android · Bug triage'; DEVICE='Android Emulator' ;;
 esac
 case "$VERDICT" in
-  REPLICATED:*) BADGE='🐞 Replicated' ;;
-  NOT-REPLICATED:*) BADGE='🔍 Not replicated' ;;
-  *) BADGE='⚠️ Inconclusive' ;;
+  REPLICATED:*)
+    ALERT=IMPORTANT RESULT=Replicated
+    NEXT='read the steps, then add the `agent` label to start Issue to PR.'
+    ;;
+  NOT-REPLICATED:*)
+    ALERT=NOTE RESULT='Not replicated'
+    NEXT='add the missing steps to the issue, then run this workflow again.'
+    ;;
+  *)
+    ALERT=WARNING RESULT=Inconclusive
+    NEXT='open the report, then run this workflow again.'
+    ;;
 esac
 
 {
-  printf '## %s\n\n### %s\n\n> **%s**\n\n' "$PLATFORM_HEADING" "$BADGE" "${VERDICT#*: }"
-  printf '| | |\n| --- | --- |\n'
-  printf '| 🎥 **[Session recording](%s)** | Watch every step the agent took |\n' "$SESSION_URL"
-  printf '| 📸 **[Agent report and screenshots](%s)** | The full report, screenshots, and agent log, in the run artifacts |\n\n' "$RUN_URL"
+  printf '### %s\n\n> [!%s]\n> **%s.** %s\n>\n> **Next:** %s\n\n' "$TITLE" "$ALERT" "$RESULT" "${VERDICT#*: }" "$NEXT"
+  printf '**[Recording](%s)** · [Report and screenshots](%s)\n\n' "$SESSION_URL" "$RUN_URL"
   printf '<details>\n<summary>Steps the agent followed</summary>\n\n'
   tail -n +2 agent-output/evidence/verdict.md 2> /dev/null || true
   printf '\n</details>\n\n'
-  case "$VERDICT" in
-    REPLICATED:*) printf '**Next:** read the report, then add the `agent` label to start Issue to PR.\n\n' ;;
-    NOT-REPLICATED:*) printf '**Next:** add the missing steps to the issue, then run this workflow again.\n\n' ;;
-  esac
-  printf '<sub>Tested by a Claude Code agent on %s with Expo Simulators, on a build of the default branch. A person reviews the evidence and decides.</sub>\n' "$DEVICE"
+  printf '<sub>Claude Code agent · %s · build of the default branch · A person reviews the evidence and decides.</sub>\n' "$DEVICE"
 } > /tmp/comment.md
 node .eas/agents/github.mjs comment "$ISSUE_NUMBER" /tmp/comment.md

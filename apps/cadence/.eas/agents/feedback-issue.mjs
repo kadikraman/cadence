@@ -9,7 +9,10 @@ const screenshots = (report.screenshots ?? [])
   .filter(Boolean);
 
 const lines = [
-  '## TestFlight report',
+  '> [!NOTE]',
+  '> Filed from TestFlight feedback. Bug triage reproduces it on an iOS Simulator and posts the result below.',
+  '',
+  '### What the tester wrote',
   '',
   comment
     ? comment
@@ -17,13 +20,30 @@ const lines = [
         .map(line => `> ${line}`)
         .join('\n')
     : '> The tester did not write a comment.',
-  '',
-  `- Build: ${report.buildVersion ?? 'unknown'}`,
-  `- Device: ${report.deviceModel ?? 'unknown'}, iOS ${report.osVersion ?? 'unknown'}`,
-  ...screenshots.map(
-    (url, index) => `- [Screenshot ${index + 1}](${url}). The link expires.`
-  ),
 ];
+
+if (screenshots.length > 0) {
+  lines.push(
+    '',
+    '### Screenshots',
+    '',
+    screenshots
+      .map(
+        (url, index) =>
+          `<a href="${url}"><img src="${url}" width="300" alt="Screenshot ${index + 1} from the tester"></a>`
+      )
+      .join(' '),
+    '',
+    '<sub>TestFlight screenshot links expire.</sub>'
+  );
+}
+
+lines.push(
+  '',
+  '| Build | Device | iOS |',
+  '| --- | --- | --- |',
+  `| ${report.buildVersion ?? 'unknown'} | ${report.deviceModel ?? 'unknown'} | ${report.osVersion ?? 'unknown'} |`
+);
 
 if (result.logText) {
   const codeFence = '`'.repeat(3);

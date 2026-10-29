@@ -49,7 +49,8 @@ jobs:
       verdict: ${{ steps.check.outputs.verdict }}
       session_url: ${{ steps.check.outputs.session_url }}
       build_id: ${{ steps.check.outputs.build_id }}
-      badge: ${{ steps.check.outputs.badge }}
+      alert: ${{ steps.check.outputs.alert }}
+      result: ${{ steps.check.outputs.result }}
       summary: ${{ steps.check.outputs.summary }}
       commit: ${{ steps.check.outputs.commit }}
     steps:
@@ -71,11 +72,12 @@ jobs:
 
           VERDICT=$(head -n 1 agent-output/evidence/verdict.md 2> /dev/null || echo 'FAIL: The agent did not write a verdict.')
           case "$VERDICT" in
-            PASS:*) BADGE='✅ Passed' ;;
-            *) BADGE='❌ Failed' ;;
+            PASS:*) ALERT=TIP; RESULT=Passed ;;
+            *) ALERT=CAUTION; RESULT=Failed ;;
           esac
           set-output verdict "$VERDICT"
-          set-output badge "$BADGE"
+          set-output alert "$ALERT"
+          set-output result "$RESULT"
           set-output summary "${VERDICT#*: }"
           set-output commit "$(git rev-parse --short HEAD)"
           set-output session_url "$(node -p 'require("/tmp/session.json").deviceRunSessionUrl')"
@@ -92,19 +94,14 @@ jobs:
     after: [check]
     params:
       payload: |
-        ## 🍏 Agentic CI · iOS
+        ### 🍏 iOS · Agentic CI
 
-        ### ${{ after.check.outputs.badge || '⚠️ Did not finish' }}
+        > [!${{ after.check.outputs.alert || 'WARNING' }}]
+        > **${{ after.check.outputs.result || 'Did not finish' }}.** ${{ after.check.outputs.summary || 'The check job did not finish. Open the run to see why.' }}
 
-        > **${{ after.check.outputs.summary || 'The check job did not finish. Open the workflow run to see why.' }}**
+        **[Recording](${{ after.check.outputs.session_url }})** · **[Try this build](https://expo.dev/accounts/${{ account.name }}/projects/${{ app.slug }}/simulator-sessions/create?buildId=${{ after.check.outputs.build_id }})** · [Report and screenshots](${{ workflow.url }})
 
-        | | |
-        | --- | --- |
-        | 🎥 **[Session recording](${{ after.check.outputs.session_url }})** | Watch every tap the agent made |
-        | 📸 **[Agent report and screenshots](${{ workflow.url }})** | The full report, screenshots, and agent log, in the run artifacts |
-        | ▶️ **[Try this build in your browser](https://expo.dev/accounts/${{ account.name }}/projects/${{ app.slug }}/simulator-sessions/create?buildId=${{ after.check.outputs.build_id }})** | Each click starts a new iOS Simulator session |
-
-        <sub>Tested by a Claude Code agent on an iOS Simulator with Expo Simulators, at commit `${{ after.check.outputs.commit }}`. A person reviews the evidence and decides.</sub>
+        <sub>Claude Code agent · iOS Simulator · commit `${{ after.check.outputs.commit }}` · A person reviews the evidence and decides.</sub>
 
   result:
     after: [check]
