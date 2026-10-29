@@ -1,9 +1,8 @@
-import { SymbolView } from 'expo-symbols';
 import { AppMetrics, Observe } from 'expo-observe';
-import { useCallback, useState } from 'react';
+import { Stack, useRouter } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  Modal,
   Pressable,
   ScrollView,
   Text,
@@ -16,18 +15,12 @@ type Session = Awaited<
 >[number];
 type LogRecord = Session['logs'][number];
 
-interface Props {
-  visible: boolean;
-  onClose: () => void;
-}
-
-export default function EventInspectorModal({ visible, onClose }: Props) {
-  const { theme, rt } = useUnistyles();
+export default function EventInspectorScreen() {
+  const router = useRouter();
   const [sessions, setSessions] = useState<Session[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<null | 'flush' | 'clear'>(null);
   const [lastAction, setLastAction] = useState<string | null>(null);
-  const [prevVisible, setPrevVisible] = useState(visible);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -41,13 +34,12 @@ export default function EventInspectorModal({ visible, onClose }: Props) {
     }
   }, []);
 
-  if (visible !== prevVisible) {
-    setPrevVisible(visible);
-    if (visible) {
-      setLastAction(null);
-      refresh();
-    }
-  }
+  useEffect(() => {
+    AppMetrics.getInactiveSessions()
+      .then(setSessions)
+      .catch(err => setLastAction(`Refresh failed: ${(err as Error).message}`))
+      .finally(() => setLoading(false));
+  }, []);
 
   const flush = async () => {
     setBusy('flush');
@@ -79,68 +71,53 @@ export default function EventInspectorModal({ visible, onClose }: Props) {
   const totalMetrics = sessions.reduce((n, s) => n + s.metrics.length, 0);
 
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      presentationStyle="pageSheet"
-      onRequestClose={onClose}
-    >
-      <View style={[styles.root, { paddingTop: rt.insets.top }]}>
-        <View style={styles.nav}>
-          <Text style={styles.title}>Event Inspector</Text>
-          <Pressable onPress={onClose} style={styles.closeBtn}>
-            <SymbolView
-              name="xmark.circle.fill"
-              size={28}
-              tintColor={theme.colors.label3}
-              resizeMode="scaleAspectFit"
-              fallback={null}
-            />
-          </Pressable>
-        </View>
+    <View style={styles.root}>
+      <Stack.Title>Event Inspector</Stack.Title>
+      <Stack.Toolbar placement="right">
+        <Stack.Toolbar.Button icon="xmark" onPress={() => router.back()} />
+      </Stack.Toolbar>
 
-        <View style={styles.summary}>
-          <Text style={styles.summaryText}>
-            {sessions.length} session{sessions.length === 1 ? '' : 's'} ·{' '}
-            {totalLogs} log{totalLogs === 1 ? '' : 's'} · {totalMetrics} metric
-            {totalMetrics === 1 ? '' : 's'}
-          </Text>
-          {lastAction && <Text style={styles.lastAction}>{lastAction}</Text>}
-        </View>
-
-        <View style={styles.actions}>
-          <ActionButton
-            label="Refresh"
-            onPress={refresh}
-            disabled={loading || busy !== null}
-          />
-          <ActionButton
-            label={busy === 'flush' ? 'Flushing…' : 'Force flush'}
-            onPress={flush}
-            disabled={loading || busy !== null}
-            primary
-          />
-          <ActionButton
-            label={busy === 'clear' ? 'Clearing…' : 'Clear'}
-            onPress={clear}
-            disabled={loading || busy !== null}
-            destructive
-          />
-        </View>
-
-        <ScrollView contentContainerStyle={styles.scroll}>
-          {loading && sessions.length === 0 ? (
-            <ActivityIndicator style={styles.spinner} />
-          ) : sessions.length === 0 ? (
-            <Text style={styles.empty}>No sessions stored.</Text>
-          ) : (
-            sessions.map((session, i) => (
-              <SessionBlock key={session.id} session={session} index={i} />
-            ))
-          )}
-        </ScrollView>
+      <View style={styles.summary}>
+        <Text style={styles.summaryText}>
+          {sessions.length} session{sessions.length === 1 ? '' : 's'} ·{' '}
+          {totalLogs} log{totalLogs === 1 ? '' : 's'} · {totalMetrics} metric
+          {totalMetrics === 1 ? '' : 's'}
+        </Text>
+        {lastAction && <Text style={styles.lastAction}>{lastAction}</Text>}
       </View>
-    </Modal>
+
+      <View style={styles.actions}>
+        <ActionButton
+          label="Refresh"
+          onPress={refresh}
+          disabled={loading || busy !== null}
+        />
+        <ActionButton
+          label={busy === 'flush' ? 'Flushing…' : 'Force flush'}
+          onPress={flush}
+          disabled={loading || busy !== null}
+          primary
+        />
+        <ActionButton
+          label={busy === 'clear' ? 'Clearing…' : 'Clear'}
+          onPress={clear}
+          disabled={loading || busy !== null}
+          destructive
+        />
+      </View>
+
+      <ScrollView contentContainerStyle={styles.scroll}>
+        {loading && sessions.length === 0 ? (
+          <ActivityIndicator style={styles.spinner} />
+        ) : sessions.length === 0 ? (
+          <Text style={styles.empty}>No sessions stored.</Text>
+        ) : (
+          sessions.map((session, i) => (
+            <SessionBlock key={session.id} session={session} index={i} />
+          ))
+        )}
+      </ScrollView>
+    </View>
   );
 }
 
@@ -248,24 +225,8 @@ const styles = StyleSheet.create((theme, rt) => ({
     paddingLeft: rt.insets.left,
     paddingRight: rt.insets.right,
   },
-  nav: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    paddingBottom: 8,
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: theme.colors.text,
-    letterSpacing: 0.2,
-  },
-  closeBtn: {
-    padding: 4,
-  },
   summary: {
+    paddingTop: 12,
     paddingHorizontal: 20,
     paddingBottom: 8,
   },

@@ -4,12 +4,11 @@ import { labelsHidden, pickerStyle, tag } from '@expo/ui/swift-ui/modifiers';
 import { useObserve } from 'expo-observe';
 import { Stack } from 'expo-router';
 import type { SFSymbol } from 'expo-symbols';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useUnistyles } from 'react-native-unistyles';
 import { routes } from '../../lib/routes';
 import { SYNC_PROVIDER_NAME } from '../../lib/sync/useSyncSetting';
 import { ThemeMode } from '../../stores/settings';
-import EventInspectorModal from './EventInspectorModal';
 import LinkRow from './LinkRow';
 import { useSettings } from './useSettings';
 
@@ -56,7 +55,6 @@ export default function SettingsScreen() {
     markInteractive();
   }, [markInteractive]);
 
-  const [inspectorOpen, setInspectorOpen] = useState(false);
   const tapCountRef = useRef(0);
   const tapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -65,13 +63,13 @@ export default function SettingsScreen() {
     if (tapTimerRef.current) clearTimeout(tapTimerRef.current);
     if (tapCountRef.current >= SECRET_TAP_COUNT) {
       tapCountRef.current = 0;
-      setInspectorOpen(true);
+      router.push(routes.eventInspector);
       return;
     }
     tapTimerRef.current = setTimeout(() => {
       tapCountRef.current = 0;
     }, SECRET_TAP_TIMEOUT);
-  }, []);
+  }, [router]);
 
   return (
     <>
@@ -197,10 +195,6 @@ export default function SettingsScreen() {
           </Section>
         </Form>
       </Host>
-      <EventInspectorModal
-        visible={inspectorOpen}
-        onClose={() => setInspectorOpen(false)}
-      />
     </>
   );
 }

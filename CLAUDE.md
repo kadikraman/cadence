@@ -4,7 +4,7 @@ Bun workspace monorepo for the Cadence task management app, built with React Nat
 
 ## Workspaces
 
-- `apps/cadence` the iOS/Android app (Expo SDK 55, Expo Router, React Native 0.83)
+- `apps/cadence` the iOS/Android app (Expo SDK 58, Expo Router, React Native 0.88)
 - `apps/marketing` the marketing site (Expo Router for web)
 - `packages/` reserved for shared code (currently empty)
 
@@ -46,7 +46,7 @@ Install packages with `npx expo install <package>` from inside the relevant work
 ## Tech stack
 
 - TypeScript with strict typing
-- React 19, React Native 0.83, Expo SDK 55, Expo Router
+- React 19, React Native 0.88, Expo SDK 58, Expo Router
 - `react-native-unistyles` for styling (not `StyleSheet.create`)
 - `expo-image` instead of `Image`
 - `zustand` for state; stores live in `apps/cadence/src/stores/`

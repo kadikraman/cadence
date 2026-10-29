@@ -108,6 +108,10 @@ function RootLayoutNav() {
               name="feedback"
               options={{ headerTransparent: IOS_HEADER }}
             />
+            <Stack.Screen
+              name="event-inspector"
+              options={{ presentation: 'modal' }}
+            />
           </Stack.Protected>
           <Stack.Screen
             name="onboarding"

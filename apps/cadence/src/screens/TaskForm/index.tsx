@@ -10,6 +10,7 @@ import DatePickerSheet from '../../components/DatePickerSheet';
 import GlyphPicker from '../../components/GlyphPicker';
 import FormGroup from '../../components/ui/FormGroup';
 import FormLabel from '../../components/ui/FormLabel';
+import NativeButton from '../../components/ui/NativeButton';
 import NativeSwitch from '../../components/ui/NativeSwitch';
 import SegmentedControl from '../../components/ui/SegmentedControl';
 import { getSymbol } from '../../utils/glyphs';
@@ -198,16 +199,19 @@ export default function TaskFormScreen() {
         {isEdit && (
           <View style={styles.deleteWrap}>
             {!existing?.archived && (
-              <Pressable
+              <NativeButton
+                title="Archive Task"
+                systemImage="archivebox"
                 onPress={confirmArchive}
-                style={[styles.deleteBtn, styles.archiveBtn]}
-              >
-                <Text style={styles.archiveText}>Archive Task</Text>
-              </Pressable>
+              />
             )}
-            <Pressable onPress={confirmDelete} style={styles.deleteBtn}>
-              <Text style={styles.deleteText}>Delete Task</Text>
-            </Pressable>
+            <NativeButton
+              title="Delete Task"
+              systemImage="trash"
+              color={theme.colors.error}
+              destructive
+              onPress={confirmDelete}
+            />
           </View>
         )}
       </KeyboardAwareScrollView>
@@ -326,22 +330,6 @@ const styles = StyleSheet.create((theme, rt) => ({
   deleteWrap: {
     marginHorizontal: 16,
     marginTop: 20,
-  },
-  deleteBtn: {
-    backgroundColor: theme.colors.surfaceElevated,
-    borderRadius: 14,
-    paddingVertical: 14,
-    alignItems: 'center',
-  },
-  archiveBtn: {
-    marginBottom: 10,
-  },
-  archiveText: {
-    color: theme.colors.blue,
-    fontSize: 17,
-  },
-  deleteText: {
-    color: theme.colors.error,
-    fontSize: 17,
+    gap: 10,
   },
 }));

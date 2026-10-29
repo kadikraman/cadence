@@ -1,7 +1,8 @@
-import { ActionSheetIOS, Pressable, Text, TextInput, View } from 'react-native';
+import { Pressable, Text, TextInput, View } from 'react-native';
 import Animated, { LayoutAnimationConfig } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import UiSymbol from '../../../components/ui/UiSymbol';
+import ClearDoneButton from './ClearDoneButton';
 import { todoEntering, todoExiting, todoLayout } from './motion';
 import TodoRow from './TodoRow';
 import type { TodoListProps } from './types';
@@ -24,20 +25,6 @@ export default function TodoList({ inputRef, header }: TodoListProps) {
     clearDoneItems,
     callbacks,
   } = useTodoList();
-
-  const confirmClearDone = () => {
-    ActionSheetIOS.showActionSheetWithOptions(
-      {
-        title: `Delete ${done.length} done to-do${done.length === 1 ? '' : 's'}?`,
-        options: ['Clear done', 'Cancel'],
-        destructiveButtonIndex: 0,
-        cancelButtonIndex: 1,
-      },
-      index => {
-        if (index === 0) clearDoneItems();
-      }
-    );
-  };
 
   return (
     <LayoutAnimationConfig skipEntering skipExiting>
@@ -138,9 +125,10 @@ export default function TodoList({ inputRef, header }: TodoListProps) {
                       color={theme.colors.label3}
                     />
                   </Pressable>
-                  <Pressable onPress={confirmClearDone} hitSlop={8}>
-                    <Text style={styles.clearDone}>Clear done</Text>
-                  </Pressable>
+                  <ClearDoneButton
+                    count={done.length}
+                    onConfirm={clearDoneItems}
+                  />
                 </View>
                 {doneExpanded && (
                   <Animated.View layout={todoLayout} style={styles.card}>
@@ -220,10 +208,6 @@ const styles = StyleSheet.create(theme => ({
     fontSize: 13,
     fontWeight: '500',
     color: theme.colors.label3,
-  },
-  clearDone: {
-    fontSize: 15,
-    color: theme.colors.blue,
   },
   card: {
     marginHorizontal: 16,

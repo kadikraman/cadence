@@ -1,11 +1,11 @@
 import { useObserve } from 'expo-observe';
-import { Stack } from 'expo-router';
-import { SymbolView } from 'expo-symbols';
+import { Stack, useIsPreview } from 'expo-router';
 import { useEffect } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import CompletionSheet from '../../components/CompletionSheet';
 import DatePickerSheet from '../../components/DatePickerSheet';
+import NativeButton from '../../components/ui/NativeButton';
 import { routes } from '../../lib/routes';
 import { getTint } from '../../utils/taskTints';
 import { getTodayTimestamp, relativeLabel } from '../../utils/taskUtils';
@@ -42,6 +42,7 @@ export default function TaskDetailScreen() {
     unarchiveQuickOptions,
   } = useTaskDetail();
 
+  const isPreview = useIsPreview();
   const { markInteractive } = useObserve();
 
   useEffect(() => {
@@ -55,20 +56,24 @@ export default function TaskDetailScreen() {
 
   return (
     <View style={styles.root}>
-      <Stack.Screen
-        options={{
-          title: '',
-          headerBackTitle: 'Tasks',
-          headerTransparent: true,
-        }}
-      />
-      <Stack.Toolbar placement="right">
-        <Stack.Toolbar.Button
-          onPress={() => router.push(routes.editTask(task.id))}
-        >
-          Edit
-        </Stack.Toolbar.Button>
-      </Stack.Toolbar>
+      {!isPreview && (
+        <>
+          <Stack.Screen
+            options={{
+              title: '',
+              headerBackTitle: 'Tasks',
+              headerTransparent: true,
+            }}
+          />
+          <Stack.Toolbar placement="right">
+            <Stack.Toolbar.Button
+              onPress={() => router.push(routes.editTask(task.id))}
+            >
+              Edit
+            </Stack.Toolbar.Button>
+          </Stack.Toolbar>
+        </>
+      )}
       <ScrollView
         contentContainerStyle={styles.scroll}
         contentInsetAdjustmentBehavior="automatic"
@@ -92,49 +97,36 @@ export default function TaskDetailScreen() {
           <StatTrio stats={stats} />
         </View>
 
-        {cycle ? (
-          <View style={styles.actionsRow}>
-            <Pressable style={styles.primaryBtn} onPress={markDoneNow}>
-              <SymbolView
-                name="checkmark"
-                size={18}
-                tintColor="#fff"
-                resizeMode="scaleAspectFit"
-                fallback={null}
+        <View style={styles.actionsRow}>
+          {cycle ? (
+            <>
+              <NativeButton
+                title="Mark done"
+                systemImage="checkmark"
+                color={theme.colors.success}
+                prominent
+                style={styles.grow}
+                onPress={markDoneNow}
               />
-              <Text style={styles.primaryBtnText}>Mark done</Text>
-            </Pressable>
-            <Pressable
-              style={styles.squareBtn}
-              onPress={openCompletionSheet}
-              accessibilityLabel="Mark done on a date"
-            >
-              <SymbolView
-                name="calendar"
-                size={18}
-                tintColor={theme.colors.text}
-                resizeMode="scaleAspectFit"
-                fallback={null}
+              <NativeButton
+                title="Mark done on a date"
+                systemImage="calendar"
+                iconOnly
+                style={styles.square}
+                onPress={openCompletionSheet}
               />
-            </Pressable>
-          </View>
-        ) : (
-          <View style={styles.actionsRow}>
-            <Pressable
-              style={styles.unarchiveBtn}
+            </>
+          ) : (
+            <NativeButton
+              title="Unarchive"
+              systemImage="tray.and.arrow.up.fill"
+              color={theme.colors.blue}
+              prominent
+              style={styles.grow}
               onPress={openUnarchivePicker}
-            >
-              <SymbolView
-                name="tray.and.arrow.up.fill"
-                size={18}
-                tintColor="#fff"
-                resizeMode="scaleAspectFit"
-                fallback={null}
-              />
-              <Text style={styles.primaryBtnText}>Unarchive</Text>
-            </Pressable>
-          </View>
-        )}
+            />
+          )}
+        </View>
 
         <CyclesList
           task={task}
@@ -206,38 +198,10 @@ const styles = StyleSheet.create((theme, rt) => ({
     marginTop: 22,
     marginHorizontal: 16,
   },
-  primaryBtn: {
+  grow: {
     flex: 1,
-    height: 50,
-    borderRadius: 14,
-    backgroundColor: theme.colors.success,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'row',
-    gap: 8,
   },
-  unarchiveBtn: {
-    flex: 1,
-    height: 50,
-    borderRadius: 14,
-    backgroundColor: theme.colors.blue,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'row',
-    gap: 8,
-  },
-  primaryBtnText: {
-    color: '#fff',
-    fontSize: 17,
-    fontWeight: '600',
-    letterSpacing: -0.3,
-  },
-  squareBtn: {
-    width: 50,
-    height: 50,
-    borderRadius: 14,
-    backgroundColor: theme.colors.fill3,
-    alignItems: 'center',
-    justifyContent: 'center',
+  square: {
+    width: 64,
   },
 }));

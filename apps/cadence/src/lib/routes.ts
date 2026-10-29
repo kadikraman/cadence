@@ -14,6 +14,7 @@ export const routes = {
   settings: '/settings',
   archived: '/archived',
   feedback: '/feedback',
+  eventInspector: '/event-inspector',
   onboarding: '/onboarding',
   taskDetail: (taskId: string) => `/task/${taskId}` as const,
   editTask: (taskId: string) => `/new?taskId=${taskId}` as const,

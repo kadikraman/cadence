@@ -59,14 +59,6 @@ export default function FeedbackScreen() {
             a few days.
           </Text>
         </View>
-        <View style={styles.sentFooter}>
-          <Pressable
-            onPress={() => router.back()}
-            style={[styles.primaryBtn, { backgroundColor: c.blue }]}
-          >
-            <Text style={styles.primaryBtnText}>Back to Settings</Text>
-          </Pressable>
-        </View>
       </View>
     );
   }
@@ -258,19 +250,5 @@ const styles = StyleSheet.create((_theme, rt) => ({
     marginTop: 10,
     textAlign: 'center',
     maxWidth: 300,
-  },
-  sentFooter: {
-    paddingHorizontal: 20,
-    paddingBottom: 24,
-  },
-  primaryBtn: {
-    borderRadius: 14,
-    paddingVertical: 14,
-    alignItems: 'center',
-  },
-  primaryBtnText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
   },
 }));
