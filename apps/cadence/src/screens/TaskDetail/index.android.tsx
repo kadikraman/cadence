@@ -1,5 +1,5 @@
 import { useObserve } from 'expo-observe';
-import { Stack } from 'expo-router';
+import { Stack, useLocalSearchParams } from 'expo-router';
 import { useEffect } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -20,6 +20,7 @@ import { useTaskDetail } from './useTaskDetail';
 export default function TaskDetailScreen() {
   const { rt } = useUnistyles();
   const dark = rt.themeName === 'dark';
+  const { taskId } = useLocalSearchParams<{ taskId: string }>();
   const {
     router,
     task,
@@ -42,7 +43,7 @@ export default function TaskDetailScreen() {
     closeUnarchivePicker,
     confirmUnarchive,
     unarchiveQuickOptions,
-  } = useTaskDetail();
+  } = useTaskDetail(taskId);
 
   const { markInteractive } = useObserve();
 

@@ -1,4 +1,4 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { logs } from '../../lib/logs';
 import { useTasksStore } from '../../stores/tasks';
@@ -20,8 +20,7 @@ function nextDueQuickOptions(): QuickOption[] {
   ];
 }
 
-export function useTaskDetail() {
-  const { taskId } = useLocalSearchParams<{ taskId: string }>();
+export function useTaskDetail(taskId: string | undefined) {
   const router = useRouter();
 
   const task = useTasksStore(s => s.tasks.find(t => t.id === taskId) ?? null);

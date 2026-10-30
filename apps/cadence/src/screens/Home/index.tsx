@@ -2,7 +2,7 @@ import { SegmentedControl } from '@expo/ui/community/segmented-control';
 import { useObserve } from 'expo-observe';
 import { Stack } from 'expo-router';
 import { useEffect } from 'react';
-import { Dimensions, ScrollView, Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import ConfettiCannon from 'react-native-confetti-cannon';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import AllCaughtUp from '../../components/AllCaughtUp';
@@ -12,8 +12,10 @@ import EmptyStateStarters from '../../components/EmptyStateStarters';
 import WidgetNudge from '../../components/WidgetNudge';
 import { routes } from '../../lib/routes';
 import { Task } from '../../lib/types';
+import { useWideLayout } from '../../lib/useWideLayout';
 import { HomeTab } from '../../stores/settings';
 import { isCompletedToday } from '../../utils/taskUtils';
+import TaskDetailBody from '../TaskDetail/TaskDetailBody';
 import Section from './Section';
 import TodoList from './TodoList';
 import { useHomeContent } from './useHomeContent';
@@ -23,18 +25,22 @@ const TABS: HomeTab[] = ['tasks', 'todo'];
 const TAB_LABELS = ['Tasks', 'To do'];
 
 export default function Home({ tasks }: { tasks: Task[] }) {
-  const { theme } = useUnistyles();
+  const { theme, rt } = useUnistyles();
+  const { width, wide } = useWideLayout();
+  const emptyState = tasks.length === 0;
+  const twoPane = wide && !emptyState;
   const {
     router,
     confettiRef,
     today,
     buckets,
     expandedId,
+    selectedId,
     callbacks,
     heading,
     completionSheet,
     completionToast,
-  } = useHomeContent(tasks);
+  } = useHomeContent(tasks, twoPane);
   const { todosEnabled, tab, setTab, todoInputRef } = useHomeTab();
 
   const { markInteractive } = useObserve();
@@ -42,9 +48,6 @@ export default function Home({ tasks }: { tasks: Task[] }) {
   useEffect(() => {
     markInteractive();
   }, [markInteractive]);
-
-  const screenWidth = Dimensions.get('window').width;
-  const emptyState = tasks.length === 0;
 
   const header = (
     <View style={styles.header}>
@@ -60,6 +63,60 @@ export default function Home({ tasks }: { tasks: Task[] }) {
       )}
     </View>
   );
+
+  const list =
+    tab === 'todo' ? (
+      <TodoList inputRef={todoInputRef} header={header} />
+    ) : emptyState ? (
+      <EmptyStateStarters header={header} />
+    ) : (
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        contentInsetAdjustmentBehavior="automatic"
+      >
+        {header}
+        <WidgetNudge onLearnMore={() => router.push(routes.onboarding)} />
+        {buckets.overdue.length === 0 &&
+          buckets.today.filter(t => !isCompletedToday(t, today)).length ===
+            0 && <AllCaughtUp />}
+        <Section
+          label="Overdue"
+          dotColor={theme.colors.error}
+          items={buckets.overdue}
+          today={today}
+          expandedId={expandedId}
+          selectedId={selectedId}
+          callbacks={callbacks}
+        />
+        <Section
+          label="Today"
+          dotColor={theme.colors.blue}
+          items={buckets.today}
+          today={today}
+          expandedId={expandedId}
+          selectedId={selectedId}
+          callbacks={callbacks}
+        />
+        <Section
+          label="This week"
+          dotColor={theme.colors.warning}
+          items={buckets.thisWeek}
+          today={today}
+          expandedId={expandedId}
+          selectedId={selectedId}
+          callbacks={callbacks}
+        />
+        <Section
+          label="Later"
+          dotColor={theme.colors.label3}
+          items={buckets.later}
+          today={today}
+          expandedId={expandedId}
+          selectedId={selectedId}
+          callbacks={callbacks}
+        />
+      </ScrollView>
+    );
 
   return (
     <View style={styles.container}>
@@ -87,53 +144,21 @@ export default function Home({ tasks }: { tasks: Task[] }) {
           accessibilityLabel={tab === 'todo' ? 'New to-do' : 'New task'}
         />
       </Stack.Toolbar>
-      {tab === 'todo' ? (
-        <TodoList inputRef={todoInputRef} header={header} />
-      ) : emptyState ? (
-        <EmptyStateStarters header={header} />
+      {twoPane ? (
+        <View style={styles.panes}>
+          <View style={{ width: width / 2 - rt.insets.left }}>{list}</View>
+          <View style={styles.detailPane}>
+            {selectedId && (
+              <TaskDetailBody
+                key={selectedId}
+                taskId={selectedId}
+                showEditButton
+              />
+            )}
+          </View>
+        </View>
       ) : (
-        <ScrollView
-          contentContainerStyle={styles.scroll}
-          contentInsetAdjustmentBehavior="automatic"
-        >
-          {header}
-          <WidgetNudge onLearnMore={() => router.push(routes.onboarding)} />
-          {buckets.overdue.length === 0 &&
-            buckets.today.filter(t => !isCompletedToday(t, today)).length ===
-              0 && <AllCaughtUp />}
-          <Section
-            label="Overdue"
-            dotColor={theme.colors.error}
-            items={buckets.overdue}
-            today={today}
-            expandedId={expandedId}
-            callbacks={callbacks}
-          />
-          <Section
-            label="Today"
-            dotColor={theme.colors.blue}
-            items={buckets.today}
-            today={today}
-            expandedId={expandedId}
-            callbacks={callbacks}
-          />
-          <Section
-            label="This week"
-            dotColor={theme.colors.warning}
-            items={buckets.thisWeek}
-            today={today}
-            expandedId={expandedId}
-            callbacks={callbacks}
-          />
-          <Section
-            label="Later"
-            dotColor={theme.colors.label3}
-            items={buckets.later}
-            today={today}
-            expandedId={expandedId}
-            callbacks={callbacks}
-          />
-        </ScrollView>
+        list
       )}
 
       <CompletionToast {...completionToast} />
@@ -142,7 +167,7 @@ export default function Home({ tasks }: { tasks: Task[] }) {
       <ConfettiCannon
         ref={confettiRef}
         count={200}
-        origin={{ x: screenWidth / 2, y: -20 }}
+        origin={{ x: width / 2, y: -20 }}
         fadeOut
         autoStart={false}
       />
@@ -170,5 +195,14 @@ const styles = StyleSheet.create((theme, rt) => ({
   },
   scroll: {
     paddingBottom: 40,
+  },
+  panes: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  detailPane: {
+    flex: 1,
+    borderLeftWidth: 0.5,
+    borderLeftColor: theme.colors.sepSubtle,
   },
 }));
