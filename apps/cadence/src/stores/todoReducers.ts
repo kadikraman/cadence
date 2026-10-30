@@ -25,6 +25,12 @@ export function toggleTodo(
   });
 }
 
+export function renameTodo(todos: Todo[], id: string, title: string): Todo[] {
+  const trimmed = title.trim();
+  if (!trimmed) return todos;
+  return todos.map(t => (t.id === id ? { ...t, title: trimmed } : t));
+}
+
 export function removeTodo(todos: Todo[], id: string): Todo[] {
   return todos.filter(t => t.id !== id);
 }

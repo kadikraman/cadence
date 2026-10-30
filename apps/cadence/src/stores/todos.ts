@@ -6,6 +6,7 @@ import {
   clearDone as clearDoneReducer,
   mergeTodos as mergeTodosReducer,
   removeTodo as removeTodoReducer,
+  renameTodo as renameTodoReducer,
   toggleTodo as toggleTodoReducer,
 } from './todoReducers';
 
@@ -17,6 +18,7 @@ interface TodosStore {
   load: () => Promise<void>;
   add: (title: string) => Promise<void>;
   toggle: (id: string) => Promise<void>;
+  rename: (id: string, title: string) => Promise<void>;
   remove: (id: string) => Promise<void>;
   clearDone: () => Promise<void>;
   replaceAll: (todos: Todo[]) => Promise<void>;
@@ -53,6 +55,7 @@ export const useTodosStore = create<TodosStore>((set, get) => {
 
     add: apply((todos: Todo[], title: string) => addTodoReducer(todos, title)),
     toggle: apply((todos: Todo[], id: string) => toggleTodoReducer(todos, id)),
+    rename: apply(renameTodoReducer),
     remove: apply(removeTodoReducer),
     clearDone: apply(clearDoneReducer),
     replaceAll: apply((_todos: Todo[], incoming: Todo[]) => incoming),

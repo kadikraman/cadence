@@ -3,13 +3,14 @@ import { logs } from '../../../lib/logs';
 import { Todo } from '../../../lib/types';
 import { splitTodos } from '../../../stores/todoReducers';
 import { useTodosStore } from '../../../stores/todos';
-import type { TodoRowCallbacks, TodoUndo } from './types';
+import type { TodoListProps, TodoRowCallbacks, TodoUndo } from './types';
 
 const TICK_DELAY_MS = 500;
 
-export function useTodoList() {
+export function useTodoList(inputRef: TodoListProps['inputRef']) {
   const todos = useTodosStore(s => s.todos);
   const add = useTodosStore(s => s.add);
+  const rename = useTodosStore(s => s.rename);
   const toggle = useTodosStore(s => s.toggle);
   const remove = useTodosStore(s => s.remove);
   const clearDone = useTodosStore(s => s.clearDone);
@@ -17,6 +18,7 @@ export function useTodoList() {
 
   const { open, done } = useMemo(() => splitTodos(todos), [todos]);
   const [draft, setDraft] = useState('');
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [doneExpanded, setDoneExpanded] = useState(false);
   const [pendingIds, setPendingIds] = useState<ReadonlySet<string>>(
     () => new Set()
@@ -45,12 +47,31 @@ export function useTodoList() {
   }, []);
 
   const submit = useCallback((): boolean => {
+    if (editingId) {
+      const saved = draft.trim() !== '';
+      if (saved) {
+        logs.todoEdited();
+        rename(editingId, draft);
+      }
+      setEditingId(null);
+      setDraft('');
+      return saved;
+    }
     if (!draft.trim()) return false;
     logs.todoCreated();
     add(draft);
     setDraft('');
     return true;
-  }, [draft, add]);
+  }, [draft, editingId, add, rename]);
+
+  const onEdit = useCallback(
+    (todo: Todo) => {
+      setEditingId(todo.id);
+      setDraft(todo.title);
+      inputRef.current?.focus();
+    },
+    [inputRef]
+  );
 
   const onToggle = useCallback(
     (todo: Todo) => {
@@ -112,12 +133,13 @@ export function useTodoList() {
   );
 
   const callbacks = useMemo<TodoRowCallbacks>(
-    () => ({ onToggle, onDelete }),
-    [onToggle, onDelete]
+    () => ({ onToggle, onEdit, onDelete }),
+    [onToggle, onEdit, onDelete]
   );
 
   return {
     isEmpty: todos.length === 0,
+    editing: editingId !== null,
     open,
     done,
     pendingIds,

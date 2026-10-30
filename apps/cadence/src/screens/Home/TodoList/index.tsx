@@ -24,7 +24,8 @@ export default function TodoList({ inputRef, header }: TodoListProps) {
     toggleDoneExpanded,
     clearDoneItems,
     callbacks,
-  } = useTodoList();
+    editing,
+  } = useTodoList(inputRef);
 
   return (
     <LayoutAnimationConfig skipEntering skipExiting>
@@ -42,7 +43,7 @@ export default function TodoList({ inputRef, header }: TodoListProps) {
             ref={inputRef}
             value={draft}
             onChangeText={setDraft}
-            placeholder="Add a to-do"
+            placeholder={editing ? 'Edit to-do' : 'Add a to-do'}
             placeholderTextColor={theme.colors.label3}
             returnKeyType="done"
             submitBehavior="submit"

@@ -4,6 +4,7 @@ import type { Todo } from '../../../lib/types';
 
 export interface TodoRowCallbacks {
   onToggle: (todo: Todo) => void;
+  onEdit: (todo: Todo) => void;
   onDelete: (todo: Todo) => void;
 }
 

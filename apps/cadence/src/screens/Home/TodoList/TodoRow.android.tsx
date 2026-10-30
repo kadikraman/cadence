@@ -20,6 +20,12 @@ function TodoRow({ todo, checked, last, callbacks }: TodoRowProps) {
         backgroundColor={theme.colors.surfaceElevated}
         rightActions={[
           {
+            label: 'Edit',
+            symbol: 'pencil',
+            color: theme.colors.blue,
+            onPress: () => callbacks.onEdit(todo),
+          },
+          {
             label: 'Delete',
             symbol: 'trash.fill',
             color: theme.colors.error,
