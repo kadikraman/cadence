@@ -46,6 +46,8 @@ export const logs = {
 
   todoCompleted: () => Observe.logEvent('todo.completed'),
 
+  todoEdited: () => Observe.logEvent('todo.edited'),
+
   todoDeleted: () => Observe.logEvent('todo.deleted'),
 
   todosCleared: () => Observe.logEvent('todo.cleared'),

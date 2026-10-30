@@ -19,6 +19,12 @@ function TodoRow({ todo, checked, last, callbacks }: TodoRowProps) {
         onTap={() => callbacks.onToggle(todo)}
         rightActions={[
           {
+            label: 'Edit',
+            symbol: 'pencil',
+            color: theme.colors.blue,
+            onPress: () => callbacks.onEdit(todo),
+          },
+          {
             label: 'Delete',
             symbol: 'trash.fill',
             color: theme.colors.error,

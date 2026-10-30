@@ -29,7 +29,8 @@ export default function TodoList({ inputRef }: TodoListProps) {
     undoRemove,
     dismissUndo,
     callbacks,
-  } = useTodoList();
+    editing,
+  } = useTodoList(inputRef);
 
   return (
     <LayoutAnimationConfig skipEntering skipExiting>
@@ -46,7 +47,7 @@ export default function TodoList({ inputRef }: TodoListProps) {
             onChangeText={setDraft}
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
-            placeholder="Add a to-do"
+            placeholder={editing ? 'Edit to-do' : 'Add a to-do'}
             placeholderTextColor={theme.colors.label2}
             returnKeyType="done"
             submitBehavior="submit"
