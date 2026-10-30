@@ -37,7 +37,11 @@ export default function FeedbackScreen() {
       <View style={[styles.root, { backgroundColor: c.groupedBackground }]}>
         <Stack.Screen options={{ title: '', headerBackVisible: false }} />
         <Stack.Toolbar placement="right">
-          <Stack.Toolbar.Button variant="done" onPress={() => router.back()}>
+          <Stack.Toolbar.Button
+            icon="checkmark"
+            variant="done"
+            onPress={() => router.back()}
+          >
             Done
           </Stack.Toolbar.Button>
         </Stack.Toolbar>

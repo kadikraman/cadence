@@ -14,5 +14,6 @@ export interface TaskRowProps {
   task: Task;
   today: number;
   isExpanded: boolean;
+  isSelected?: boolean;
   callbacks: TaskRowCallbacks;
 }

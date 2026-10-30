@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import NativeSwitch from '../../components/ui/NativeSwitch';
+import { useWideLayout } from '../../lib/useWideLayout';
 import { Step } from './types';
 import { Dot, OnboardingVisual } from './visuals';
 import { useOnboarding } from './useOnboarding';
@@ -28,6 +29,7 @@ const SYNC_STEP: Step = {
 
 export default function OnboardingScreen() {
   const { rt } = useUnistyles();
+  const { width, wide } = useWideLayout();
   const { steps, current, step, next, isReplay, sync } = useOnboarding(
     STEPS,
     SYNC_STEP
@@ -39,42 +41,64 @@ export default function OnboardingScreen() {
     markInteractive();
   }, [markInteractive]);
 
+  const copy = (
+    <>
+      <Text style={styles.stepTitle}>{current.title}</Text>
+      <Text style={styles.stepBody}>{current.body}</Text>
+      {current.visual === 'sync' && (
+        <View style={styles.syncRow}>
+          <View style={styles.syncText}>
+            <Text style={styles.syncLabel}>Sync with iCloud</Text>
+            <Text style={styles.syncSub}>
+              You can change this later in Settings.
+            </Text>
+          </View>
+          <NativeSwitch value={sync.enabled} onValueChange={sync.setEnabled} />
+        </View>
+      )}
+    </>
+  );
+
+  const footer = (
+    <View style={styles.footer}>
+      <View style={styles.dotRow}>
+        {steps.map((_, i) => (
+          <Dot key={i} isActive={i === step} />
+        ))}
+      </View>
+      <Pressable onPress={next} style={styles.nextBtn}>
+        <Text style={styles.nextText}>
+          {step === steps.length - 1 ? 'Done' : 'Next'}
+        </Text>
+      </Pressable>
+    </View>
+  );
+
   return (
     <View style={[styles.root, !isReplay && { paddingTop: rt.insets.top }]}>
       <View style={styles.topBar} />
 
-      <View style={styles.visualWrap}>
-        <OnboardingVisual kind={current.visual} />
-        <Text style={styles.stepTitle}>{current.title}</Text>
-        <Text style={styles.stepBody}>{current.body}</Text>
-        {current.visual === 'sync' && (
-          <View style={styles.syncRow}>
-            <View style={styles.syncText}>
-              <Text style={styles.syncLabel}>Sync with iCloud</Text>
-              <Text style={styles.syncSub}>
-                You can change this later in Settings.
-              </Text>
-            </View>
-            <NativeSwitch
-              value={sync.enabled}
-              onValueChange={sync.setEnabled}
-            />
+      {wide ? (
+        <View style={styles.wideRow}>
+          <View
+            style={[styles.wideVisual, { width: width / 2 - rt.insets.left }]}
+          >
+            <OnboardingVisual kind={current.visual} />
           </View>
-        )}
-      </View>
-
-      <View style={styles.footer}>
-        <View style={styles.dotRow}>
-          {steps.map((_, i) => (
-            <Dot key={i} isActive={i === step} />
-          ))}
+          <View style={styles.wideCopy}>
+            <View style={styles.visualWrap}>{copy}</View>
+            {footer}
+          </View>
         </View>
-        <Pressable onPress={next} style={styles.nextBtn}>
-          <Text style={styles.nextText}>
-            {step === steps.length - 1 ? 'Done' : 'Next'}
-          </Text>
-        </Pressable>
-      </View>
+      ) : (
+        <>
+          <View style={styles.visualWrap}>
+            <OnboardingVisual kind={current.visual} />
+            {copy}
+          </View>
+          {footer}
+        </>
+      )}
     </View>
   );
 }
@@ -93,6 +117,17 @@ const styles = StyleSheet.create((theme, rt) => ({
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
+  },
+  wideRow: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  wideVisual: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  wideCopy: {
+    flex: 1,
   },
   visualWrap: {
     flex: 1,

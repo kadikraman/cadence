@@ -29,15 +29,26 @@ export function formatTodayHeading(date = new Date()): string {
   });
 }
 
-export function useHomeContent(tasks: Task[]) {
+export function useHomeContent(tasks: Task[], twoPane = false) {
   const router = useRouter();
   const confettiRef = useRef<ConfettiCannon>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [pickedId, setPickedId] = useState<string | null>(null);
 
   const today = useToday();
   const heading = useMemo(() => formatTodayHeading(new Date(today)), [today]);
 
   const buckets = useMemo(() => bucketizeTasks(tasks, today), [tasks, today]);
+  const firstTask =
+    buckets.overdue[0] ??
+    buckets.today[0] ??
+    buckets.thisWeek[0] ??
+    buckets.later[0];
+  const pickedExists = tasks.some(t => t.id === pickedId);
+  if (twoPane && !pickedExists && firstTask) {
+    setPickedId(firstTask.id);
+  }
+  const selectedId = twoPane && pickedExists ? pickedId : null;
   const dueTodayCount =
     buckets.overdue.length +
     buckets.today.filter(t => !isCompletedToday(t, today)).length;
@@ -137,14 +148,25 @@ export function useHomeContent(tasks: Task[]) {
 
   const onOpenHistory = useCallback(
     (task: Task) => {
+      if (twoPane) {
+        setPickedId(task.id);
+        return;
+      }
       router.push(routes.taskDetail(task.id));
     },
-    [router]
+    [router, twoPane]
   );
 
-  const onTap = useCallback((task: Task) => {
-    setExpandedId(prev => (prev === task.id ? null : task.id));
-  }, []);
+  const onTap = useCallback(
+    (task: Task) => {
+      if (twoPane) {
+        setPickedId(task.id);
+        return;
+      }
+      setExpandedId(prev => (prev === task.id ? null : task.id));
+    },
+    [twoPane]
+  );
 
   const callbacks = useMemo<TaskRowCallbacks>(
     () => ({
@@ -165,7 +187,8 @@ export function useHomeContent(tasks: Task[]) {
     today,
     buckets,
     dueTodayCount,
-    expandedId,
+    expandedId: twoPane ? null : expandedId,
+    selectedId,
     callbacks,
     heading,
     completionSheet,

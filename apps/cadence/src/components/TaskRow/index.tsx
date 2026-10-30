@@ -14,7 +14,13 @@ import { useTaskRowVisuals } from './useTaskRowVisuals';
 
 export type { TaskRowCallbacks, TaskRowProps } from './types';
 
-function TaskRow({ task, today, isExpanded, callbacks }: TaskRowProps) {
+function TaskRow({
+  task,
+  today,
+  isExpanded,
+  isSelected = false,
+  callbacks,
+}: TaskRowProps) {
   const { theme } = useUnistyles();
   const { overdue, completed, dueLabel, dueColor, borderColor } =
     useTaskRowVisuals(task, today);
@@ -60,7 +66,7 @@ function TaskRow({ task, today, isExpanded, callbacks }: TaskRowProps) {
               onTap={() => callbacks.onTap(task)}
               onCheckTap={() => callbacks.onToggleComplete(task)}
             >
-              <View style={styles.row}>
+              <View style={[styles.row, isSelected && styles.rowSelected]}>
                 <TaskTile
                   task={task}
                   size={40}
@@ -159,6 +165,9 @@ const styles = StyleSheet.create(theme => ({
     gap: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
+  },
+  rowSelected: {
+    backgroundColor: theme.colors.fill3,
   },
   middle: {
     flex: 1,

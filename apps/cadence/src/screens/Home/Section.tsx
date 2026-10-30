@@ -9,6 +9,7 @@ interface SectionProps {
   items: Task[];
   today: number;
   expandedId: string | null;
+  selectedId?: string | null;
   callbacks: TaskRowCallbacks;
 }
 
@@ -18,6 +19,7 @@ export default function Section({
   items,
   today,
   expandedId,
+  selectedId = null,
   callbacks,
 }: SectionProps) {
   if (items.length === 0) return null;
@@ -35,6 +37,7 @@ export default function Section({
               task={task}
               today={today}
               isExpanded={expandedId === task.id}
+              isSelected={selectedId === task.id}
               callbacks={callbacks}
             />
             {i < items.length - 1 && <View style={styles.separator} />}

@@ -74,12 +74,17 @@ export default function TaskFormScreen() {
     <View style={styles.root}>
       <Stack.Title>{isEdit ? 'Edit Task' : 'New Task'}</Stack.Title>
       <Stack.Toolbar placement="left">
-        <Stack.Toolbar.Button onPress={() => router.back()}>
+        <Stack.Toolbar.Button icon="xmark" onPress={() => router.back()}>
           Cancel
         </Stack.Toolbar.Button>
       </Stack.Toolbar>
       <Stack.Toolbar placement="right">
-        <Stack.Toolbar.Button variant="done" onPress={save} disabled={!canSave}>
+        <Stack.Toolbar.Button
+          icon="checkmark"
+          variant="done"
+          onPress={save}
+          disabled={!canSave}
+        >
           Save
         </Stack.Toolbar.Button>
       </Stack.Toolbar>
