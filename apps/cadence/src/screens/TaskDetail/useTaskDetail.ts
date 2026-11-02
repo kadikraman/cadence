@@ -1,13 +1,18 @@
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { logs } from '../../lib/logs';
+import { noteTaskCompletedForReview } from '../../lib/reviewPrompt';
 import { useTasksStore } from '../../stores/tasks';
 import {
   computeCurrentCycle,
   computeHistory,
   computeTaskStats,
 } from '../../utils/statsUtils';
-import { getTodayTimestamp, MS_DAY } from '../../utils/taskUtils';
+import {
+  getNextDueDate,
+  getTodayTimestamp,
+  MS_DAY,
+} from '../../utils/taskUtils';
 import type { QuickOption } from '../../components/DatePickerSheet';
 
 function nextDueQuickOptions(): QuickOption[] {
@@ -47,8 +52,10 @@ export function useTaskDetail(taskId: string | undefined) {
   const confirmCompletion = async (ts: number) => {
     if (!task) return;
     setCompletionSheetOpen(false);
+    const onTime = ts <= getNextDueDate(task);
     logs.taskCompleted();
     await markCompleted(task.id, ts);
+    noteTaskCompletedForReview(onTime);
   };
 
   const openEditDatePicker = (ts: number) => {
@@ -69,8 +76,10 @@ export function useTaskDetail(taskId: string | undefined) {
 
   const markDoneNow = async () => {
     if (!task) return;
+    const onTime = getTodayTimestamp() <= getNextDueDate(task);
     logs.taskCompleted();
     await markCompleted(task.id);
+    noteTaskCompletedForReview(onTime);
   };
 
   const deleteCompletion = async (ts: number) => {

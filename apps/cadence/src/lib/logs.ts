@@ -98,6 +98,14 @@ export const logs = {
       attributes: { reason: errorReason(err) },
     }),
 
+  reviewRequested: () => Observe.logEvent('review.requested'),
+
+  reviewRequestFailed: (err: unknown) =>
+    Observe.logEvent('review.request_failed', {
+      severity: 'warn',
+      attributes: { reason: errorReason(err) },
+    }),
+
   settingsExportFailed: (err: unknown) =>
     Observe.logEvent('settings.export_failed', {
       severity: 'warn',

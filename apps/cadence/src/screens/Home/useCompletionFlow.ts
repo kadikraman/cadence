@@ -2,6 +2,7 @@ import { useCallback, useRef, useState } from 'react';
 import type { CompletionEdit } from '../../components/CompletionSheet';
 import type { CompletionToastData } from '../../components/CompletionToast';
 import { logs } from '../../lib/logs';
+import { noteTaskCompletedForReview } from '../../lib/reviewPrompt';
 import type { Task } from '../../lib/types';
 import { completeTaskAt } from '../../stores/taskReducers';
 import { useTasksStore } from '../../stores/tasks';
@@ -61,10 +62,12 @@ export function useCompletionFlow(onCompleted: () => void) {
   const complete = useCallback(
     async (task: Task, date: number, canChange: boolean) => {
       const previous = findTask(task.id) ?? task;
+      const onTime = date <= getNextDueDate(previous);
       logs.taskCompleted();
       await markCompleted(task.id, date);
       showToast(previous, date, canChange, true);
       onCompleted();
+      noteTaskCompletedForReview(onTime);
     },
     [markCompleted, showToast, onCompleted]
   );

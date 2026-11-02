@@ -9,16 +9,18 @@ import {
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { Platform } from 'react-native';
+import { AppState, Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { useUnistyles } from 'react-native-unistyles';
 import { SyncProvider } from '../contexts/SyncProvider';
+import { useReviewPromptStore } from '../stores/reviewPrompt';
 import { useSettingsStore } from '../stores/settings';
 import { useSyncStore } from '../stores/sync';
 import { useTasksStore } from '../stores/tasks';
 import { useTodosStore } from '../stores/todos';
 import { applyThemeMode } from '../unistyles';
+import { getTodayTimestamp } from '../utils/taskUtils';
 
 const IOS_HEADER = Platform.OS === 'ios';
 
@@ -52,6 +54,9 @@ function RootLayoutNav() {
   const loadSettings = useSettingsStore(s => s.load);
   const syncLoaded = useSyncStore(s => s.loaded);
   const loadSync = useSyncStore(s => s.load);
+  const reviewPromptLoaded = useReviewPromptStore(s => s.loaded);
+  const loadReviewPrompt = useReviewPromptStore(s => s.load);
+  const startReviewSession = useReviewPromptStore(s => s.startSession);
   const onboardingSeen = useSettingsStore(s => s.onboardingSeen);
   const themeMode = useSettingsStore(s => s.themeMode);
 
@@ -60,20 +65,54 @@ function RootLayoutNav() {
     loadTodos();
     loadSettings();
     loadSync();
-  }, [loadTasks, loadTodos, loadSettings, loadSync]);
+    loadReviewPrompt();
+  }, [loadTasks, loadTodos, loadSettings, loadSync, loadReviewPrompt]);
+
+  useEffect(() => {
+    if (!reviewPromptLoaded) return;
+    startReviewSession(Date.now(), getTodayTimestamp());
+    let wasInBackground = false;
+    const subscription = AppState.addEventListener('change', next => {
+      if (next === 'background') wasInBackground = true;
+      if (next === 'active' && wasInBackground) {
+        wasInBackground = false;
+        startReviewSession(Date.now(), getTodayTimestamp());
+      }
+    });
+    return () => subscription.remove();
+  }, [reviewPromptLoaded, startReviewSession]);
 
   useEffect(() => {
     if (settingsLoaded) applyThemeMode(themeMode);
   }, [settingsLoaded, themeMode]);
 
   useEffect(() => {
-    if (tasksLoaded && todosLoaded && settingsLoaded && syncLoaded) {
+    if (
+      tasksLoaded &&
+      todosLoaded &&
+      settingsLoaded &&
+      syncLoaded &&
+      reviewPromptLoaded
+    ) {
       SplashScreen.hideAsync().catch(() => {});
       markInteractive();
     }
-  }, [tasksLoaded, todosLoaded, settingsLoaded, syncLoaded, markInteractive]);
+  }, [
+    tasksLoaded,
+    todosLoaded,
+    settingsLoaded,
+    syncLoaded,
+    reviewPromptLoaded,
+    markInteractive,
+  ]);
 
-  if (!tasksLoaded || !todosLoaded || !settingsLoaded || !syncLoaded) {
+  if (
+    !tasksLoaded ||
+    !todosLoaded ||
+    !settingsLoaded ||
+    !syncLoaded ||
+    !reviewPromptLoaded
+  ) {
     return null;
   }
 

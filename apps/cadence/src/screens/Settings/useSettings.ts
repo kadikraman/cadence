@@ -1,10 +1,10 @@
 import * as Sentry from '@sentry/react-native';
 import * as Application from 'expo-application';
 import { useRouter } from 'expo-router';
-import * as StoreReview from 'expo-store-review';
-import { Alert, Linking } from 'react-native';
+import { Alert } from 'react-native';
 import { exportTasks, importTasks } from '../../lib/exportImport';
 import { logs } from '../../lib/logs';
+import { openStoreReviewPage } from '../../lib/reviewPrompt';
 import {
   generateSampleTasks,
   generateSampleTodos,
@@ -71,15 +71,7 @@ export function useSettings() {
 
   const handleRate = async () => {
     try {
-      const available = await StoreReview.isAvailableAsync();
-      if (available && (await StoreReview.hasAction())) {
-        await StoreReview.requestReview();
-        return;
-      }
-      const url = await StoreReview.storeUrl();
-      if (url) {
-        await Linking.openURL(url);
-      }
+      await openStoreReviewPage();
     } catch (err) {
       Sentry.captureException(err);
       logs.settingsRateFailed(err);
