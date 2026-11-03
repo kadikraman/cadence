@@ -1,18 +1,15 @@
-import Head from 'expo-router/head';
+import type { GenerateMetadataFunction } from 'expo-router/server';
 import { Footer } from '../components/Footer';
 import { Nav } from '../components/Nav';
+
+export const generateMetadata: GenerateMetadataFunction = () => ({
+  title: 'Support · Cadence',
+  description: 'Help, FAQ, and contact for Cadence, the quiet reminder app.',
+});
 
 export default function Support() {
   return (
     <>
-      <Head>
-        <title>Support · Cadence</title>
-        <meta
-          name="description"
-          content="Help, FAQ, and contact for Cadence, the quiet reminder app."
-        />
-      </Head>
-
       <Nav />
 
       <section className="content-hero">

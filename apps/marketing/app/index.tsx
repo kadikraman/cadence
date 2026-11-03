@@ -1,4 +1,4 @@
-import Head from 'expo-router/head';
+import type { GenerateMetadataFunction } from 'expo-router/server';
 import { useEffect, useState } from 'react';
 import { Footer } from '../components/Footer';
 import { Nav } from '../components/Nav';
@@ -194,6 +194,12 @@ function DownloadActions() {
   );
 }
 
+export const generateMetadata: GenerateMetadataFunction = () => ({
+  title: 'Cadence · For the things that come back around',
+  description:
+    "Water the plants. Change the filter. Call your mum. Cadence knows how often each one comes back, and shows what's due right on your Home Screen. No notifications, ever.",
+});
+
 export default function Home() {
   const [theme, setTheme] = useState<Theme | null>(null);
   const [systemDark, setSystemDark] = useState(false);
@@ -216,91 +222,76 @@ export default function Home() {
   const themeLabel = dark ? 'Switch to light mode' : 'Switch to dark mode';
 
   return (
-    <>
-      <Head>
-        <title>Cadence · For the things that come back around</title>
-        <meta
-          name="description"
-          content="Water the plants. Change the filter. Call your mum. Cadence knows how often each one comes back, and shows what's due right on your Home Screen. No notifications, ever."
-        />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..500,0..1,0&display=block"
-        />
-      </Head>
+    <div className="lp">
+      <Nav>
+        <button
+          type="button"
+          className="lp-theme"
+          onClick={() => setTheme(dark ? 'light' : 'dark')}
+          aria-label={themeLabel}
+          title={themeLabel}
+        >
+          <Glyph name={dark ? 'light_mode' : 'dark_mode'} size={20} />
+        </button>
+      </Nav>
 
-      <div className="lp">
-        <Nav>
-          <button
-            type="button"
-            className="lp-theme"
-            onClick={() => setTheme(dark ? 'light' : 'dark')}
-            aria-label={themeLabel}
-            title={themeLabel}
-          >
-            <Glyph name={dark ? 'light_mode' : 'dark_mode'} size={20} />
-          </button>
-        </Nav>
+      <section id="top" className="lp-wrap lp-hero">
+        <h1>For the things that come back around.</h1>
+        <p>
+          Water the plants. Change the filter. Call your mum. Cadence knows how
+          often each one comes back, and shows what&apos;s due right on your
+          Home Screen. No notifications, ever.
+        </p>
+        <DownloadActions />
+      </section>
 
-        <section id="top" className="lp-wrap lp-hero">
-          <h1>For the things that come back around.</h1>
+      <Widgets />
+
+      <section className="lp-wrap lp-details">
+        <Detail title="No pings. Not one.">
           <p>
-            Water the plants. Change the filter. Call your mum. Cadence knows
-            how often each one comes back, and shows what&apos;s due right on
-            your Home Screen. No notifications, ever.
+            Cadence never sends a push notification. No reminders, no nudges, no
+            red badges. The list sits on your Home Screen and waits until you
+            look.
           </p>
-          <DownloadActions />
-        </section>
+        </Detail>
+        <Detail title="Set the rhythm once.">
+          <p>
+            Daily, weekly, monthly. Or every so many days, weeks or months. Each
+            task is floating or fixed. Floating counts from when you actually
+            did it. Fixed stays on the calendar, so every Sunday stays Sunday.
+          </p>
+        </Detail>
+        <Detail title="See what slips.">
+          <p>
+            Stats shows how often you&apos;re on time, with a lane per task on a
+            shared timeline. Each task also has a dial for the current cycle,
+            its past cycles, and its streak.
+          </p>
+        </Detail>
+        <Detail id="privacy" title="There is no Cadence server.">
+          <p>
+            No account to make. Your tasks live on your phone. Sync through your
+            own iCloud or Google Drive if you want to, or export a JSON backup
+            whenever you like.
+          </p>
+        </Detail>
+        <Detail title="Small things.">
+          <ul>
+            {SMALL_THINGS.map(thing => (
+              <li key={thing}>{thing}</li>
+            ))}
+          </ul>
+        </Detail>
+      </section>
 
-        <Widgets />
+      <section id="download" className="lp-wrap lp-download">
+        <h2>Let your phone be quiet again.</h2>
+        <p>Free on the App Store and Google Play.</p>
+        <DownloadActions />
+      </section>
 
-        <section className="lp-wrap lp-details">
-          <Detail title="No pings. Not one.">
-            <p>
-              Cadence never sends a push notification. No reminders, no nudges,
-              no red badges. The list sits on your Home Screen and waits until
-              you look.
-            </p>
-          </Detail>
-          <Detail title="Set the rhythm once.">
-            <p>
-              Daily, weekly, monthly. Or every so many days, weeks or months.
-              Each task is floating or fixed. Floating counts from when you
-              actually did it. Fixed stays on the calendar, so every Sunday
-              stays Sunday.
-            </p>
-          </Detail>
-          <Detail title="See what slips.">
-            <p>
-              Stats shows how often you&apos;re on time, with a lane per task on
-              a shared timeline. Each task also has a dial for the current
-              cycle, its past cycles, and its streak.
-            </p>
-          </Detail>
-          <Detail id="privacy" title="There is no Cadence server.">
-            <p>
-              No account to make. Your tasks live on your phone. Sync through
-              your own iCloud or Google Drive if you want to, or export a JSON
-              backup whenever you like.
-            </p>
-          </Detail>
-          <Detail title="Small things.">
-            <ul>
-              {SMALL_THINGS.map(thing => (
-                <li key={thing}>{thing}</li>
-              ))}
-            </ul>
-          </Detail>
-        </section>
-
-        <section id="download" className="lp-wrap lp-download">
-          <h2>Let your phone be quiet again.</h2>
-          <p>Free on the App Store and Google Play.</p>
-          <DownloadActions />
-        </section>
-
-        <Footer />
-      </div>
-    </>
+      <Footer />
+    </div>
   );
 }

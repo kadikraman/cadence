@@ -1,18 +1,16 @@
-import Head from 'expo-router/head';
+import type { GenerateMetadataFunction } from 'expo-router/server';
 import { Footer } from '../components/Footer';
 import { Nav } from '../components/Nav';
+
+export const generateMetadata: GenerateMetadataFunction = () => ({
+  title: 'Privacy · Cadence',
+  description:
+    "Cadence privacy policy. What we collect, what we don't, and where your data lives.",
+});
 
 export default function Privacy() {
   return (
     <>
-      <Head>
-        <title>Privacy · Cadence</title>
-        <meta
-          name="description"
-          content="Cadence privacy policy. What we collect, what we don't, and where your data lives."
-        />
-      </Head>
-
       <Nav />
 
       <section className="content-hero">
