@@ -205,6 +205,11 @@ Screen-specific rules:
 
 Reference implementations: `screens/Settings/`, `screens/TaskForm/`, `screens/Home/`.
 
+### Marketing site
+
+- Pages set their title and description with an exported `generateMetadata`, not `expo-router/head`. Since expo-router 58.0.28, static export drops `<Head>` tags, and `app/+html.tsx` must keep rendering the `useServerDocumentContext()` nodes or the pages ship without scripts or styles.
+- Check a marketing build from a fresh worktree after `bun install --frozen-lockfile`, as EAS does. Bun leaves stale packages in an existing `node_modules` and reports no changes, so a local build can run older Expo code than the deploy.
+
 ## Code Quality Rules
 
 - Remove unused styles immediately, do not leave dead style definitions
