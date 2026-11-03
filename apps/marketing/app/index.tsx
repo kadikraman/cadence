@@ -1,10 +1,11 @@
 import Head from 'expo-router/head';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Footer } from '../components/Footer';
 import { Nav } from '../components/Nav';
 
 const APP_STORE_URL = 'https://apps.apple.com/app/id6754192837';
-const ANDROID_TESTING_EMAIL = 'cadence@kadi.dev';
+const PLAY_STORE_URL =
+  'https://play.google.com/store/apps/details?id=dev.kadi.cadence';
 
 type Theme = 'light' | 'dark';
 
@@ -180,73 +181,15 @@ function Detail({
   );
 }
 
-function DownloadActions({ onAndroid }: { onAndroid: () => void }) {
+function DownloadActions() {
   return (
     <div className="lp-actions">
       <a href={APP_STORE_URL} className="lp-pill">
         Download on the App Store
       </a>
-      <button type="button" className="lp-android" onClick={onAndroid}>
-        Android: join the test
-      </button>
-    </div>
-  );
-}
-
-function AndroidTestingModal({ onClose }: { onClose: () => void }) {
-  const [copied, setCopied] = useState(false);
-
-  useEffect(() => {
-    if (!copied) return;
-    const timer = setTimeout(() => setCopied(false), 1800);
-    return () => clearTimeout(timer);
-  }, [copied]);
-
-  const handleCopy = useCallback(() => {
-    navigator.clipboard?.writeText(ANDROID_TESTING_EMAIL).catch(() => {});
-    setCopied(true);
-  }, []);
-
-  return (
-    <div className="lp-backdrop" onClick={onClose}>
-      <div
-        className="lp-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="android-title"
-        onClick={e => e.stopPropagation()}
-      >
-        <button
-          type="button"
-          className="lp-modal-close"
-          onClick={onClose}
-          aria-label="Close"
-        >
-          <Glyph name="close" size={22} />
-        </button>
-        <h3 id="android-title">Android is in closed testing</h3>
-        <p>
-          To join, email us from the Google account you use on Google Play and
-          we&apos;ll add you.
-        </p>
-        <div className="lp-email">
-          <span>{ANDROID_TESTING_EMAIL}</span>
-          <button type="button" onClick={handleCopy}>
-            {copied ? 'Copied' : 'Copy'}
-          </button>
-        </div>
-        <div className="lp-actions lp-modal-actions">
-          <a
-            href={`mailto:${ANDROID_TESTING_EMAIL}?subject=Cadence%20for%20Android%20testing`}
-            className="lp-pill"
-          >
-            Write the email
-          </a>
-          <button type="button" className="lp-not-now" onClick={onClose}>
-            Not now
-          </button>
-        </div>
-      </div>
+      <a href={PLAY_STORE_URL} className="lp-pill">
+        Get it on Google Play
+      </a>
     </div>
   );
 }
@@ -254,9 +197,6 @@ function AndroidTestingModal({ onClose }: { onClose: () => void }) {
 export default function Home() {
   const [theme, setTheme] = useState<Theme | null>(null);
   const [systemDark, setSystemDark] = useState(false);
-  const [androidOpen, setAndroidOpen] = useState(false);
-  const openAndroid = useCallback(() => setAndroidOpen(true), []);
-  const closeAndroid = useCallback(() => setAndroidOpen(false), []);
 
   useEffect(() => {
     const query = window.matchMedia('(prefers-color-scheme: dark)');
@@ -271,15 +211,6 @@ export default function Home() {
     if (theme) root.dataset.theme = theme;
     else delete root.dataset.theme;
   }, [theme]);
-
-  useEffect(() => {
-    if (!androidOpen) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') closeAndroid();
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [androidOpen, closeAndroid]);
 
   const dark = theme ? theme === 'dark' : systemDark;
   const themeLabel = dark ? 'Switch to light mode' : 'Switch to dark mode';
@@ -318,7 +249,7 @@ export default function Home() {
             how often each one comes back, and shows what&apos;s due right on
             your Home Screen. No notifications, ever.
           </p>
-          <DownloadActions onAndroid={openAndroid} />
+          <DownloadActions />
         </section>
 
         <Widgets />
@@ -364,16 +295,11 @@ export default function Home() {
 
         <section id="download" className="lp-wrap lp-download">
           <h2>Let your phone be quiet again.</h2>
-          <p>
-            Free on the App Store. On Android it&apos;s in closed testing, and
-            you&apos;re welcome to join.
-          </p>
-          <DownloadActions onAndroid={openAndroid} />
+          <p>Free on the App Store and Google Play.</p>
+          <DownloadActions />
         </section>
 
         <Footer />
-
-        {androidOpen && <AndroidTestingModal onClose={closeAndroid} />}
       </div>
     </>
   );

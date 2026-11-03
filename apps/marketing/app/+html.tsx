@@ -387,20 +387,6 @@ html:has(.lp), html:has(.lp) body { background: var(--lp-bg); }
   font-weight: 600;
 }
 .lp .lp-pill:hover { color: var(--lp-on-accent); opacity: 0.9; }
-.lp-android {
-  height: 52px;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--lp-ink);
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: 500;
-  text-decoration: underline;
-  text-decoration-color: var(--lp-accent);
-  text-underline-offset: 5px;
-  text-decoration-thickness: 1.5px;
-}
 
 .lp-widgets {
   border-radius: clamp(24px, 3vw, 36px);
@@ -534,76 +520,4 @@ html:has(.lp), html:has(.lp) body { background: var(--lp-bg); }
 .lp-chrome.lp-footer a { color: var(--lp-ink2); }
 .lp-chrome.lp-footer a:hover { color: var(--lp-accent); }
 
-.lp-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  background: oklch(0.2 0.03 260 / 0.4);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-.lp-modal {
-  position: relative;
-  width: 100%;
-  max-width: 420px;
-  background: var(--lp-card);
-  color: var(--lp-ink);
-  border-radius: 24px;
-  padding: clamp(24px, 5vw, 32px);
-  box-shadow: 0 30px 80px -20px rgba(10, 20, 45, 0.45), inset 0 0 0 1px var(--lp-line);
-}
-.lp-modal h3 { font-size: 26px; line-height: 1.15; letter-spacing: normal; padding-right: 40px; }
-.lp-modal p { margin: 12px 0 0; font-size: 16px; line-height: 1.55; }
-.lp-modal-close {
-  position: absolute;
-  top: 14px; right: 14px;
-  width: 40px; height: 40px;
-  border-radius: 50%;
-  border: 0;
-  padding: 0;
-  background: transparent;
-  color: var(--lp-ink2);
-  cursor: pointer;
-  display: grid;
-  place-items: center;
-}
-.lp-modal-close:hover { background: var(--lp-bg2); }
-.lp-email {
-  margin-top: 20px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 6px 6px 6px 16px;
-  border-radius: 14px;
-  background: var(--lp-bg2);
-}
-.lp-email span { flex: 1; min-width: 0; font-size: 16px; font-weight: 500; overflow-wrap: anywhere; }
-.lp-email button {
-  flex: none;
-  height: 40px;
-  padding: 0 14px;
-  border-radius: 10px;
-  border: 0;
-  background: var(--lp-card);
-  color: var(--lp-ink);
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-}
-.lp-modal-actions { gap: 12px 24px; margin-top: 24px; }
-.lp-modal-actions .lp-pill { height: 48px; padding: 0 22px; font-size: 15px; }
-.lp-not-now {
-  height: 48px;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--lp-ink2);
-  cursor: pointer;
-  font-size: 15px;
-}
-.lp-not-now:hover { color: var(--lp-ink); }
 `;

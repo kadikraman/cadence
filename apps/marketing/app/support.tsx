@@ -108,19 +108,15 @@ export default function Support() {
           <details>
             <summary>How do I get Cadence on Android?</summary>
             <div className="faq-body">
-              We&apos;d love your help testing it! The Android build is still
-              being polished, so it&apos;s in{' '}
+              Cadence is free on{' '}
               <a
-                href="https://support.google.com/googleplay/android-developer/answer/9845334"
+                href="https://play.google.com/store/apps/details?id=dev.kadi.cadence"
                 target="_blank"
                 rel="noreferrer"
               >
-                Google Play closed (private) testing
-              </a>{' '}
-              rather than on the Play Store just yet. If you&apos;d like to give
-              it a go, send a quick note to <strong>cadence@kadi.dev</strong>{' '}
-              with the Google account you use on the Play Store and we&apos;ll
-              add you to the testers list.
+                Google Play
+              </a>
+              .
             </div>
           </details>
 
