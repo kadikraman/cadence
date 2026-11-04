@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { replaceAll as normalizeTasks } from '../../stores/taskReducers';
 import { useTasksStore } from '../../stores/tasks';
 import { useTodosStore } from '../../stores/todos';
+import { TraceSpan, trace } from '../traces';
 import { isCloudAvailable, readRemoteDoc, writeRemoteDoc } from './cloud';
 import { SyncData, isEmpty, isEqual, planSync, toSyncDoc } from './syncDoc';
 
@@ -36,13 +37,22 @@ export async function hasLocalChanges(): Promise<boolean> {
 const delay = (ms: number) =>
   new Promise<void>(resolve => setTimeout(resolve, ms));
 
-export async function runSync(): Promise<SyncOutcome> {
+export function runSync(): Promise<SyncOutcome> {
+  return trace('sync', async span => {
+    const outcome = await syncSteps(span);
+    span.setAttributes({ outcome });
+    return outcome;
+  });
+}
+
+async function syncSteps(span: TraceSpan): Promise<SyncOutcome> {
   if (!(await isCloudAvailable())) return 'unavailable';
   const base = await loadBase();
-  let remote = await readRemoteDoc();
+  let remote = await span.child('sync.read_remote', readRemoteDoc);
   if (remote.type === 'missing' && base === null && !isEmpty(readLocal())) {
+    span.addEvent('sync.first_sync_recheck');
     await delay(FIRST_SYNC_RECHECK_MS);
-    remote = await readRemoteDoc();
+    remote = await span.child('sync.read_remote', readRemoteDoc);
   }
   if (remote.type === 'unsupported') return 'unsupported';
   if (remote.type === 'invalid') throw new InvalidSyncDocError();
@@ -52,14 +62,22 @@ export async function runSync(): Promise<SyncOutcome> {
       ? { tasks: normalizeTasks(remote.doc.tasks), todos: remote.doc.todos }
       : null;
   const plan = planSync(base, readLocal(), remoteData);
+  span.setAttributes({
+    writeLocal: plan.writeLocal,
+    writeRemote: plan.writeRemote,
+  });
   if (plan.writeLocal) {
-    await Promise.all([
-      useTasksStore.getState().replaceAll(plan.merged.tasks),
-      useTodosStore.getState().replaceAll(plan.merged.todos),
-    ]);
+    await span.child('sync.write_local', () =>
+      Promise.all([
+        useTasksStore.getState().replaceAll(plan.merged.tasks),
+        useTodosStore.getState().replaceAll(plan.merged.todos),
+      ])
+    );
   }
   if (plan.writeRemote) {
-    await writeRemoteDoc(toSyncDoc(plan.merged, Date.now()));
+    await span.child('sync.write_remote', () =>
+      writeRemoteDoc(toSyncDoc(plan.merged, Date.now()))
+    );
   }
   if (plan.saveBase) {
     await AsyncStorage.setItem(BASE_KEY, JSON.stringify(plan.merged));

@@ -26,16 +26,16 @@ Install packages with `npx expo install <package>` from inside the relevant work
 ## Branches and pull requests
 
 - Build each feature or fix on its own branch and open a pull request to `main`. Do not commit features straight to `main`.
-- Pull requests to `main` start EAS workflows that cost builds, Expo Simulators sessions, and model tokens. Open a pull request as a draft while the work is in progress, and mark it ready for review when you want the checks to run.
+- Agentic CI costs builds, Expo Simulators sessions, and model tokens, so it runs only when someone adds the `agentic-ci-ios` or `agentic-ci-android` label to a pull request. Add both labels to test both platforms. To test again after more commits, remove the label and add it again.
 
 ### Agentic workflows (`apps/cadence/.eas/`)
 
 | Workflow | Starts when | What it does |
 | --- | --- | --- |
-| Agentic CI (`agentic-ci-android.yml`, `agentic-ci-ios.yml`) | A pull request to `main` is opened, reopened, updated, or marked ready for review. Drafts are skipped. | A coding agent tests the change that the pull request title and description describe, on a cloud Android Emulator and iOS Simulator, and comments with a verdict. |
+| Agentic CI (`agentic-ci-android.yml`, `agentic-ci-ios.yml`) | Someone adds the `agentic-ci-ios` label (iOS) or the `agentic-ci-android` label (Android) to a pull request. | A coding agent tests the change that the pull request title and description describe, on a cloud Android Emulator and iOS Simulator, and comments with a verdict. |
 | QA Swarm (`qa-swarm.yml`) | Someone runs `eas workflow:run .eas/workflows/qa-swarm.yml` from `apps/cadence`. | One agent per flow in `.eas/qa-flows/` and per platform, each on its own simulator. |
 | Bug triage (`bug-triage-android.yml`, `bug-triage-ios.yml`) | Someone runs `eas workflow:run .eas/workflows/bug-triage-<platform>.yml --ref main -F issue_number=<number>` from `apps/cadence`. The iOS workflow also starts on TestFlight screenshot and crash feedback, and files it as an issue first. | A coding agent follows the bug report on a build of `main` and comments on the issue with REPLICATED, NOT-REPLICATED, or INCONCLUSIVE. For REPLICATED, read the report, then add the `agent` label to start Issue to PR. |
-| Issue to PR (`issue-to-pr.yml`, started by `.github/workflows/agent-label.yml`) | Someone adds the `agent` label to an issue. | A coding agent changes the code for the issue, pushes `agent/issue-<number>`, and opens a pull request, which Agentic CI then tests. The agent follows the issue text, so read the issue before you add the label. |
+| Issue to PR (`issue-to-pr.yml`, started by `.github/workflows/agent-label.yml`) | Someone adds the `agent` label to an issue. | A coding agent changes the code for the issue, pushes `agent/issue-<number>`, and opens a pull request. Add the `agentic-ci-ios` and `agentic-ci-android` labels to that pull request to test it. The agent follows the issue text, so read the issue before you add the label. |
 
 - Merging to `main` does not start these workflows.
 - Describe each pull request so the agent can test it: what changed, and what a user sees.
@@ -103,6 +103,7 @@ There is no `src/hooks/` directory; custom hooks (when needed) are colocated wit
 - **Privacy contract is enforced by the marketing-site policy** (`apps/marketing/app/privacy.tsx`). The policy promises that task names, contents, schedules, completion history, and settings stay on device. Per-event `attributes` therefore MUST NOT include: cadence type or value, color, glyph, days-since-last-completion, on-time/early flags, completion counts, task counts, theme mode, or any other settings value. Bare event firings (no attributes) are fine as aggregate counters.
 - **Never log free-text user content.** No task titles, task details, feedback messages, or emails in `name`, `body`, or `attributes`.
 - For caught errors, pass the `unknown` to the helper and let it derive a class-name `reason`. Don't pass `err.message` (it can wrap server output that includes user data).
+- Trace spans go through `trace` in `lib/traces.ts`, which types the span names, event names, and attributes, and child spans come from `span.child`. The same privacy rules apply to span attributes. A failed span records the error's class name. Don't call `Observe.withSpan` or `Observe.startSpan` directly: `withSpan` records the error message.
 - If you're tempted to add an attribute that the policy disallows, update the policy _first_ (and call out the change in release notes per `privacy.tsx`'s "Changes to this policy" section), then add the attribute. Don't ship the data ahead of the policy.
 
 ### Widget payloads

@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@expo/metro-runtime": "~58.0.9",
-    "expo": "~58.0.0",
+    "expo": "~58.0.23",
     "expo-constants": "~58.0.9",
     "expo-linking": "~58.0.9",
     "expo-router": "~58.0.10",
@@ -17,8 +17,8 @@
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-native": "0.88.0-rc.3",
-    "react-native-safe-area-context": "~5.9.1",
-    "react-native-screens": "~4.28.0",
+    "react-native-safe-area-context": "~5.11.1",
+    "react-native-screens": "~4.30.1",
     "react-native-web": "~0.21.0"
   },
   "devDependencies": {

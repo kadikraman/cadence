@@ -49,7 +49,7 @@ TITLE=${TITLE:-"Change for issue #$ISSUE_NUMBER"}
 {
   tail -n +2 agent-output/summary.md 2> /dev/null \
     | awk '{ if (sub(/^Not verified: /, "")) print "> [!WARNING]\n> **Not verified:** " $0; else print }' || true
-  printf '\n\nCloses #%s\n\n<sub>Opened by Issue to PR from #%s. Agentic CI tests it on iOS and Android.</sub>\n' "$ISSUE_NUMBER" "$ISSUE_NUMBER"
+  printf '\n\nCloses #%s\n\n<sub>Opened by Issue to PR from #%s. Add the `agentic-ci-ios` and `agentic-ci-android` labels to test it.</sub>\n' "$ISSUE_NUMBER" "$ISSUE_NUMBER"
 } > /tmp/pull-request.md
 
 AUTHOR_EMAIL=$(node "$GITHUB_HELPER" author-email)
@@ -60,5 +60,5 @@ git -c user.name="EAS agent" -c user.email="$AUTHOR_EMAIL" commit -m "$TITLE"
 git push --force "$PUSH_URL" "HEAD:refs/heads/$BRANCH"
 PR_URL=$(node "$GITHUB_HELPER" open-pull-request "$BRANCH" "$TITLE" /tmp/pull-request.md)
 
-printf '### 🛠️ Issue to PR\n\n> [!TIP]\n> **Opened #%s.** %s\n\nAgentic CI tests it on iOS and Android and posts the results on the pull request.\n' "${PR_URL##*/}" "$TITLE" > /tmp/comment.md
+printf '### 🛠️ Issue to PR\n\n> [!TIP]\n> **Opened #%s.** %s\n\nAdd the `agentic-ci-ios` and `agentic-ci-android` labels to the pull request to test it.\n' "${PR_URL##*/}" "$TITLE" > /tmp/comment.md
 node "$GITHUB_HELPER" comment "$ISSUE_NUMBER" /tmp/comment.md

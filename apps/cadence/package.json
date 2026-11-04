@@ -11,7 +11,7 @@
     "test": "bun test"
   },
   "dependencies": {
-    "@expo/ui": "~58.0.25",
+    "@expo/ui": "~58.0.27",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-community/datetimepicker": "9.2.1",
     "@react-native-community/netinfo": "12.0.1",
@@ -19,11 +19,11 @@
     "@react-native-vector-icons/material-design-icons": "^13.1.5",
     "@sentry/react-native": "~8.33.0",
     "eslint-plugin-react-native": "^5.0.0",
-    "expo": "~58.0.21",
+    "expo": "~58.0.23",
     "expo-application": "~58.1.2",
-    "expo-build-properties": "~58.0.11",
-    "expo-constants": "~58.0.14",
-    "expo-dev-client": "~58.0.17",
+    "expo-build-properties": "~58.0.12",
+    "expo-constants": "~58.0.15",
+    "expo-dev-client": "~58.0.18",
     "expo-document-picker": "~58.0.4",
     "expo-eas-client": "~58.0.2",
     "expo-file-system": "~58.0.13",
@@ -32,18 +32,18 @@
     "expo-haptics": "~58.0.7",
     "expo-image": "~58.0.18",
     "expo-linear-gradient": "~58.0.3",
-    "expo-linking": "~58.0.15",
+    "expo-linking": "~58.0.16",
     "expo-localization": "~58.0.5",
-    "expo-observe": "~58.0.16",
-    "expo-router": "~58.0.28",
-    "expo-sharing": "~58.0.21",
-    "expo-splash-screen": "~58.0.12",
+    "expo-observe": "~58.0.18",
+    "expo-router": "~58.0.30",
+    "expo-sharing": "~58.0.22",
+    "expo-splash-screen": "~58.0.13",
     "expo-status-bar": "~58.0.4",
     "expo-store-review": "~58.0.2",
     "expo-symbols": "~58.0.4",
     "expo-system-ui": "~58.0.7",
     "expo-web-browser": "~58.0.7",
-    "expo-widgets": "~58.0.25",
+    "expo-widgets": "~58.0.27",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-native": "0.88.1",
@@ -56,7 +56,7 @@
     "react-native-keyboard-controller": "1.22.7",
     "react-native-nitro-modules": "0.37.1",
     "react-native-reanimated": "4.7.1",
-    "react-native-safe-area-context": "~5.10.1",
+    "react-native-safe-area-context": "~5.11.1",
     "react-native-screens": "~4.30.0",
     "react-native-svg": "15.16.0",
     "react-native-unistyles": "^3.7.0",
@@ -79,14 +79,6 @@
       ]
     },
     "autolinking": {
-      "android": {
-        "buildFromSource": [
-          "expo-observe",
-          "expo-app-metrics",
-          "expo-eas-client",
-          "expo-updates-interface"
-        ]
-      },
       "ios": {
         "exclude": [
           "@react-native-google-signin/google-signin"
