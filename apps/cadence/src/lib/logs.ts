@@ -16,7 +16,7 @@ import { Observe } from 'expo-observe';
 type FeedbackKind = 'feedback' | 'feature' | 'bug';
 type WidgetDismissReason = 'dismiss' | 'learn_more';
 
-function errorReason(err: unknown): string {
+export function errorReason(err: unknown): string {
   if (err instanceof Error) return err.constructor.name;
   return 'Unknown';
 }
